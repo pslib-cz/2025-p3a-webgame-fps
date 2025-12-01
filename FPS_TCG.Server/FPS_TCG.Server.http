@@ -1,0 +1,6 @@
+@FPS_TCG.Server_HostAddress = http://localhost:5289
+
+GET {{FPS_TCG.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
