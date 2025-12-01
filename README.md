@@ -3,8 +3,11 @@ Animalgedon TCG
 
 
 
-Rozdělení práce: 
-→ Backend: Sebastian Rybář 
+
+
+
+
+Backend: Sebastian Rybář 
 
 
 
@@ -14,9 +17,7 @@ Rozdělení práce:
 
 
 
-
-→ Frontend: Petr Larionov
-
+Frontend: Petr Larionov
 
 
 
@@ -24,4 +25,4 @@ Rozdělení práce:
 
 
 
-→ Logika hry: František Svatoš
+Logika hry: František Svatoš
