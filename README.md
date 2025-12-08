@@ -1,7 +1,6 @@
 Animalgedon TCG
 
-
-
+[Figma](https://www.figma.com/design/tzxqlnhGuUItSTkRvlS7cE/FPS?node-id=0-1&t=FpX8pVaqLBdZsbxZ-1)
 
 - Backend: Sebastian Rybář 
 
@@ -9,45 +8,54 @@ Animalgedon TCG
 
 - Logika hry: František Svatoš
 
-
-
-Před hrou
-- Hráč si sestaví vlastní balíček postav a balíček support karet (podpora, události, vybavení atd.)
-- Každá karta má své náklady a efekty
-- Support karty:
-  - Poskytují pasivní nebo aktivní bonusy během hry
-  - Může jít např. o bonusové kostky, snížení nákladů útoků, léčení, generování energie atd.
+Nastavení hry
+  -Před začátkem zápasu si hráč připraví balíček karet. 
+  -Každý balíček se skládá z určitého počtu karet postav a podpůrných karet.
+  -Balíčky se vytvářejí v sekci „Edit Decks“ (Upravit balíčky) na hlavní stránce, kde si můžete vybrat karty, které budou ve vašem balíčku.
+Každá karta má:
+  -Cenu
+  -Účinky
+Podpůrné karty mohou poskytovat:
+  -Aktivní nebo pasivní účinky
+  -Léčení
+  -Ochranné účinky (štíty, bariéry atd.)
 
 Začátek kola
-- Výběr aktivní postavy:
-  - Hráč vybere, která jeho postava bude v tomto kole aktivní
-- Hod kostkami:
-  - Hráč hodí několika elementárními kostkami.
-  - Každá kostka ukáže jeden z elementů nebo:
-    - Univerzální kostku – funguje jako jakýkoli element (žolík)
-- Přehazování kostek:
-  - Hráč si může vybrat libovolné kostky a jednou je přehodit (reroll)
+Hráč provede následující kroky:
+  -Hráč si vybere, které z jeho postav budou v tomto kole aktivní.
+  -Hráč hodí 8 kostkami. Kostky mohou zobrazit:
+    -konkrétní symbol
+    -symbol šaška, který se počítá jako jakýkoli prvek (žolík)
+    -Jednou před kolem může hráč hodit libovolný počet kostek znovu.
+  -Hráč dostane 2 podpůrné karty ze svého balíčku.
 
-Průběh kola
-- Během svého kola může hráč provádět různé akce výměnou za kostky
-- Určité akce nevyždují daný typ elementální kostky, můžeme použít libovolnou (support karty, některé útoky):
-- Možné akce:
-- Útok aktivní postavou:
-  - Stojí určitý počet kostek odpovídající elementu postavy (nebo univerzální)
-  - Při použití speciálního útoku získá postava +1 energii
-- Použití ultimátního útoku:
-  - Jakmile postava nasbírá potřebné množství energie, může provést ultimátní útok
-- Změna aktivní postavy:
-  - Po změně aktivní postavy se ukončí aktuální tah
-- Zahrání support karty:
-  - Efekty mohou být: poskytnutí dalších kostek, zlevnění útoků, získání energie, ochrana, léčení, buffy, debuffy atd.
-- Ukončující tah
-  - Jakákoli klíčová akce (útok, změna postavy, zahrání akční karty) ukončuje hráčův tah
-  - Soupeř poté provede svůj tah
+Fáze akce
+  -Během svého tahu hráč provádí akce za kostky.
+  -Některé akce nevyžadují konkrétní typ kostky a lze je zaplatit libovolnou kostkou.
+  -Možné akce
+    -Útok s aktivní postavou
+    -Stojí konkrétní počet kostek odpovídající prvku postavy.
+    -Univerzální kostky lze použít jako libovolný prvek.
+    -Speciální útok
+      -využívá určité kostky.
+      -Výměna aktivní postavy
+  -Hráč může vyměnit svou aktivní postavu.
+    -Tato akce okamžitě ukončí tah hráče.
+  -Hraní podpůrné karty
+Možné efekty zahrnují:
+  -Štíty a léčení
+  -Buffy a debuffy
+  -Snížené náklady na útok
+
+Konec tahu
+  -Jakákoli hlavní akce (útok, výměna postav nebo zahrání karty postavy) okamžitě ukončí tah hráče.
 
 Konec kola
-- Kolo může hráč ukončit, pokud:
-  - Dojdou mu kostky
-  - Nechce dále hrát.
-- Druhý hráč může stále pokračovat, dokud i on neukončí své kolo
-- Po ukončení kol obou hráčů začíná nové kolo → hod kostkami
+  -Hráč může ukončit kolo, pokud:
+    -nemá žádné použitelné kostky, nebo
+    -se rozhodne kolo dobrovolně ukončit.
+  -Jakmile oba hráči ukončí kolo, začíná nové kolo novým hodem kostkou.
+  
+Konec hry
+  -Vaším hlavním cílem je porazit všechny karty postav soupeře.
+  -Vyhráváte, když HP všech karet postav soupeře klesne na nulu.
