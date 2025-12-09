@@ -1,0 +1,31 @@
+.HomePage{
+    background-image: url('../assets/forest_2100x1080.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-self: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    gap: 20px;
+}
+.HomePage h1, .HomePage h2{
+    font-family: "Press Start 2P", system-ui;
+    color: var(--white);
+    padding: 10px;
+}
+.HomePage h1{
+    font-size: 60px;
+}
+.HomePage h2{
+    font-weight: 100;
+    font-size: 2.5rem;
+    border: 5px solid var(--white);
+    text-decoration: none;
+}
+.HomePage a{
+    text-decoration: none;
+}

@@ -1,0 +1,7 @@
+.Tutorial{
+    background-image: url(../assets/pixil-frame-1.png);
+    text-align: center;
+}
+.Tutorial p {
+    color: var(--white);
+}

@@ -1,9 +1,9 @@
 import { type FC } from "react";
 import { Link } from "react-router";
-//import styles from "../styles/HomePage.modules.css"
+import styles from "../styles/HomePage.module.css"
 export const HomePage: FC = () => {
     return(
-        <div /*style={styles}*/>
+        <div className={styles.HomePage}>
             <h1>Animalgedon TCG</h1>
             <Link to="/game/"><h2>Start New Game</h2></Link>
             <Link to="/decksEdit/"><h2>Edit Decks</h2></Link>
