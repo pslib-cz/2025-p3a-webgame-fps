@@ -12,6 +12,7 @@
 }
 
 body {
+  font-family: "Press Start 2P", system-ui;
   margin: 0;
   display: flex;
   place-items: center;

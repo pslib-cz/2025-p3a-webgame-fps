@@ -13,7 +13,6 @@
     gap: 20px;
 }
 .HomePage h1, .HomePage h2{
-    font-family: "Press Start 2P", system-ui;
     color: var(--white);
     padding: 10px;
 }

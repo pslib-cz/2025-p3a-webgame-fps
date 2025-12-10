@@ -1,7 +1,10 @@
 import { type FC } from "react"
+import styles from '../styles/PlayPage.module.css'
 export const PlayPage: FC = () => {
     return(
-        <p>Play</p>
+        <div className={styles.PlayPage}>
+
+        </div>
     )
 }
 export default PlayPage;
