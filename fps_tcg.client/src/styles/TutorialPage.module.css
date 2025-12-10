@@ -1,7 +1,15 @@
 .Tutorial{
-    background-image: url(../assets/pixil-frame-1.png);
+    background-image: url(../assets/pixil-frame-1.png), url(../assets/GRASS_1-modified.png);
     text-align: center;
+    background-size:contain, cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-position: center;
+    margin: -1.35em 0 0 0;
 }
-.Tutorial p {
+.Tutorial h1 {
+    padding-top: 30px;
     color: var(--white);
 }
