@@ -8,7 +8,8 @@ namespace FPS_TCG.Server.Models
 
         public  int damage { get; set; }
         public int health { get; set; }
-        public required int manaCost { get; set; }
+        public int shield { get; set; }
+        public required int diceCost { get; set; }
 
     }
 }
