@@ -6,6 +6,8 @@ namespace FPS_TCG.Server.Models
 
         public required string Name { get; set; }
 
+        public required string type { get; set; }
+
         public  int damage1 { get; set; }
         public int damage2 { get; set; }
         public int health { get; set; }
