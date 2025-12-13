@@ -1,4 +1,3 @@
-FPS_TCG.Server\Controllers\CardsController.cs
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using FPS_TCG.Server.Data;
