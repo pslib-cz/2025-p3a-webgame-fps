@@ -2,8 +2,18 @@
     background-image: url('../assets/GRASS_1-modified.png');
     background-size: cover;
     background-repeat: no-repeat;
-    background-attachment: fixed;
-    width: 100vw;
-    height: 100vh;
     background-position: center;
+    background-size: 100%;
+}
+.endRoundButton{
+    font-family: "Press Start 2P", system-ui;
+    border: 1px solid var(--primary-btn-text);
+    background-color: var(--white);
+    color: var(--primary-btn-text);
+    width: 250px;
+    height: 40px;
+    font-size: 20px;
+    text-align: center;
+    align-content: center;
+    margin: 0;
 }

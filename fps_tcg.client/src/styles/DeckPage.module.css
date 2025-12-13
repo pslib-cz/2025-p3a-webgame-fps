@@ -4,8 +4,6 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
-    width: 93vw;
-    height: 100vh;
     margin: -1em 0 0 0;
     padding: 75px 100px;
     display: inline-block;
@@ -14,8 +12,8 @@
     border: 1px solid var(--primary-btn-text);
     background-color: var(--white);
     color: var(--primary-btn-text);
-    width: 290px;
-    height: 50px;
+    width: 250px;
+    height: 40px;
     font-size: 20px;
     text-align: center;
     align-content: center;
@@ -25,10 +23,10 @@
     text-decoration: none;
 }
 .container{
-    padding: 150px 100px;
+    padding: 110px 85px;
     display: flex;
     flex-direction: row;
-    gap: 240px;
+    gap: 200px;
     text-align: center;
 }
 .DeckPage h3{
