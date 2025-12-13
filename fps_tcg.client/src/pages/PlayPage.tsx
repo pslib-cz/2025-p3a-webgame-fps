@@ -1,9 +1,14 @@
 import { type FC } from "react"
-import styles from '../styles/PlayPage.module.css'
-export const PlayPage: FC = () => {
-    return(
-        <div className={styles.PlayPage}>
+import style from '../styles/PlayPage.module.css'
 
+type PlayPageProps = {
+    onCardPicked: () => void;
+}
+
+export const PlayPage: FC<PlayPageProps> = () => {
+    return(
+        <div className={style.playPageBody}>
+            <button className={style.endRoundButton}>END ROUND</button>
         </div>
     )
 }

@@ -4,6 +4,9 @@
   font-weight: 100;
   font-style: normal;
 }
+#root{
+    flex-grow: 1;
+}
 :root{
   --primary-btn-text: #0E1111;
   --white: #F5F5F5;
@@ -13,7 +16,7 @@
 
 body {
   font-family: "Press Start 2P", system-ui;
-  margin: 0;
+  margin: 0 auto;
   display: flex;
   place-items: center;
 }
