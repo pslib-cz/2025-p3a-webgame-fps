@@ -4,7 +4,7 @@ import Dice from '../components/Dice'
 import style from '../styles/DiceRollPage.module.css'
 
 type DicePageProps = {
-    
+    onRollConfirmed: () => void;
 }
 
 const DicePage: FC<DicePageProps> = () => {
