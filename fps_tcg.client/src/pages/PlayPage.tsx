@@ -9,6 +9,7 @@ export const PlayPage: FC<PlayPageProps> = () => {
     return(
         <div className={style.playPageBody}>
             <button className={style.endRoundButton}>END ROUND</button>
+            <div className={style.dicePanel}></div>
         </div>
     )
 }
