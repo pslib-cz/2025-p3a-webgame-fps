@@ -3,8 +3,9 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
     height: 100vh;
 }
 .endRoundButton{
@@ -19,13 +20,33 @@
     align-content: center;
     margin: 0;
     position: absolute;
-    top: 75%;
-    left: 50px;
+    top: 80%;
+    left: 100px;
 }
 .dicePanel{
     background-image: url('../assets/pixil-frame-1.png');
     background-repeat: no-repeat;
     background-size: cover;
-    width: 7%;
+    width: 20%;
     margin-left: auto;
+}
+.deckBox{
+    position: absolute;
+    top: 20%;
+    left: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+.deckBox img{
+    width: 350px;
+    height: 200px;
+}
+.playPanel{
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: 20px;
+    padding: 20px 0;
 }

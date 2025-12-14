@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from "react";
+import { useState, type FC } from "react";
 import style from './Dice.module.css'
 import { type DiceSymbol } from "../types";
 
