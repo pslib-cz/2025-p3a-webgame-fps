@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FPS_TCG.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251214174740_Bleh")]
+    [Migration("20251214192914_Bleh")]
     partial class Bleh
     {
         /// <inheritdoc />
@@ -29,23 +29,42 @@ namespace FPS_TCG.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("damage1")
+                    b.Property<int>("Skill1Cost")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("damage2")
+                    b.Property<int>("Skill1Damage")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("diceCost1")
+                    b.Property<string>("Skill1Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Skill2Cost")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("diceCost2")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Skill2Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("health")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("isSelected")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("shield")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("skill2Effect")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("supportCost")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("supportEffect")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("type")
                         .IsRequired()
