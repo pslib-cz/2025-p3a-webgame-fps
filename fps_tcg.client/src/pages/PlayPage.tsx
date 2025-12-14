@@ -20,7 +20,8 @@ export const PlayPage: FC<PlayPageProps> = ({onCardPicked}) => {
     const [activeCard, setActiveCard] = useState<number | null>(null)
 
     const handleCharacterSelect = (cardId: number) => {
-        setActiveCard(cardId)
+        setActiveCard(cardId);
+        onCardPicked();
     }
 
     return(
