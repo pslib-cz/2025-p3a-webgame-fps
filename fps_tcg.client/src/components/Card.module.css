@@ -1,0 +1,44 @@
+.card{
+    width: 150px;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    text-align: center;
+    align-items: center;
+    background-image: url(../assets/cardfront.png);
+    cursor: pointer;
+}
+.cardName{
+    font-size: 16px;
+    color: var(--white);
+}
+.cardStats{
+    display: flex;
+    flex-direction: row;
+    color: var(--white);
+}
+.health{
+    display: flex;
+    flex-direction: row;
+    background-color: #F72C25;
+    padding: 5px;
+    gap: 15px;
+}
+.shield{
+    display: flex;
+    flex-direction: row;
+    background-color: #5C6670;
+    padding: 5px;
+    gap: 15px;
+}
+.cardEffect{
+    padding: 10px;
+    font-size: 13px;
+    gap: 10px;
+}
+.img{
+    width: 85%;
+    height: auto;
+}

@@ -8,19 +8,11 @@ type DicePageProps = {
 }
 
 const DicePage: FC<DicePageProps> = () => {
-    const [lastRollResultId, setLastRollResultId] = useState<number | null>(null);
-    const handleRoll = (resultId: number) => {
-        setLastRollResultId(resultId);
-    }
-    const diceArray = Array(8).fill(null);
     return(   
         <div className={style.dicePageBody}>
             <div className={style.selectionContainer}>
                 <div className={style.diceContainer}>
-                    {diceArray.map((_, index) => (
-                        <Dice key={index} onRollComplete={handleRoll} diceIndex={0} onSelectToggle={function (index: number, isSelected: boolean): void {
-                        } } initialSideId={null} isHeld={false}/>
-                    ))}
+                    
                 </div>
                 <button className={style.confirmButton}>
                     CONFIRM
