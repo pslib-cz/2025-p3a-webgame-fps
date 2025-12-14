@@ -14,12 +14,12 @@ export type CardProps = {
     shield?: number,
     skill1Name?: string,
     skill1Damage?: number,
-    skill1Cost?: { [key: string]: number },
+    skill1Cost?:  number,
     skill2Name?: string,
     skill2Effect?: string,
-    skill2Cost?: { [key: string]: number },
+    skill2Cost?: number ,
 
-    supportCost?: { [key: string]: number },
+    supportCost?:  number,
     supportEffect?: string,
 
     isSelected?: boolean,

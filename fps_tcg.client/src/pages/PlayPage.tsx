@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
@@ -16,7 +16,7 @@ const characters = [
     { id: 3, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10 }
 ];
 
-export const PlayPage: FC<PlayPageProps> = ({onCardPicked}) => {
+export const PlayPage: FC<PlayPageProps> = ({ onCardPicked}) => {
     const [activeCard, setActiveCard] = useState<number | null>(null)
 
     const handleCharacterSelect = (cardId: number) => {
@@ -35,7 +35,9 @@ export const PlayPage: FC<PlayPageProps> = ({onCardPicked}) => {
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
-            <div className={style.dicePanel}></div>
+            <div className={style.dicePanel}>
+                
+            </div>
         </div>
     )
 }
