@@ -8,11 +8,23 @@ namespace FPS_TCG.Server.Models
 
         public required string type { get; set; }
 
-        public  int damage1 { get; set; }
-        public int damage2 { get; set; }
         public int health { get; set; }
         public int shield { get; set; }
-        public required int diceCost { get; set; }
+
+
+        public required string Skill1Name { get; set; }
+        public  int Skill1Damage { get; set; }
+        public required int Skill1Cost { get; set; }
+
+
+        public required string Skill2Name { get; set; }
+        public string skill2Effect { get; set; }
+        public required int Skill2Cost { get; set; }
+      
+        public int supportCost { get; set; }
+        public required string supportEffect { get; set; }
+
+        public required bool isSelected { get; set; }
 
     }
 }
