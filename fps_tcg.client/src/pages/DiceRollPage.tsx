@@ -13,21 +13,33 @@ type DicePageProps = {
 
 const DicePage: FC<DicePageProps> = ({ onRollConfirmed }) => {
     const [diceSymbols, setDiceSymbols] = useState<DiceSymbol[]>([]);
+    const [selected, setSelected] = useState<boolean[]>(new Array(8).fill(false));
 
     useEffect(() => {
         const initialDice = Array.from({length: 8}, getRandomSymbol);
         setDiceSymbols(initialDice);
     }, []);
 
+    const toggleSelected = (index: number) => {
+        setSelected(prev => prev.map((sel, i) => i === index ? !sel : sel));
+    };
+
+    const handleConfirm = () => {
+        const newSymbols = diceSymbols.map((sym, i) => selected[i] ? getRandomSymbol() : sym);
+        setDiceSymbols(newSymbols);
+        setSelected(new Array(8).fill(false));
+        onRollConfirmed();
+    };
+
     return(   
         <div className={style.dicePageBody}>
             <div className={style.selectionContainer}>
                 <div className={style.diceContainer}>
                     {diceSymbols.map((symbol, index) => (
-                        <Dice key={index} symbol={symbol}/>
+                        <Dice key={index} symbol={symbol} isSelected={selected[index]} onClick={() => toggleSelected(index)}/>
                     ))}
                 </div>
-                <button className={style.confirmButton}>
+                <button className={style.confirmButton} onClick={handleConfirm}>
                     CONFIRM
                 </button>
             </div>
