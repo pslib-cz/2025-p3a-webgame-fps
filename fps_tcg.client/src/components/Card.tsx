@@ -27,7 +27,7 @@ export type CardProps = {
 }
 
 const Card: FC<CardProps> = (props) =>{
-    if(props.type === 'character'){
+    if(props.type === 'attack'){
         return(
             <div className={`${style.card} ${style.characterCard} ${props.isSelected ? style.activeCard : ''}`} onClick={props.onClick}>
                 <img className={style.img} src={props.imgSrc} alt="Cat" />
