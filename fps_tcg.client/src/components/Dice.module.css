@@ -7,6 +7,9 @@
     8px 8px 0 0 #640202,
     4px 4px 0 0 #2B2A2A;
 }
+.selected {
+    border: 3px solid #F5F5F5;
+}
 .diceCube{
     position: relative;
     width: 100px;

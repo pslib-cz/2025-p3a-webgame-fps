@@ -9,10 +9,12 @@ import rogue from '../assets/rogue.png';
 import jester from '../assets/jester.png';
 
 type DiceProps = {
-    symbol: DiceSymbol
+    symbol: DiceSymbol;
+    isSelected: boolean;
+    onClick: () => void;
 }
 
-const Dice: FC<DiceProps> = ({symbol}) => {
+const Dice: FC<DiceProps> = ({symbol, isSelected, onClick}) => {
     const getSymbolIcon = (s: DiceSymbol) => {
         switch (s) {
             case 'Knight': return sword;
@@ -25,7 +27,7 @@ const Dice: FC<DiceProps> = ({symbol}) => {
         }
     }
     return(
-        <div className={style.diceContainer}>
+        <div className={`${style.diceContainer} ${isSelected ? style.selected : ''}`} onClick={onClick}>
             <div className={style.face}>
                 <img src={getSymbolIcon(symbol)} alt={symbol} />
             </div>
