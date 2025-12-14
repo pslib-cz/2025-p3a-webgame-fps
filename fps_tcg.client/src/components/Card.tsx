@@ -22,13 +22,14 @@ export type CardProps = {
     supportCost?: { [key: string]: number },
     supportEffect?: string,
 
-    isSelected?: boolean
+    isSelected?: boolean,
+    onClick?: () => void
 }
 
 const Card: FC<CardProps> = (props) =>{
-    if(props.type === 'character'){
+    if(props.type === 'attack'){
         return(
-            <div className={`${style.card} ${style.characterCard}`}>
+            <div className={`${style.card} ${style.characterCard} ${props.isSelected ? style.activeCard : ''}`} onClick={props.onClick}>
                 <img className={style.img} src={props.imgSrc} alt="Cat" />
                 <p className={style.cardName}>{props.name}</p>
                 <div className={style.cardStats}>
@@ -49,7 +50,6 @@ const Card: FC<CardProps> = (props) =>{
             </div>
         )
     }
-
     return(
         <div className={`${style.card} ${style.errorCard}`}>
             <p>ERROR: Unknown Card Type!</p>
