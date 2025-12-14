@@ -42,3 +42,6 @@
     width: 85%;
     height: auto;
 }
+.activeCard{
+    border: 8px solid #023C0D;
+}
