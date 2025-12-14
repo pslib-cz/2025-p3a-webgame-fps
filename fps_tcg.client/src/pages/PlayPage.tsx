@@ -1,8 +1,8 @@
+import { useState } from 'react'
 import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
-import Card from "../components/Card"
-import cat from "../assets/blehcat.png"
+import Hand from "../components/Hand"
 
 type PlayPageProps = {
     onCardPicked: () => void;
@@ -17,12 +17,8 @@ export const PlayPage: FC<PlayPageProps> = () => {
             </div>
             <button className={style.endRoundButton}>END ROUND</button>
             <div className={style.playPanel}>
-                <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
-                <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
-                <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
-                <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
-                <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
-                <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
+                <Hand cards={[]} onCardSelect={function (_cardId: number): void {} } selectedCardId={null} />
+                <Hand cards={[]} onCardSelect={function (_cardId: number): void {} } selectedCardId={null} />
             </div>
             <div className={style.dicePanel}></div>
         </div>

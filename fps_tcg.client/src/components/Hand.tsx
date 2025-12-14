@@ -1,6 +1,7 @@
 import Card, { type CardProps } from "./Card";
 import {type FC} from "react";
 import style from './Hand.module.css'
+import cat from "../assets/blehcat.png"
 
 type HandCard = Pick<CardProps, 'id' | 'name' | 'type' | 'supportCost' | 'supportEffect'>;
 
@@ -10,25 +11,12 @@ type HandProps = {
     selectedCardId: number | null;
 }
 
-const Hand: FC<HandProps> = ({cards, onCardSelect, selectedCardId}) => {
+const Hand: FC<HandProps> = () => {
     return(
         <div className={style.handContainer}>
-            {
-                cards.map((card) => {
-                    const isSelected = card.id === selectedCardId;
-                    return(
-                        <div
-                            key={card.id}
-                            onClick={() => onCardSelect(card.id)}
-                        >
-                            <Card 
-                                {...card as CardProps}
-                                isSelected={isSelected}
-                            />
-                        </div>
-                    );
-                })
-            }
+            <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
+            <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
+            <Card id={1} name={"bleh cat"} type={"character"} imgSrc={cat} health={10} shield={10}/>
         </div>
     );
 }

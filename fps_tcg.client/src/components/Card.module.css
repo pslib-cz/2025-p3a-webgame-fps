@@ -8,6 +8,7 @@
     text-align: center;
     align-items: center;
     background-image: url(../assets/cardfront.png);
+    cursor: pointer;
 }
 .cardName{
     font-size: 16px;
@@ -19,11 +20,15 @@
     color: var(--white);
 }
 .health{
+    display: flex;
+    flex-direction: row;
     background-color: #F72C25;
     padding: 5px;
     gap: 15px;
 }
 .shield{
+    display: flex;
+    flex-direction: row;
     background-color: #5C6670;
     padding: 5px;
     gap: 15px;
