@@ -1,7 +1,7 @@
 import DicePage from "./DiceRollPage";
 import PlayPage from "./PlayPage";
 import { useState, type FC } from 'react';
-import { type GameView } from "../types";
+import { type GameView, type DiceSymbol } from "../types";
 
 type GameProps = {
     view: GameView;
@@ -9,6 +9,7 @@ type GameProps = {
 
 const Game: FC<GameProps> = () =>{
     const [currentView, setCurrentView] = useState<GameView>('Play');
+    const [rolledDice, setRolledDice] = useState<DiceSymbol[]>([]);
     const startDiceRoll = () => {
         setCurrentView('Dice_Roll');
     };
@@ -17,10 +18,10 @@ const Game: FC<GameProps> = () =>{
     };
     switch (currentView) {
         case 'Dice_Roll':
-            return <DicePage onRollConfirmed={finishDiceRoll} />;
+            return <DicePage onRollConfirmed={finishDiceRoll} onSymbolsRolled={setRolledDice} />;
         case 'Play':
         default:
-            return <PlayPage onCardPicked={startDiceRoll} />; 
+            return <PlayPage onCardPicked={startDiceRoll} diceSymbols={rolledDice} />; 
     }
 }
 export default Game;

@@ -8,16 +8,18 @@ const symbols: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jes
 const getRandomSymbol = (): DiceSymbol => symbols[Math.floor(Math.random() * symbols.length)];
 
 type DicePageProps = {
-    onRollConfirmed: () => void;
+    onRollConfirmed: () => void;    
+    onSymbolsRolled?: (symbols: DiceSymbol[]) => void;
 }
 
-const DicePage: FC<DicePageProps> = ({ onRollConfirmed }) => {
+const DicePage: FC<DicePageProps> = ({ onRollConfirmed, onSymbolsRolled }) => {
     const [diceSymbols, setDiceSymbols] = useState<DiceSymbol[]>([]);
     const [selected, setSelected] = useState<boolean[]>(new Array(8).fill(false));
 
     useEffect(() => {
         const initialDice = Array.from({length: 8}, getRandomSymbol);
         setDiceSymbols(initialDice);
+        if (onSymbolsRolled) onSymbolsRolled(initialDice);
     }, []);
 
     const toggleSelected = (index: number) => {
@@ -27,6 +29,7 @@ const DicePage: FC<DicePageProps> = ({ onRollConfirmed }) => {
     const handleConfirm = () => {
         const newSymbols = diceSymbols.map((sym, i) => selected[i] ? getRandomSymbol() : sym);
         setDiceSymbols(newSymbols);
+        if (onSymbolsRolled) onSymbolsRolled(newSymbols);
         setSelected(new Array(8).fill(false));
         onRollConfirmed();
     };
