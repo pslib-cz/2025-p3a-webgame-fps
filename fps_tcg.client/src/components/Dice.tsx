@@ -1,6 +1,12 @@
 import { useState, type FC } from "react";
 import style from './Dice.module.css'
 import { type DiceSymbol } from "../types";
+import sword from '../assets/sword.png';
+import shield from '../assets/shield.png';
+import mageImg from '../assets/mage.png';
+import heal from '../assets/heal.png';
+import rogue from '../assets/rogue.png';
+import jester from '../assets/jester.png';
 
 type DiceProps = {
     symbol: DiceSymbol
@@ -9,18 +15,20 @@ type DiceProps = {
 const Dice: FC<DiceProps> = ({symbol}) => {
     const getSymbolIcon = (s: DiceSymbol) => {
         switch (s) {
-            case 'Knight': return '../assets/sword.png';
-            case 'Tank': return '../assets/shield.png';
-            case 'Mage': return '../assets/mage.png';
-            case 'Healer': return '../assets/heal.png';
-            case 'Rogue': return '../assets/rogue.png';
-            case 'Jester': return '../assets/jester.png';
+            case 'Knight': return sword;
+            case 'Tank': return shield;
+            case 'Mage': return mageImg;
+            case 'Healer': return heal;
+            case 'Rogue': return rogue;
+            case 'Jester': return jester;
             default: return '';
         }
     }
     return(
-        <div>
-
+        <div className={style.diceContainer}>
+            <div className={style.face}>
+                <img src={getSymbolIcon(symbol)} alt={symbol} />
+            </div>
         </div>
     );
 }
