@@ -45,3 +45,13 @@
 .activeCard{
     border: 8px solid #023C0D;
 }
+@media (min-width: 2000px) {
+    .card{
+        width: 225px;
+        height: 375px;
+    }      
+    .img{
+        width: 100%;
+        height: auto;
+    }
+}

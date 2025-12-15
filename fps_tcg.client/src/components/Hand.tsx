@@ -25,7 +25,6 @@ const Hand: FC<HandProps> = ({
                     onClick={() => onCharacterActive(card.id)}
                 />
             ))}
-
         </div>
     );
 }
