@@ -51,7 +51,6 @@ using (var scope = app.Services.CreateScope())
                 Skill2Cost = 2,
                 supportCost = 0,
                 supportEffect = "none",
-                isSelected = false,
                 ImageData = Array.Empty<byte>(),
                 ImageContentType = "image/png"
 

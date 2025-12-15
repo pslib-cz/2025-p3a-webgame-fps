@@ -59,7 +59,6 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.supportCost,
                     SupportEffect = c.supportEffect,
-                    IsSelected = c.isSelected,
                     ImageData = c.ImageData,
                     ImageContentType = c.ImageContentType
                 })
@@ -89,7 +88,6 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.supportCost,
                     SupportEffect = c.supportEffect,
-                    IsSelected = c.isSelected,
                     ImageData = c.ImageData,
                     ImageContentType = c.ImageContentType
                 })
