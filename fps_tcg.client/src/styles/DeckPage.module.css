@@ -5,8 +5,7 @@
     background-attachment: fixed;
     background-position: center;
     margin: -1em 0 0 0;
-    padding: 75px 100px;
-    display: inline-block;
+    padding: 145px 100px;
 }
 .DeckPage p{
     border: 1px solid var(--primary-btn-text);
@@ -17,7 +16,6 @@
     font-size: 20px;
     text-align: center;
     align-content: center;
-    margin: 0;
 }
 .DeckPage a{
     text-decoration: none;
@@ -28,6 +26,7 @@
     flex-direction: row;
     gap: 200px;
     text-align: center;
+    justify-self: center;
 }
 .DeckPage h3{
     font-size: 36px;

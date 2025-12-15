@@ -5,9 +5,7 @@
     background-size: cover;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 100px;
-    flex-shrink: 0;
+    padding: 177px 100px;
 }
 .selectionContainer{
     background-image: url('../assets/pixil-frame-2.png');
@@ -19,7 +17,6 @@
     width: 80%;
     padding: 50px;
     height: 50%;
-    flex-shrink: 0;
 }
 .diceContainer{
     display: grid;
@@ -37,6 +34,6 @@
     font-size: 20px;
     text-align: center;
     align-content: center;
-    margin: 0;
+    padding: 10px;
     font-family: "Press Start 2P", system-ui;
 }

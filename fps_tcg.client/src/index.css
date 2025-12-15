@@ -6,6 +6,7 @@
 }
 #root{
     flex-grow: 1;
+    height: 100vh;
 }
 :root{
   --primary-btn-text: #0E1111;
