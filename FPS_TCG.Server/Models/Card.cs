@@ -28,7 +28,5 @@ namespace FPS_TCG.Server.Models
         public required string? ImageContentType { get; set; }
 
 
-        public required bool isSelected { get; set; }
-
     }
 }

@@ -59,7 +59,8 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.supportCost,
                     SupportEffect = c.supportEffect,
-                    IsSelected = c.isSelected
+                    ImageData = c.ImageData,
+                    ImageContentType = c.ImageContentType
                 })
                 .ToListAsync();
 
@@ -87,7 +88,8 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.supportCost,
                     SupportEffect = c.supportEffect,
-                    IsSelected = c.isSelected
+                    ImageData = c.ImageData,
+                    ImageContentType = c.ImageContentType
                 })
                 .FirstOrDefaultAsync();
 
@@ -96,5 +98,18 @@ namespace FPS_TCG.Server.Controllers
 
             return Ok(card);
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            var card = await _db.Cards.FindAsync(id);
+            if (card == null)
+                return NotFound();
+            _db.Cards.Remove(card);
+            await _db.SaveChangesAsync();
+            return NoContent();
+        }
+
+
     }
 }
