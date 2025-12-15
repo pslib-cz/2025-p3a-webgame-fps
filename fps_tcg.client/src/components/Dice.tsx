@@ -28,7 +28,7 @@ const Dice: FC<DiceProps> = ({symbol, isSelected, onClick}) => {
     }
     return(
         <div className={`${style.diceContainer} ${isSelected ? style.selected : ''}`} onClick={onClick}>
-            <div className={style.face}>
+            <div className={style.face}  data-symbol={symbol}>
                 <img src={getSymbolIcon(symbol)} alt={symbol} />
             </div>
         </div>

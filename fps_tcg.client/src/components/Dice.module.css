@@ -3,9 +3,6 @@
     height: 100px;
     stroke: var(--primary-btn-text);
     stroke-width: 3px;
-    box-shadow: 
-    8px 8px 0 0 #640202,
-    4px 4px 0 0 #2B2A2A;
 }
 .selected {
     border: 3px solid #F5F5F5;
@@ -29,4 +26,36 @@
     width: 80px; 
     height: 80px;
     object-fit: contain;
+}
+.face[data-symbol="Knight"] {
+    background-color: #AF0000;
+    box-shadow:  
+    8px 8px 0 0 #640202,
+    4px 4px 0 0 #2B2A2A;
+}
+.face[data-symbol="Tank"] {
+    background-color: #020BA6;
+    box-shadow:  
+    8px 8px 0 0 #050A60,
+    4px 4px 0 0 #2B2A2A;
+}
+.face[data-symbol="Mage"] {
+    background-color: #48047C;
+    box-shadow:  8px 8px 0 0 #310455,
+    4px 4px 0 0 #2B2A2A;
+}
+.face[data-symbol="Healer"] {
+    background-color: #007616;
+    box-shadow:  8px 8px 0 0 #02390C,
+    4px 4px 0 0 #2B2A2A;
+}
+.face[data-symbol="Rogue"] {
+    background-color: #B97E00;
+    box-shadow:  8px 8px 0 0 #614303,
+    4px 4px 0 0 #2B2A2A;
+}
+.face[data-symbol="Jester"] {
+    background-color: #F5F5F5;
+    box-shadow:  8px 8px 0 0 #666666,
+    4px 4px 0 0 #2B2A2A;
 }
