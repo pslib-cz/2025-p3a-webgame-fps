@@ -16,7 +16,7 @@
     align-items: center;
     width: 80%;
     padding: 50px;
-    height: 50%;
+    height: auto;
 }
 .diceContainer{
     display: grid;
@@ -36,4 +36,12 @@
     align-content: center;
     padding: 10px;
     font-family: "Press Start 2P", system-ui;
+}
+@media (min-width: 2000px) {
+    .dicePageBody{
+        padding: 357px 100px;
+    }
+    .selectionContainer{
+        width: 85%;
+    }
 }
