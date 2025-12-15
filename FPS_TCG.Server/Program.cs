@@ -52,6 +52,7 @@ using (var scope = app.Services.CreateScope())
                 supportCost = 0,
                 supportEffect = "none",
                 isSelected = false
+
             });
 
             await db.SaveChangesAsync();
