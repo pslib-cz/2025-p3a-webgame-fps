@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using FPS_TCG.Server.Data;
 using FPS_TCG.Server.Models;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,8 +52,8 @@ using (var scope = app.Services.CreateScope())
                 Skill2Cost = 2,
                 supportCost = 0,
                 supportEffect = "none",
-                ImageData = Array.Empty<byte>(),
-                ImageContentType = "image/png"
+                //ImageData = Array.Empty<byte>(),
+                //ImageContentType = "image/png"
 
             });
 
@@ -80,6 +81,7 @@ app.MapStaticAssets();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();

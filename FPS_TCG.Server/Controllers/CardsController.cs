@@ -59,8 +59,8 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.supportCost,
                     SupportEffect = c.supportEffect,
-                    ImageData = c.ImageData,
-                    ImageContentType = c.ImageContentType
+                    //ImageData = c.ImageData,
+                    //ImageContentType = c.ImageContentType
                 })
                 .ToListAsync();
 
@@ -88,8 +88,8 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.supportCost,
                     SupportEffect = c.supportEffect,
-                    ImageData = c.ImageData,
-                    ImageContentType = c.ImageContentType
+                    //ImageData = c.ImageData,
+                    //ImageContentType = c.ImageContentType
                 })
                 .FirstOrDefaultAsync();
 

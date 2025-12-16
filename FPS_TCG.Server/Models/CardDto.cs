@@ -15,8 +15,8 @@ namespace FPS_TCG.Server.Models
         public int Skill2Cost { get; set; }
         public int SupportCost { get; set; }
         public string SupportEffect { get; set; } = string.Empty;
-        public byte[]? ImageData { get; set; }
-        public string? ImageContentType { get; set; }
+        //public byte[]? ImageData { get; set; }
+        //public string? ImageContentType { get; set; }
 
     }
 }

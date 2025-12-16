@@ -1,5 +1,3 @@
 ﻿2) Možnost přidat obrázek na kartu obrazek se dá do bytu a potom při fetchy pujde z bytu do png a do reactu se dostane png
-3) Endpoint pro získáváni decků
-4) Endpoint pro mazání decků
 5) Endpoint pro získávání karet podle decku
 6) Endpoint pro mazání karet podle decku
