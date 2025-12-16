@@ -18,6 +18,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -85,6 +96,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
+
 app.UseAuthorization();
 app.MapControllers();
 app.MapFallbackToFile("/index.html");
