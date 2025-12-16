@@ -56,13 +56,20 @@ using (var scope = app.Services.CreateScope())
 
             });
 
+            db.Decks.Add(new Deck
+            {
+                DeckId = 1,
+                Name = "Starter Deck",
+                Cards = new List<Card>()
+            });
+
             await db.SaveChangesAsync();
             logger.LogInformation("Seed card saved.");
         }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Chyba pøi inicializaci databáze");
+        logger.LogError(ex, "Error initializing database");
         throw;
     }
 }

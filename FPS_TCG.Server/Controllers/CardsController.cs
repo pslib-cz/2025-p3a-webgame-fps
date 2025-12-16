@@ -27,7 +27,7 @@ namespace FPS_TCG.Server.Controllers
 
             var typeNormalized = card.type?.Trim().ToLowerInvariant();
             if (typeNormalized != "attack" && typeNormalized != "support")
-                return BadRequest(new { error = "type musí být 'attack' nebo 'support'." });
+                return BadRequest(new { error = "type must be either 'attack' or 'support'." });
 
 
             card.type = typeNormalized;

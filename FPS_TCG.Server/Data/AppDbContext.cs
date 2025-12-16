@@ -15,5 +15,6 @@ namespace FPS_TCG.Server.Data
         }
 
         public DbSet<Card> Cards { get; set; } = null!;
+        public DbSet<Deck> Decks { get; set; } = null!;
     }
 }
