@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
@@ -20,6 +20,24 @@ const characters = [
 
 export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
     const [activeCard, setActiveCard] = useState<number | null>(null)
+    const [cards, setCards] = useState([]);
+
+    useEffect(() => {
+        const fetchCards = async () => {
+            try {
+                const response = await fetch('https://localhost:7077/api/Cards');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch cards');
+                }
+                const data = await response.json();
+                setCards(data);
+            } catch (error) {
+                console.error('Error fetching cards', error);
+            }
+        };
+        fetchCards();
+        console.log({cards});
+    }, []);
 
     const handleCharacterSelect = (cardId: number) => {
         setActiveCard(cardId);
@@ -34,7 +52,7 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
             </div>
             <button className={style.endRoundButton}>END ROUND</button>
             <div className={style.playPanel}>
-                <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
+                <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
             <div className={style.dicePanel}>

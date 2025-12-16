@@ -75,3 +75,7 @@
         padding: 325px 100px;
     }
 }
+.containerEdit{
+    gap: 50px;
+    justify-self: center;
+}

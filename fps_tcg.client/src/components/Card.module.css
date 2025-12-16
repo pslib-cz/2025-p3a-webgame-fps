@@ -37,6 +37,7 @@
     padding: 10px;
     font-size: 13px;
     gap: 10px;
+    border: 1px solid #543A14;
 }
 .img{
     width: 85%;
