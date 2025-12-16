@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using FPS_TCG.Server.Data;
 using FPS_TCG.Server.Models;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -51,9 +63,16 @@ using (var scope = app.Services.CreateScope())
                 Skill2Cost = 2,
                 supportCost = 0,
                 supportEffect = "none",
-                ImageData = Array.Empty<byte>(),
-                ImageContentType = "image/png"
+                //ImageData = Array.Empty<byte>(),
+                //ImageContentType = "image/png"
 
+            });
+
+            db.Decks.Add(new Deck
+            {
+                DeckId = 1,
+                Name = "Starter Deck",
+                Cards = new List<Card>()
             });
 
             await db.SaveChangesAsync();
@@ -62,7 +81,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Chyba pøi inicializaci databáze");
+        logger.LogError(ex, "Error initializing database");
         throw;
     }
 }
@@ -73,9 +92,13 @@ app.MapStaticAssets();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
+
 app.UseAuthorization();
 app.MapControllers();
 app.MapFallbackToFile("/index.html");
