@@ -2,4 +2,4 @@
 5) Endpoint pro získávání karet podle decku
 6) Endpoint pro mazání karet podle decku
 7) přes scalar vyzkouset endpointy 
-8) opravit chyby pri spousteni pos t {nova karta}
+8) opravit chyby pri spousteni post {nova karta}

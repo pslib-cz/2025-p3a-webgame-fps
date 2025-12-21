@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using FPS_TCG.Server.Data;
 using FPS_TCG.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace FPS_TCG.Server.Controllers
 {
@@ -29,7 +33,6 @@ namespace FPS_TCG.Server.Controllers
             if (typeNormalized != "attack" && typeNormalized != "support")
                 return BadRequest(new { error = "type must be either 'attack' or 'support'." });
 
-
             card.type = typeNormalized;
             card.shield = 0;
 
@@ -44,54 +47,17 @@ namespace FPS_TCG.Server.Controllers
         {
             var cards = await _db.Cards
                 .AsNoTracking()
-                .Select(c => new CardDto
-                {
-                    CardId = c.CardId,
-                    Name = c.Name,
-                    Type = c.type,
-                    Health = c.health,
-                    Shield = c.shield,
-                    Skill1Name = c.Skill1Name,
-                    Skill1Damage = c.Skill1Damage,
-                    Skill1Cost = c.Skill1Cost,
-                    Skill2Name = c.Skill2Name,
-                    Skill2Effect = c.skill2Effect,
-                    Skill2Cost = c.Skill2Cost,
-                    SupportCost = c.supportCost,
-                    SupportEffect = c.supportEffect,
-                    //ImageData = c.ImageData,
-                    //ImageContentType = c.ImageContentType
-                })
                 .ToListAsync();
 
             return Ok(cards);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CardDto>> GetByIdAsync(int id)
+        public async Task<ActionResult<Card>> GetByIdAsync(int id)
         {
             var card = await _db.Cards
                 .AsNoTracking()
-                .Where(c => c.CardId == id)
-                .Select(c => new CardDto
-                {
-                    CardId = c.CardId,
-                    Name = c.Name,
-                    Type = c.type,
-                    Health = c.health,
-                    Shield = c.shield,
-                    Skill1Name = c.Skill1Name,
-                    Skill1Damage = c.Skill1Damage,
-                    Skill1Cost = c.Skill1Cost,
-                    Skill2Name = c.Skill2Name,
-                    Skill2Effect = c.skill2Effect,
-                    Skill2Cost = c.Skill2Cost,
-                    SupportCost = c.supportCost,
-                    SupportEffect = c.supportEffect,
-                    //ImageData = c.ImageData,
-                    //ImageContentType = c.ImageContentType
-                })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(c => c.CardId == id);
 
             if (card == null)
                 return NotFound();
@@ -99,17 +65,76 @@ namespace FPS_TCG.Server.Controllers
             return Ok(card);
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+
+        [HttpGet("{id:int}/image/as-png")]
+        public async Task<IActionResult> GetCardImageAsPngAsync(int id)
         {
-            var card = await _db.Cards.FindAsync(id);
-            if (card == null)
+            byte[]? data = null;
+            string? originalName = null;
+
+            try
+            {
+                var imgEntity = await _db.Images
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(i => i.CardId == id);
+                if (imgEntity != null)
+                {
+                    data = imgEntity.Data;
+                    originalName = imgEntity.FileName;
+                }
+            }
+            catch
+            {
+                
+            }
+
+            if (data == null || data.Length == 0)
+            {
+                var card = await _db.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.CardId == id);
+                if (card == null) return NotFound();
+
+                var cardType = card.GetType();
+                var propData = cardType.GetProperty("ImageData");
+                if (propData != null && propData.PropertyType == typeof(byte[]))
+                {
+                    data = (byte[]?)propData.GetValue(card);
+                    originalName = cardType.GetProperty("ImageFileName")?.GetValue(card) as string;
+                }
+            }
+
+            if (data == null || data.Length == 0)
                 return NotFound();
-            _db.Cards.Remove(card);
-            await _db.SaveChangesAsync();
-            return NoContent();
+
+            if (IsPng(data))
+                return File(data, "image/png", PathForDownloadName(originalName, "png"));
+
+            try
+            {
+                using var image = Image.Load(data);
+                using var ms = new MemoryStream();
+                image.Save(ms, new PngEncoder());
+                var pngBytes = ms.ToArray();
+                return File(pngBytes, "image/png", PathForDownloadName(originalName, "png"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to convert image to PNG.", detail = ex.Message });
+            }
         }
 
+        private static bool IsPng(byte[] b)
+        {
+            return b.Length >= 8 &&
+                   b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47 &&
+                   b[4] == 0x0D && b[5] == 0x0A && b[6] == 0x1A && b[7] == 0x0A;
+        }
 
+        private static string PathForDownloadName(string? originalName, string forcedExt)
+        {
+            if (string.IsNullOrEmpty(originalName))
+                return $"image.{forcedExt}";
+            var name = Path.GetFileNameWithoutExtension(originalName);
+            return $"{name}.{forcedExt}";
+        }
     }
 }
