@@ -4,31 +4,19 @@ import styles from '../styles/DeckPage.module.css';
 import { useParams } from "react-router";
 
 type DeckEditPageParams ={
-    query?:string
+    deckId: string
 }
 
 export const DeckEditPage: FC = () => {
-    const {query} = useParams<DeckEditPageParams>()
+    const {deckId} = useParams<DeckEditPageParams>()
 
-    if(query === "Deck1"){
-        return "/decksEdit/Deck1"
-    }
-    else if(query === "Deck2"){
-        return "/decksEdit/Deck2"
-    }
-    else if(query === "Deck3"){
-        return "/decksEdit/Deck3"
+    if (!deckId) {
+        return <p>Deck nebyl nalezen</p>;
     }
 
     return(
         <div className={styles.DeckPage}>
             <Link to="/decksEdit"><p>&lt;- BACK</p></Link>
-            {query ? (
-                <Link to={query} />
-            ): (
-                <p>Deck nebyl nalezen</p>
-            )}
-            <p>EDIT</p>
         </div>
     )
 }

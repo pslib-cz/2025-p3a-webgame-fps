@@ -23,7 +23,7 @@ function App() {
           <Route path='/game/diceRoll' element={<DiceRollPage onRollConfirmed={() => void {}} />}/>
           <Route path='/decksEdit/' element={<DeckPage />}/>
           <Route path='/tutorial' element={<TutorialPage />}/>
-          <Route path='/decksEdit/:query' element={<DeckEditPage />}/>
+          <Route path='/decksEdit/:deckId' element={<DeckEditPage />}/>
           <Route path='/decksEdit/Deck1' element={<Deck1Page />}/>
           <Route path='/decksEdit/Deck2' element={<Deck2Page />}/>
           <Route path='/decksEdit/Deck3' element={<Deck3Page />}/>

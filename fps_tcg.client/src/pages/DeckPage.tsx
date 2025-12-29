@@ -1,28 +1,24 @@
 import { useState, type FC } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import styles from '../styles/DeckPage.module.css';
 //import coins from '../assets/gold_coins.png', <img className={styles.coins} src={coins} alt="pixel_coins" />
 
 export const DeckPage: FC = () => {
-    const [deckSelect, setDeckSelect] = useState()
+    const [deckSelect, setDeckSelect] = useState<string | null>(null)
+     const navigate = useNavigate();
     return(
         <div className={styles.DeckPage}>
             <Link to="/"><p>&lt;- BACK</p></Link>
             <div className={styles.container}>
-                <div>
-                    <button onClick={() => setDeckSelect(deckSelect)}></button>
-                    <h3>Deck1</h3>
-                </div>
-                <div>
-                    <button onClick={() => setDeckSelect(deckSelect)}></button>
-                    <h3>Deck2</h3>
-                </div>
-                <div>
-                    <button onClick={() => setDeckSelect(deckSelect)}></button>
-                    <h3>Deck3</h3>
-                </div>
+                {["Deck1", "Deck2", "Deck3"].map(deck => (
+                    <div key={deck}>
+                        <button onClick={() => setDeckSelect(deck)} />
+                        <h3>{deck}</h3>
+                    </div>
+                ))}
             </div>
-            <Link to="/decksEdit/Edit/:query"><p className={styles.edit}>EDIT</p></Link>
+            {deckSelect && (<p className={styles.buttonEdit}
+                onClick={() => navigate(`/decksEdit/${deckSelect}`)}>EDIT</p>)}
         </div>
     )
             
