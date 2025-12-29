@@ -6,6 +6,7 @@ import Hand from "../components/Hand"
 import cat from "../assets/blehcat.png"
 import type { CardType, DiceSymbol } from '../types'
 import Dice from '../components/Dice'
+import lamma from '../assets/coollama.png'
 
 type PlayPageProps = {
     onCardPicked: () => void;
@@ -18,9 +19,23 @@ const characters = [
     { id: 3, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10 }
 ];
 
+const mySupport = [
+    { id: 10, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 11, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 12, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 13, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 14, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 15, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"}
+];
+
 export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
     const [activeCard, setActiveCard] = useState<number | null>(null)
+    const [showAllSupport, setShowAllSupport] = useState(false);
     const [cards, setCards] = useState([]);
+
+    const handleSupportClick = () => {
+        setShowAllSupport(true);
+    }
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -54,6 +69,10 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
             <div className={style.playPanel}>
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
+            </div>
+            <div className={style.supportCards} onClick={handleSupportClick}>
+                <Hand cards={showAllSupport ? mySupport : mySupport.slice(0, 2)} 
+                activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
             <div className={style.dicePanel}>
                 {diceSymbols.map((symbol, index) => (

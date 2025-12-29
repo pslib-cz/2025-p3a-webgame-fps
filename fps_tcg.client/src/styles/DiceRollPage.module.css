@@ -1,11 +1,10 @@
 .dicePageBody{
     background-image: url('../assets/GRASS_1-modified.png');
     background-repeat: repeat;
-    background-position: top left;
     background-size: cover;
     display: flex;
     justify-content: center;
-    padding: 177px 100px;
+    padding: 12.72vw 5vh;
 }
 .selectionContainer{
     background-image: url('../assets/pixil-frame-2.png');
@@ -14,34 +13,55 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 1200px;
     width: 80%;
-    padding: 50px;
+    padding: 5vh 3vw;
     height: auto;
 }
 .diceContainer{
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 60px 70px;
-    padding: 100px;
+    gap: 4vh 4vw;
+    padding: 6.25em;
 }
 .confirmButton {
     border: 1px solid var(--primary-btn-text);
     background-color: var(--white);
     color: var(--primary-btn-text);
     width: 200px;
-    height: 40px;
+    height: 2.5rem;
     font-size: 20px;
     text-align: center;
     align-content: center;
-    padding: 10px;
+    padding: 0.5rem;
     font-family: "Press Start 2P", system-ui;
 }
 @media (min-width: 2000px) {
     .dicePageBody{
-        padding: 357px 100px;
+        padding: 50em 10em;
     }
     .selectionContainer{
         width: 85%;
+    }
+}
+@media (max-width: 900px){
+    .dicePageBody{
+        padding: 5vh 2vw;
+        flex-direction: column;
+    }
+    .selectionContainer{
+        width: 95%;
+        padding: 3vh 2vw;
+    }
+    .diceContainer{
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+        gap: 3vh 3vw;
+        padding: 3vh;
+    }
+    .confirmButton{
+        width: 80%;
+        font-size: clamp(14px, 4vw, 18px);
     }
 }
