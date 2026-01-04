@@ -10,22 +10,6 @@ const Deck1Page = () => {
     const [selectedType, setSelectedType] = useState<CardType | null>(null)
     const [selectedCardId, setSelectedCardId] = useState<number | null>(null)
     
-    useEffect(() =>{
-        const fetchCards = async () =>{
-            try {
-                const response = await fetch('');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch cards');
-                }
-                const data = await response.json();
-                setCards(data);
-            } catch (error) {
-                console.error('Error fetching cards', error);
-            }
-        };
-        fetchCards();
-        }, [])
-
     return(
         <div className={styles.DeckPage}>
             <Link to="/decksEdit/"><p>&lt;- BACK</p></Link>
