@@ -74,7 +74,7 @@ namespace FPS_TCG.Server.Controllers
 
             try
             {
-                var imgEntity = await _db.Images
+                var imgEntity = await _db.Set<ImageEntity>()
                     .AsNoTracking()
                     .FirstOrDefaultAsync(i => i.CardId == id);
                 if (imgEntity != null)

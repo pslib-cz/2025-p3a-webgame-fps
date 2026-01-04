@@ -1,45 +1,68 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
-using FPS_TCG.Server.Models;
+using System.Linq;
 
 namespace FPS_TCG.Server.Data
 {
     public static class ImageConvertor
     {
-        public static byte[]? ConvertImageToByteArray(string imagePath)
+        // Hledani podle jmena (např. "Bleh")
+        // Vrátí (bytes, contentType, fileName) nebo (null,null,null) pokud nenalezeno.
+        public static (byte[]? Data, string? ContentType, string? FileName) LoadImageBytesFromFolder(string folderPath, string baseName)
         {
-            if (string.IsNullOrWhiteSpace(imagePath))
-                throw new ArgumentException("imagePath is null or empty", nameof(imagePath));
+            if (string.IsNullOrWhiteSpace(folderPath) || string.IsNullOrWhiteSpace(baseName))
+                return (null, null, null);
 
-            if (File.Exists(imagePath))
+            if (!Directory.Exists(folderPath))
+                return (null, null, null);
+
+            var exts = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp" };
+
+            // case-insensitive
+            var found = Directory.EnumerateFiles(folderPath)
+                .FirstOrDefault(f => string.Equals(Path.GetFileNameWithoutExtension(f), baseName, StringComparison.OrdinalIgnoreCase));
+
+            if (found == null)
             {
-                return File.ReadAllBytes(imagePath);
+                foreach (var ext in exts)
+                {
+                    var candidate = Path.Combine(folderPath, baseName + ext);
+                    if (File.Exists(candidate))
+                    {
+                        found = candidate;
+                        break;
+                    }
+                }
             }
 
-            return null;
+            if (found == null)
+            {
+                found = Directory.EnumerateFiles(folderPath)
+                    .FirstOrDefault(f => Path.GetFileName(f).IndexOf(baseName, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            if (found == null)
+                return (null, null, null);
+
+            var bytes = File.ReadAllBytes(found);
+            var contentType = GetContentTypeByExtension(Path.GetExtension(found));
+            return (bytes, contentType, Path.GetFileName(found));
         }
 
-
-        public static async Task<ImageEntity?> SaveImageToDatabaseAsync(AppDbContext db, string imagePath, int? cardId = null)
+        private static string? GetContentTypeByExtension(string? ext)
         {
-            if (db == null) throw new ArgumentNullException(nameof(db));
-            if (string.IsNullOrWhiteSpace(imagePath)) throw new ArgumentException("imagePath is null or empty", nameof(imagePath));
-
-            var bytes = ConvertImageToByteArray(imagePath);
-            if (bytes == null) return null;
-
-            var image = new ImageEntity
+            if (string.IsNullOrEmpty(ext)) return null;
+            ext = ext.ToLowerInvariant();
+            return ext switch
             {
-                FileName = Path.GetFileName(imagePath),
-                Data = bytes,
-                CardId = cardId
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".bmp" => "image/bmp",
+                _ => "application/octet-stream"
             };
-
-            db.Images.Add(image);
-            await db.SaveChangesAsync().ConfigureAwait(false);
-
-            return image;
         }
     }
 }

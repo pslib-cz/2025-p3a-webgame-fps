@@ -44,10 +44,15 @@ using (var scope = app.Services.CreateScope())
         var dbPath = conn.DataSource;
         logger.LogInformation("Using SQLite file: {path}", dbPath);
 
-
+        // cesta ke složce Images (vedle spouštìného working directory / .csproj)
+        var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+        logger.LogInformation("Images folder: {path}", imagesFolder);
 
         if (!await db.Cards.AnyAsync())
         {
+            // pokusíme se najít obrázek pro kartu "Bleh"
+            var imageResult = ImageConvertor.LoadImageBytesFromFolder(imagesFolder, "Bleh");
+
             db.Cards.Add(new Card
             {
                 CardId = 1,
@@ -63,9 +68,10 @@ using (var scope = app.Services.CreateScope())
                 Skill2Cost = 2,
                 supportCost = 0,
                 supportEffect = "none",
-                //ImageData = Array.Empty<byte>(),
-                //ImageContentType = "image/png"
-
+                isSelected = false,
+                ImageData = imageResult.Data,
+                ImageContentType = imageResult.ContentType,
+                ImageFileName = imageResult.FileName
             });
 
             db.Decks.Add(new Deck
