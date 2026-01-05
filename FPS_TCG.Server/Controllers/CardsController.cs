@@ -65,7 +65,7 @@ namespace FPS_TCG.Server.Controllers
 
             var card = new Card
             {
-                CardId = 1, 
+                CardId = 1,
                 Name = name,
                 type = typeNormalized!,
                 health = health,
@@ -77,7 +77,10 @@ namespace FPS_TCG.Server.Controllers
                 skill2Effect = skill2Effect,
                 Skill2Cost = skill2Cost,
                 supportCost = supportCost,
-                supportEffect = supportEffect
+                supportEffect = supportEffect,
+                ImageData = null,
+                ImageContentType = null,
+                ImageFileName = null
             };
 
             _db.Cards.Add(card);

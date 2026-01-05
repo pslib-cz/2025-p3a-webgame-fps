@@ -55,7 +55,7 @@ using (var scope = app.Services.CreateScope())
 
             db.Cards.Add(new Card
             {
-                CardId = 1,
+                CardId = 2,
                 Name = "Bleh",
                 type = "attack",
                 health = 10,
