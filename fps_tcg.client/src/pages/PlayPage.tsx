@@ -32,9 +32,11 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
     const [activeCard, setActiveCard] = useState<number | null>(null)
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [cards, setCards] = useState([]);
+    const[styles, setStyles] = useState(style.supportCards)
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
+        setStyles(style.supportCardsOpen)
     }
 
     useEffect(() => {
@@ -70,7 +72,7 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
-            <div className={style.supportCards} onClick={handleSupportClick}>
+            <div className={styles} onClick={handleSupportClick}>
                 <Hand cards={showAllSupport ? mySupport : mySupport.slice(0, 2)} 
                 activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
