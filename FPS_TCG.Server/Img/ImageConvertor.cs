@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace FPS_TCG.Server.Data
+namespace FPS_TCG.Server.Img
 {
     public static class ImageConvertor
     {

@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 namespace FPS_TCG.Server.Migrations
 {
     /// <inheritdoc />
@@ -10,70 +8,30 @@ namespace FPS_TCG.Server.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "diceCost2",
-                table: "Cards",
-                newName: "supportCost");
 
-            migrationBuilder.RenameColumn(
-                name: "diceCost1",
+            migrationBuilder.AddColumn<byte[]>(
+                name: "ImageData",
                 table: "Cards",
-                newName: "isSelected");
-
-            migrationBuilder.RenameColumn(
-                name: "damage2",
-                table: "Cards",
-                newName: "Skill2Cost");
-
-            migrationBuilder.RenameColumn(
-                name: "damage1",
-                table: "Cards",
-                newName: "Skill1Damage");
-
-            migrationBuilder.AddColumn<int>(
-                name: "Skill1Cost",
-                table: "Cards",
-                type: "INTEGER",
-                nullable: false,
-                defaultValue: 0);
+                type: "BLOB",
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "Skill1Name",
+                name: "ImageContentType",
                 table: "Cards",
                 type: "TEXT",
-                nullable: false,
-                defaultValue: "");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "Skill2Name",
+                name: "ImageFileName",
                 table: "Cards",
                 type: "TEXT",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "skill2Effect",
-                table: "Cards",
-                type: "TEXT",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "supportEffect",
-                table: "Cards",
-                type: "TEXT",
-                nullable: false,
-                defaultValue: "");
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Skill1Cost",
-                table: "Cards");
-
-            migrationBuilder.DropColumn(
                 name: "Skill1Name",
                 table: "Cards");
 
@@ -87,6 +45,18 @@ namespace FPS_TCG.Server.Migrations
 
             migrationBuilder.DropColumn(
                 name: "supportEffect",
+                table: "Cards");
+
+            migrationBuilder.DropColumn(
+                name: "ImageData",
+                table: "Cards");
+
+            migrationBuilder.DropColumn(
+                name: "ImageContentType",
+                table: "Cards");
+
+            migrationBuilder.DropColumn(
+                name: "ImageFileName",
                 table: "Cards");
 
             migrationBuilder.RenameColumn(
@@ -95,7 +65,7 @@ namespace FPS_TCG.Server.Migrations
                 newName: "diceCost2");
 
             migrationBuilder.RenameColumn(
-                name: "isSelected",
+                name: "Skill1Cost",
                 table: "Cards",
                 newName: "diceCost1");
 

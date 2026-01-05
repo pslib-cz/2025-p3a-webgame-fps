@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using FPS_TCG.Server.Data;
 using FPS_TCG.Server.Models;
 using Scalar.AspNetCore;
+using FPS_TCG.Server.Img;
 
 var builder = WebApplication.CreateBuilder(args);
 
