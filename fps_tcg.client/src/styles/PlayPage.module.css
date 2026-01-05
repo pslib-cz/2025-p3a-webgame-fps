@@ -4,7 +4,7 @@
     background-repeat: no-repeat;
     background-position: center;
     display: grid;
-    grid-template-columns: 1fr 1fr 0.75fr 0.75fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto;
     height: 100vh;
 }
@@ -54,10 +54,20 @@
     justify-self: center;
 }
 .supportCards{
-    position: relative;
-    margin: 1rem auto;
+    position: absolute;
     cursor: pointer;
+    top: 35em;
+    left: 69%;
 }
 .supportCards > *{
     color: var(--white);
+}
+.supportCardsOpen{
+    position: absolute;
+    color: var(--white);
+    width: 100%;
+    height: 100%;
+    justify-items: center;
+    align-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
 }

@@ -6,6 +6,7 @@
     background-position: center;
     margin: -1em 0 0 0;
     padding: 15.58em 6.25em;
+    text-align: center;
 }
 .DeckPage p{
     border: 1px solid var(--primary-btn-text);
@@ -78,7 +79,7 @@
 }
 .containerEdit{
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     grid-template-rows: auto;
     gap: 50px;
     justify-self: center;
@@ -87,4 +88,12 @@
     color: var(--white);
     text-align: center;
     font-size: 36px;
+}
+.nameOfDeckInp{
+    font-family: "Press Start 2P", system-ui;
+    font-size: 36px;
+    background-color: transparent;
+    color: var(--white);
+    text-align: center;
+    border: none;
 }

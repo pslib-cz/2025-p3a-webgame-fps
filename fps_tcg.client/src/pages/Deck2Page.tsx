@@ -12,10 +12,12 @@ const Deck2Page = () => {
             <Link to="/decksEdit/"><p>&lt;- BACK</p></Link>
             {isEditing ? (
                 <input
+                className={styles.nameOfDeckInp}
                 value={deckName}
                 onChange={(e) => setDeckName(e.target.value)}
-                onBlur={() => setIsEditing(false)}
-                autoFocus
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') setIsEditing(false);
+                }}
                 />
             ) : (
                 <div
