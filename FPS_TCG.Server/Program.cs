@@ -50,7 +50,6 @@ using (var scope = app.Services.CreateScope())
 
         if (!await db.Cards.AnyAsync())
         {
-            // pokusíme se najít obrázek pro kartu "Bleh"
             var imageResult = ImageConvertor.LoadImageBytesFromFolder(imagesFolder, "Bleh");
 
             db.Cards.Add(new Card
@@ -68,7 +67,6 @@ using (var scope = app.Services.CreateScope())
                 Skill2Cost = 2,
                 supportCost = 0,
                 supportEffect = "none",
-                isSelected = false,
                 ImageData = imageResult.Data,
                 ImageContentType = imageResult.ContentType,
                 ImageFileName = imageResult.FileName
