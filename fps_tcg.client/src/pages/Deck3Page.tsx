@@ -8,7 +8,7 @@ const Deck3Page = () => {
 
     return(
         <div className={styles.DeckPage}>
-            <Link to="/decksEdit/"><p>&lt;- BACK</p></Link>
+            <Link to="/decksEdit/"><span>&lt;- BACK</span></Link>
             {isEditing ? (
                 <input
                 className={styles.nameOfDeckInp}

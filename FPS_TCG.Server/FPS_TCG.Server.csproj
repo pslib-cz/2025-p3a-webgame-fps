@@ -36,8 +36,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Img\ImagesToConvert\" />
-  </ItemGroup>
-
 </Project>

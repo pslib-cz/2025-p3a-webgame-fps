@@ -8,7 +8,7 @@ export const DeckPage: FC = () => {
      const navigate = useNavigate();
     return(
         <div className={styles.DeckPage}>
-            <Link to="/"><p>&lt;- BACK</p></Link>
+            <Link to="/"><span>&lt;- BACK</span></Link>
             <div className={styles.container}>
                 {["Deck1", "Deck2", "Deck3"].map(deck => (
                     <div key={deck}>
