@@ -71,3 +71,17 @@
     align-content: center;
     background-color: rgba(0, 0, 0, 0.5);
 }
+.supportButtons{
+    margin-top: 10em;
+    display: flex;
+    gap: 10rem;
+}
+.supportButton{
+    font-family: "Press Start 2P", system-ui;
+    border: 1px solid var(--primary-btn-text);
+    background-color: var(--white);
+    color: var(--primary-btn-text);
+    width: 250px;
+    height: 40px;
+    font-size: 20px;
+}
