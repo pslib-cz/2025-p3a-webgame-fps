@@ -59,7 +59,10 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
 
     const handleCharacterSelect = (cardId: number) => {
         setActiveCard(cardId);
-        onCardPicked();
+
+        setTimeout(() => {
+            onCardPicked();
+        }, 1000);
     }
 
     const handleSupportClose = () =>{
