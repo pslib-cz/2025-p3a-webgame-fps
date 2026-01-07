@@ -10,6 +10,9 @@ type GameProps = {
 const Game: FC<GameProps> = () =>{
     const [currentView, setCurrentView] = useState<GameView>('Play');
     const [rolledDice, setRolledDice] = useState<DiceSymbol[]>([]);
+    const [firstTurn, setFirstTurn] = useState(true);
+    const [activeCard, setActiveCard] = useState<number | null>(null)
+
     const startDiceRoll = () => {
         setCurrentView('Dice_Roll');
     };
@@ -21,7 +24,8 @@ const Game: FC<GameProps> = () =>{
             return <DicePage onRollConfirmed={finishDiceRoll} onSymbolsRolled={setRolledDice} />;
         case 'Play':
         default:
-            return <PlayPage onCardPicked={startDiceRoll} diceSymbols={rolledDice} />; 
+            return <PlayPage onCardPicked={startDiceRoll} diceSymbols={rolledDice} 
+            firstTurn={firstTurn} setFirstTurn={setFirstTurn} activeCard={activeCard} setActiveCard={setActiveCard}/>; 
     }
 }
 export default Game;

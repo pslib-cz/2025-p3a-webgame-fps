@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, } from 'react'
 import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
@@ -11,6 +11,10 @@ import lamma from '../assets/coollama.png'
 type PlayPageProps = {
     onCardPicked: () => void;
     diceSymbols: DiceSymbol[];
+    firstTurn: boolean;
+    setFirstTurn: (value: boolean) => void;
+    activeCard: number | null;
+    setActiveCard: (value: number | null) => void;
 }
 
 const characters = [
@@ -28,8 +32,7 @@ const mySupport = [
     { id: 15, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"}
 ];
 
-export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
-    const [activeCard, setActiveCard] = useState<number | null>(null)
+export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [cards, setCards] = useState([]);
     const[styles, setStyles] = useState(style.supportCards)
@@ -58,11 +61,17 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
     }, []);
 
     const handleCharacterSelect = (cardId: number) => {
+        const card = characters.find(c => c.id === cardId);
+        if (!card) return;
+
         setActiveCard(cardId);
 
-        setTimeout(() => {
-            onCardPicked();
-        }, 1000);
+        if(firstTurn){
+            setTimeout(() => {
+                setFirstTurn(false)
+                onCardPicked();
+            }, 800)
+        }
     }
 
     const handleSupportClose = () =>{
@@ -89,9 +98,14 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
                 <img src={cardBack90} alt="cardBack" />
                 <img src={cardBack90} alt="cardBack" />
             </div>
-            <button className={style.endRoundButton}>END ROUND</button>
+            <button className={style.endRoundButton} onClick={() => {
+                if(firstTurn == false){
+                    onCardPicked()
+                }
+                console.log(firstTurn)
+            }}>END ROUND</button>
             <div className={style.playPanel}>
-                <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
+                <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
             <div className={styles}>
