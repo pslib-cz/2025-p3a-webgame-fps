@@ -62,9 +62,13 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
     }
 
     const handleSupportClose = () =>{
-        console.log("you just clicked");
-        setShowAllSupport(prev => !prev)
+        setShowAllSupport(false);
+        setStyles(style.supportCards); 
     };
+
+    const playSupport = () => {
+        
+    }
 
     return(
         <div className={style.playPageBody}>
@@ -77,7 +81,7 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
-            <div className={styles} onClick={handleSupportClick}>
+            <div className={styles} onClick={!showAllSupport ? handleSupportClick : undefined}>
                 <Hand cards={showAllSupport ? mySupport : mySupport.slice(0, 2)} 
                 activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
                 {showAllSupport ?

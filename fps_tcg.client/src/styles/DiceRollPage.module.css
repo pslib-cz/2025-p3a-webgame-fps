@@ -38,9 +38,9 @@
     font-family: "Press Start 2P", system-ui;
 }
 @media (min-width: 2000px) {
-    .dicePageBody{
+    /* .dicePageBody{
         padding: 50em 10em;
-    }
+    } */
     .selectionContainer{
         width: 85%;
     }
