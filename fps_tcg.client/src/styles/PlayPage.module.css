@@ -56,7 +56,7 @@
 .supportCards{
     position: absolute;
     cursor: pointer;
-    top: 35em;
+    top: 60%;
     left: 69%;
 }
 .supportCards > *{
@@ -84,4 +84,9 @@
     width: 250px;
     height: 40px;
     font-size: 20px;
+}
+@media (min-width: 2000px) {
+    .supportCards{
+        top: 65%;
+    }
 }

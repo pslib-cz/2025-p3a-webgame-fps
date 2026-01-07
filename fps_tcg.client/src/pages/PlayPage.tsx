@@ -33,6 +33,7 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [cards, setCards] = useState([]);
     const[styles, setStyles] = useState(style.supportCards)
+    const [selectedSup, setSelectedSup] = useState<number | null>(null)
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
@@ -67,7 +68,16 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
     };
 
     const playSupport = () => {
-        
+        if(selectedSup == null) return;
+
+        const card = mySupport.find(c => c.id === selectedSup);
+        if(!card) return;
+
+        console.log("Playing support card:", card.name);
+
+        setSelectedSup(null)
+        setShowAllSupport(false)
+        setStyles(style.supportCards)
     }
 
     return(
@@ -81,19 +91,22 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols}) => {
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect}/>
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
             </div>
-            <div className={styles} onClick={!showAllSupport ? handleSupportClick : undefined}>
-                <Hand cards={showAllSupport ? mySupport : mySupport.slice(0, 2)} 
-                activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
-                {showAllSupport ?
-                (
-                    <div className={style.supportButtons}>
-                        <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
-                        <button className={style.supportButton} onClick={() => console.log(showAllSupport)}>PLAY</button>
+            <div className={styles}>
+                {!showAllSupport &&(
+                    <div onClick={handleSupportClick}>
+                        <Hand cards={showAllSupport ? mySupport : mySupport.slice(0, 2)} 
+                        activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(id)} />
                     </div>
-                    ) : (
-                        <p></p>
-                    )
-                }
+                )}
+                {showAllSupport &&(
+                    <>
+                        <Hand cards={mySupport} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(id)} />
+                        <div className={style.supportButtons}>
+                            <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
+                            <button className={style.supportButton} onClick={playSupport}>PLAY</button>
+                        </div>
+                    </>
+                )}
             </div>
             <div className={style.dicePanel}>
                 {diceSymbols.map((symbol, index) => (
