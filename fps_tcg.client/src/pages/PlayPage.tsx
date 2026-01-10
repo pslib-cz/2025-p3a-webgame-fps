@@ -48,6 +48,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [selectedSup, setSelectedSup] = useState<number | null>(null)
     const [attackMenu, setAttackMenu] = useState<number | null>(null)
     const [showAttackMenu, setShowAttackMenu] = useState(false)
+    const [pendingCard, setPendingCard] = useState<number | null>(null)
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
@@ -75,11 +76,18 @@ export const PlayPage: FC<PlayPageProps> = (
         const card = characters.find(c => c.id === cardId);
         if (!card) return;
 
-        setActiveCard(cardId);
         setAttackMenu(cardId); 
         setShowAttackMenu(true);
+        setPendingCard(cardId)
+
+        if(cardId == activeCard){
+            setPendingCard(null);
+            return;
+        }
 
         if(firstTurn){
+            setActiveCard(cardId);
+
             setTimeout(() => {
                 setFirstTurn(false)
                 onCardPicked();
@@ -123,49 +131,55 @@ export const PlayPage: FC<PlayPageProps> = (
                 }
                 console.log(firstTurn)
             }}>END ROUND</button>
+            {!firstTurn && pendingCard && (
+                <button className={style.confirmButton} onClick={
+                    () => {
+                        setActiveCard(pendingCard); 
+                        setPendingCard(null);
+                        setShowAttackMenu(false)
+                    }}>CONFIRM</button>
+            )}
             <div className={style.playPanel}>
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
-                <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
+                <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
                         {(() => {
                             const char = characters.find(c => c.id === attackMenu);
                             if (!char) return null;
-
                             return(
-                                <>
-                                    <div className={style.moveRowNormal}>
-                                        <div className={style.iconBlock}>
-                                            <div className={style.swordBlock}>
-                                                <img className={style.swordIcon} src={dmg} alt="damage"></img>
-                                                <span className={style.damageValue}>{char.skill1Damage}</span>
-                                            </div>
-                                            <div className={style.priceBlock}>
-                                                <img className={style.costIcon} src={cost} alt='cost'></img>
-                                                <span className={style.costValue}>{char.skill1Cost}</span>
-                                            </div>
-                                        </div>
-                                        <div className={style.descriptionBlock}>
-                                        {char.skill1Name}
-                                        </div>
+                            <>
+                            <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name, char.skill1Damage)}>
+                                <div className={style.iconBlock}>
+                                    <div className={style.swordBlock}>
+                                        <img className={style.swordIcon} src={dmg} alt="damage"></img>
+                                        <span className={style.damageValue}>{char.skill1Damage}</span>
                                     </div>
-
-                                    <div className={style.moveRowUltimate}>
-                                        <div className={style.iconBlock}>
-                                            <div className={style.swordBlock}>
-                                                <img className={style.swordIcon} src={dmg} alt="damage"></img>
-                                                <span className={style.damageValue}>{char.skill2Damage}</span>
-                                            </div>
-                                            <div className={style.priceBlock}>
-                                                <img className={style.costIcon} src={cost} alt='cost'></img>
-                                                <span className={style.costValue}>{char.skill2Cost}</span>
-                                            </div>
-                                        </div>
-                                        <div className={style.descriptionBlock}>
-                                        {char.skill2Name}
-                                        </div>
+                                    <div className={style.priceBlock}>
+                                        <img className={style.costIcon} src={cost} alt='cost'></img>
+                                        <span className={style.costValue}>{char.skill1Cost}</span>
                                     </div>
-                                </>
+                                </div>
+                                <div className={style.descriptionBlock}>
+                                {char.skill1Name}
+                                </div>
+                            </div>
+                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name, char.skill2Damage)}>
+                                <div className={style.iconBlock}>
+                                    <div className={style.swordBlock}>
+                                        <img className={style.swordIcon} src={dmg} alt="damage"></img>
+                                        <span className={style.damageValue}>{char.skill2Damage}</span>
+                                    </div>
+                                    <div className={style.priceBlock}>
+                                        <img className={style.costIcon} src={cost} alt='cost'></img>
+                                        <span className={style.costValue}>{char.skill2Cost}</span>
+                                    </div>
+                                </div>
+                                <div className={style.descriptionBlock}>
+                                {char.skill2Name}
+                                </div>
+                            </div>
+                            </>
                             )
                         })()}
                     </div>

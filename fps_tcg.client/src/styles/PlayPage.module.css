@@ -23,6 +23,21 @@
     top: 80%;
     left: 100px;
 }
+.confirmButton{
+    font-family: "Press Start 2P", system-ui;
+    border: 1px solid var(--primary-btn-text);
+    background-color: var(--white);
+    color: var(--primary-btn-text);
+    width: 250px;
+    height: 40px;
+    font-size: 20px;
+    text-align: center;
+    align-content: center;
+    margin: 0;
+    position: absolute;
+    top: 85%;
+    left: 100px;
+}
 .dicePanel{
     background-image: url('../assets/pixil-frame-1.png');
     background-repeat: no-repeat;
@@ -86,6 +101,9 @@
     font-size: 20px;
 }
 @media (min-width: 2000px) {
+    .deckBox{
+        top: 30%;
+    }
     .supportCards{
         top: 65%;
     }

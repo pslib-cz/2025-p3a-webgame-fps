@@ -1,4 +1,4 @@
-import { useState, type FC } from "react";
+import { type FC } from "react";
 import style from './Dice.module.css'
 import { type DiceSymbol } from "../types";
 import sword from '../assets/sword.png';
