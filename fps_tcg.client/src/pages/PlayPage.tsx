@@ -7,6 +7,8 @@ import cat from "../assets/blehcat.png"
 import type { CardType, DiceSymbol } from '../types'
 import Dice from '../components/Dice'
 import lamma from '../assets/coollama.png'
+import dmg from '../assets/damage.png'
+import cost from '../assets/price.png'
 
 type PlayPageProps = {
     onCardPicked: () => void;
@@ -18,25 +20,34 @@ type PlayPageProps = {
 }
 
 const characters = [
-    { id: 1, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10 },
-    { id: 2, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10 },
-    { id: 3, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10 }
+    { id: 1, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
+        skill1Name: "scratch", skill1Damage: 1, skill1Cost: 1, 
+        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3 },
+    { id: 2, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
+        skill1Name: "scratch", skill1Damage: 2, skill1Cost: 1, 
+        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3 },
+    { id: 3, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
+        skill1Name: "scratch", skill1Damage: 1, skill1Cost: 1, 
+        skill2Name: "Ultimate bleh", skill2Damage: 4, skill2Cost: 2 }
 ];
 
 const mySupport = [
-    { id: 10, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 11, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 12, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 13, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 14, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 15, name: "Cool Lamma", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"}
+    { id: 10, name: "Cool Lamma 1", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 11, name: "Cool Lamma 2", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 12, name: "Cool Lamma 3", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 13, name: "Cool Lamma 4", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 14, name: "Cool Lamma 5", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
+    { id: 15, name: "Cool Lamma 6", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"}
 ];
 
-export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard}) => {
+export const PlayPage: FC<PlayPageProps> = (
+    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [cards, setCards] = useState([]);
     const[styles, setStyles] = useState(style.supportCards)
     const [selectedSup, setSelectedSup] = useState<number | null>(null)
+    const [attackMenu, setAttackMenu] = useState<number | null>(null)
+    const [showAttackMenu, setShowAttackMenu] = useState(false)
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
@@ -65,6 +76,8 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols, firstTu
         if (!card) return;
 
         setActiveCard(cardId);
+        setAttackMenu(cardId); 
+        setShowAttackMenu(true);
 
         if(firstTurn){
             setTimeout(() => {
@@ -82,14 +95,20 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols, firstTu
     const playSupport = () => {
         if(selectedSup == null) return;
 
-        const card = mySupport.find(c => c.id === selectedSup);
-        if(!card) return;
+        const support = mySupport.find(c => c.id === selectedSup);
+        if(!support) return;
 
-        console.log("Playing support card:", card.name);
+        console.log("Playing support card:", support.name);
 
         setSelectedSup(null)
         setShowAllSupport(false)
         setStyles(style.supportCards)
+    }
+    
+    const handleAttackMove = (move: string, dmg: number) => {
+        console.log("Selected attack move:", move)
+        console.log("Damage", dmg)
+        setShowAttackMenu(false);
     }
 
     return(
@@ -107,6 +126,50 @@ export const PlayPage: FC<PlayPageProps> = ({ onCardPicked, diceSymbols, firstTu
             <div className={style.playPanel}>
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
                 <Hand cards={characters} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
+                {showAttackMenu && activeCard && !firstTurn && (
+                    <div className={style.attackMenu}>
+                        {(() => {
+                            const char = characters.find(c => c.id === attackMenu);
+                            if (!char) return null;
+
+                            return(
+                                <>
+                                    <div className={style.moveRowNormal}>
+                                        <div className={style.iconBlock}>
+                                            <div className={style.swordBlock}>
+                                                <img className={style.swordIcon} src={dmg} alt="damage"></img>
+                                                <span className={style.damageValue}>{char.skill1Damage}</span>
+                                            </div>
+                                            <div className={style.priceBlock}>
+                                                <img className={style.costIcon} src={cost} alt='cost'></img>
+                                                <span className={style.costValue}>{char.skill1Cost}</span>
+                                            </div>
+                                        </div>
+                                        <div className={style.descriptionBlock}>
+                                        {char.skill1Name}
+                                        </div>
+                                    </div>
+
+                                    <div className={style.moveRowUltimate}>
+                                        <div className={style.iconBlock}>
+                                            <div className={style.swordBlock}>
+                                                <img className={style.swordIcon} src={dmg} alt="damage"></img>
+                                                <span className={style.damageValue}>{char.skill2Damage}</span>
+                                            </div>
+                                            <div className={style.priceBlock}>
+                                                <img className={style.costIcon} src={cost} alt='cost'></img>
+                                                <span className={style.costValue}>{char.skill2Cost}</span>
+                                            </div>
+                                        </div>
+                                        <div className={style.descriptionBlock}>
+                                        {char.skill2Name}
+                                        </div>
+                                    </div>
+                                </>
+                            )
+                        })()}
+                    </div>
+                )}
             </div>
             <div className={styles}>
                 {!showAllSupport &&(

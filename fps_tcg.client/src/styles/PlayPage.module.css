@@ -90,3 +90,52 @@
         top: 65%;
     }
 }
+.attackMenu{
+    position: absolute;
+    background-image: url('../assets/pixil-frame-2.png');
+    color: var(--white);
+    top: 37%;
+    left: 75%;
+    cursor: pointer;
+    display: flex; 
+    flex-direction: column; 
+    gap: 25px;
+}
+.moveRowNormal { 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    gap: 12px; 
+    margin: 10px 14px;
+    padding: 10px 14px; 
+    background: #83868C; 
+}
+.moveRowUltimate { 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px; 
+    margin: 10px 14px;
+    padding: 10px 14px; 
+    background: #5B5D65; 
+}
+.swordBlock{
+    display: flex;
+    gap: 10px;
+}
+.priceBlock{
+    display: flex;
+    gap: 10px;
+}
+.iconBlock { 
+    display: flex; 
+    align-items: center;
+    gap: 50px; 
+    font-size: 16px; 
+    padding: 5px;
+    border-bottom: 4px solid var(--white) ;
+}
+.descriptionBlock { 
+    font-size: 16px; 
+    color: var(--white); 
+}
