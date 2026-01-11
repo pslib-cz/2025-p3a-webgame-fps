@@ -11,6 +11,7 @@ const Deck1Page = () => {
     const [selectedType, setSelectedType] = useState<CardType | null>(null)
     const [selectedCardId, setSelectedCardId] = useState<number | null>(null)
     const [showAttackContainer, setShowAttackContainer] = useState(false);
+    const [showSupportContainer, setShowSupportContainer] = useState(false);
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -53,6 +54,11 @@ const Deck1Page = () => {
         setSelectedType('attack');
     }
 
+    const handleSupportClick = () => {
+        setShowSupportContainer(!showSupportContainer);
+        setSelectedType('support');
+    }
+
     return(
         <div className={styles.DeckPage}>
             <Link to="/decksEdit/"><span>&lt;- BACK</span></Link>
@@ -79,7 +85,7 @@ const Deck1Page = () => {
                 <button onClick={handleAttackClick}></button>
             </div>
             {showAttackContainer && (
-                <div className={styles.attackContainer}>
+                <div className={styles.cardContainer}>
                     <div>  
                         {cards.filter(card => card.type === 'attack')
                             .map((card) => (
@@ -93,13 +99,27 @@ const Deck1Page = () => {
                 </div>
             )}
             <div className={styles.containerEdit}>
-                <button onClick={() => setSelectedType('support')}></button>
-                <button onClick={() => setSelectedType('support')}></button>
-                <button onClick={() => setSelectedType('support')}></button>
-                <button onClick={() => setSelectedType('support')}></button>
-                <button onClick={() => setSelectedType('support')}></button>
-                <button onClick={() => setSelectedType('support')}></button>
+                <button onClick={handleSupportClick}></button>
+                <button onClick={handleSupportClick}></button>
+                <button onClick={handleSupportClick}></button>
+                <button onClick={handleSupportClick}></button>
+                <button onClick={handleSupportClick}></button>
+                <button onClick={handleSupportClick}></button>
             </div>
+            {showSupportContainer && (
+                <div className={styles.cardContainer}>
+                    <div>  
+                        {cards.filter(card => card.type === 'support')
+                            .map((card) => (
+                                <div key={card.id}>
+                                    <Card {...card}/>
+                                </div>
+                            ))
+                        }
+                    </div>
+                    <button onClick={handleSupportClick}>CANCEL</button>
+                </div>
+            )}
         </div>
     );
 }

@@ -100,7 +100,7 @@
     text-align: center;
     border: none;
 }
-.attackContainer {
+.cardContainer {
     position: fixed;
     top: 0;
     left: 0;
@@ -118,7 +118,7 @@
     overflow-y: auto;
 }
 
-.attackContainer button {
+.cardContainer button {
     font-family: "Press Start 2P", system-ui;
     border: 1px solid var(--primary-btn-text);
     background-color: var(--white);
@@ -130,6 +130,6 @@
     cursor: pointer;
 }
 
-.attackContainer button::before, .attackContainer button::after {
+.cardContainer button::before, .cardContainer button::after {
     display: none;
 }
