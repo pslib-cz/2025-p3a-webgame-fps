@@ -119,6 +119,18 @@ export const PlayPage: FC<PlayPageProps> = (
         setShowAttackMenu(false);
     }
 
+    const drawCard = () => {
+        
+    }
+
+    useEffect(() => {
+        if(firstTurn){
+
+        }else {
+
+        }
+    }, [firstTurn])
+
     return(
         <div className={style.playPageBody}>
             <div className={style.deckBox}>
@@ -129,7 +141,6 @@ export const PlayPage: FC<PlayPageProps> = (
                 if(firstTurn == false){
                     onCardPicked()
                 }
-                console.log(firstTurn)
             }}>END ROUND</button>
             {!firstTurn && pendingCard && (
                 <button className={style.confirmButton} onClick={

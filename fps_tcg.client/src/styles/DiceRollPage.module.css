@@ -5,6 +5,7 @@
     display: flex;
     justify-content: center;
     padding: 12.72vw 5vh;
+    height: -webkit-fill-available;
 }
 .selectionContainer{
     background-image: url('../assets/pixil-frame-2.png');
