@@ -24,8 +24,8 @@ namespace FPS_TCG.Server.Models
         public int supportCost { get; set; }
         public required string supportEffect { get; set; }
 
-        public required byte[]? ImageData { get; set; }
-        public required string? ImageContentType { get; set; }
-        public required string? ImageFileName { get; set; }
+        public byte[]? ImageData { get; set; }
+        public  string? ImageContentType { get; set; }
+        public  string? ImageFileName { get; set; }
     }
 }
