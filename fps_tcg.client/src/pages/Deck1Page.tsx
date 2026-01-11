@@ -136,9 +136,18 @@ const Deck1Page = () => {
                 </div>
             )}
             <div className={styles.container}>
-                <button onClick={handleAttackClick}></button>
-                <button onClick={handleAttackClick}></button>
-                <button onClick={handleAttackClick}></button>
+                {[0, 1, 2].map((i) => {
+                    const card = cards.find(c => c.id === selectedAttackIds[i]);
+                    return (
+                        <div key={i}>
+                            {card ? (
+                                <Card {...card} onClick={handleAttackClick}/>
+                            ) : (
+                                <button onClick={handleAttackClick}></button>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
             {showAttackContainer && (
                 <div className={styles.cardContainer}>
