@@ -49,6 +49,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [attackMenu, setAttackMenu] = useState<number | null>(null)
     const [showAttackMenu, setShowAttackMenu] = useState(false)
     const [pendingCard, setPendingCard] = useState<number | null>(null)
+    const [selectedDiceIndex, setSelectedDiceIndex] = useState<number | null>(null)
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
@@ -143,11 +144,14 @@ export const PlayPage: FC<PlayPageProps> = (
                 }
             }}>END ROUND</button>
             {!firstTurn && pendingCard && (
-                <button className={style.confirmButton} onClick={
-                    () => {
+                <button className={style.confirmButton} 
+                onClick={() => {
+                        if(selectedDiceIndex === null) return;
+                        setSelectedDiceIndex(null)
                         setActiveCard(pendingCard); 
                         setPendingCard(null);
                         setShowAttackMenu(false)
+                        console.log('Dice:', selectedDiceIndex, 'was used')
                     }}>CONFIRM</button>
             )}
             <div className={style.playPanel}>
@@ -215,7 +219,8 @@ export const PlayPage: FC<PlayPageProps> = (
             </div>
             <div className={style.dicePanel}>
                 {diceSymbols.map((symbol, index) => (
-                    <Dice key={index} symbol={symbol} isSelected={false} onClick={() => {}} />
+                    <Dice key={index} symbol={symbol} isSelected={selectedDiceIndex === index} 
+                    onClick={() => {if(pendingCard)return setSelectedDiceIndex(index)}} />
                 ))}
             </div>
         </div>
