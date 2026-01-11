@@ -152,9 +152,9 @@ const Deck1Page = () => {
                         }
                     </div>
                     <div>
-                        <button onClick={handleAttackClick}>CANCEL</button>
+                        <span onClick={handleAttackClick}>CANCEL</span>
                         {selectedAttackIds.length > 0 && (
-                            <button onClick={handleConfirmAttack}>CONFIRM</button>
+                            <span onClick={handleConfirmAttack}>CONFIRM</span>
                         )}
                     </div>
                 </div>
@@ -178,11 +178,11 @@ const Deck1Page = () => {
                             ))
                         }
                     </div>
-                    <button onClick={handleSupportClick}>CANCEL</button>
+                    <span onClick={handleSupportClick}>CANCEL</span>
                 </div>
             )}
             {selectedAttackIds.length > 0 && (
-                <button className={styles.saveButton} onClick={handleSaveDeck}>SAVE</button>
+                <span onClick={handleSaveDeck}>SAVE</span>
             )}
         </div>
     );
