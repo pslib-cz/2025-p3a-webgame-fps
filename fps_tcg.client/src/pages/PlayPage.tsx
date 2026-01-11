@@ -146,7 +146,7 @@ export const PlayPage: FC<PlayPageProps> = (
             {!firstTurn && pendingCard && (
                 <button className={style.confirmButton} 
                 onClick={() => {
-                        if(selectedDiceIndex === null) return;
+                        if(selectedDiceIndex === null) return alert("Choose dice to switch!");  
                         setSelectedDiceIndex(null)
                         setActiveCard(pendingCard); 
                         setPendingCard(null);
