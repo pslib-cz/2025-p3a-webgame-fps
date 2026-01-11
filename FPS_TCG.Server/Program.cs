@@ -55,16 +55,16 @@ using (var scope = app.Services.CreateScope())
 
             db.Cards.Add(new Card
             {
-                CardId = 2,
-                Name = "Bleh",
+                CardId = 4,
+                Name = "Card3",
                 type = "attack",
                 health = 10,
                 shield = 0,
-                Skill1Name = "Slash",
+                Skill1Name = "Queen",
                 Skill1Damage = 2,
                 Skill1Cost = 1,
-                Skill2Name = "Stab",
-                skill2Effect = "bleed",
+                Skill2Name = "Obliterate",
+                skill2Effect = "death",
                 Skill2Cost = 2,
                 supportCost = 0,
                 supportEffect = "none",
