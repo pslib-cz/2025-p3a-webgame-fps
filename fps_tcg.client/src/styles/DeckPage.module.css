@@ -101,5 +101,35 @@
     border: none;
 }
 .attackContainer {
-    
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.attackContainer button {
+    font-family: "Press Start 2P", system-ui;
+    border: 1px solid var(--primary-btn-text);
+    background-color: var(--white);
+    color: var(--primary-btn-text);
+    width: 250px;
+    height: 40px;
+    font-size: 20px;
+    margin-top: 2em;
+    cursor: pointer;
+}
+
+.attackContainer button::before, .attackContainer button::after {
+    display: none;
 }
