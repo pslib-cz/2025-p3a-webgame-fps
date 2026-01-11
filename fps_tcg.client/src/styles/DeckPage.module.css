@@ -118,6 +118,11 @@
     overflow-y: auto;
 }
 
+.cards {
+    display: flex;
+    gap: 20px;
+}
+
 .cardContainer button {
     font-family: "Press Start 2P", system-ui;
     border: 1px solid var(--primary-btn-text);
@@ -131,5 +136,22 @@
 }
 
 .cardContainer button::before, .cardContainer button::after {
+    display: none;
+}
+
+.saveButton {
+    font-family: "Press Start 2P", system-ui;
+    border: 1px solid var(--primary-btn-text);
+    background-color: var(--white);
+    color: var(--primary-btn-text);
+    width: 250px;
+    height: 40px;
+    font-size: 20px;
+    margin-top: 2em;
+    cursor: pointer;
+    position: static;
+}
+
+.saveButton::before, .saveButton::after {
     display: none;
 }

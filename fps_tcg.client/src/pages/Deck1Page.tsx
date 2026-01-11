@@ -9,8 +9,9 @@ const Deck1Page = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [cards, setCards] = useState<CardProps[]>([]);
     const [selectedType, setSelectedType] = useState<CardType | null>(null)
-    const [selectedCardId, setSelectedCardId] = useState<number | null>(null)
+    const [selectedAttackIds, setSelectedAttackIds] = useState<number[]>([]);
     const [showAttackContainer, setShowAttackContainer] = useState(false);
+    const [selectedSupportIds, setSelectedSupportIds] = useState<number[]>([]);
     const [showSupportContainer, setShowSupportContainer] = useState(false);
 
     useEffect(() => {
@@ -54,10 +55,65 @@ const Deck1Page = () => {
         setSelectedType('attack');
     }
 
+    const toggleAttackSelect = (id: number) => {
+        setSelectedAttackIds(prev => {
+            const exists = prev.includes(id);
+            if (exists) return prev.filter(x => x !== id);
+            if (prev.length >= 3) return prev;
+            return [...prev, id];
+        });
+    }
+
+    const handleConfirmAttack = () => {
+        setShowAttackContainer(false);
+    }
+
     const handleSupportClick = () => {
         setShowSupportContainer(!showSupportContainer);
         setSelectedType('support');
     }
+
+    const toggleSupportSelect = (id: number) => {
+        setSelectedSupportIds(prev => {
+            const exists = prev.includes(id);
+            if (exists) return prev.filter(x => x !== id);
+            return [...prev, id];
+        });
+    }
+
+    useEffect(() => {
+        const savedAttacks = localStorage.getItem('selectedAttackIds');
+        const savedSupport = localStorage.getItem('selectedSupportIds');
+        if (savedAttacks) setSelectedAttackIds(JSON.parse(savedAttacks));
+        if (savedSupport) setSelectedSupportIds(JSON.parse(savedSupport));
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('selectedAttackIds', JSON.stringify(selectedAttackIds));
+    }, [selectedAttackIds]);
+
+    useEffect(() => {
+        localStorage.setItem('selectedSupportIds', JSON.stringify(selectedSupportIds));
+    }, [selectedSupportIds]);
+
+    const handleSaveDeck = () => {
+        const deckData = {
+            name: deckName,
+            attacks: selectedAttackIds,
+            supports: selectedSupportIds
+        };
+        localStorage.setItem('myDeck', JSON.stringify(deckData));
+    }
+
+    useEffect(() => {
+        const savedDeck = localStorage.getItem('myDeck');
+        if (savedDeck) {
+            const { name, attacks, supports } = JSON.parse(savedDeck);
+            setDeckName(name);
+            setSelectedAttackIds(attacks);
+            setSelectedSupportIds(supports);
+        }
+    }, []);
 
     return(
         <div className={styles.DeckPage}>
@@ -86,16 +142,21 @@ const Deck1Page = () => {
             </div>
             {showAttackContainer && (
                 <div className={styles.cardContainer}>
-                    <div>  
-                        {cards.filter(card => card.type === 'attack')
+                    <div className={styles.cards}>  
+                        {cards.filter(card => card.type === selectedType)
                             .map((card) => (
                                 <div key={card.id}>
-                                    <Card {...card}/>
+                                    <Card {...card} isSelected={selectedAttackIds.includes(card.id)} onClick={() => toggleAttackSelect(card.id)}/>
                                 </div>
                             ))
                         }
                     </div>
-                    <button onClick={handleAttackClick}>CANCEL</button>
+                    <div>
+                        <button onClick={handleAttackClick}>CANCEL</button>
+                        {selectedAttackIds.length > 0 && (
+                            <button onClick={handleConfirmAttack}>CONFIRM</button>
+                        )}
+                    </div>
                 </div>
             )}
             <div className={styles.containerEdit}>
@@ -109,16 +170,19 @@ const Deck1Page = () => {
             {showSupportContainer && (
                 <div className={styles.cardContainer}>
                     <div>  
-                        {cards.filter(card => card.type === 'support')
+                        {cards.filter(card => card.type === selectedType)
                             .map((card) => (
                                 <div key={card.id}>
-                                    <Card {...card}/>
+                                    <Card {...card}  isSelected={selectedSupportIds.includes(card.id)} onClick={() => toggleSupportSelect(card.id)}/>
                                 </div>
                             ))
                         }
                     </div>
                     <button onClick={handleSupportClick}>CANCEL</button>
                 </div>
+            )}
+            {selectedAttackIds.length > 0 && (
+                <button className={styles.saveButton} onClick={handleSaveDeck}>SAVE</button>
             )}
         </div>
     );
