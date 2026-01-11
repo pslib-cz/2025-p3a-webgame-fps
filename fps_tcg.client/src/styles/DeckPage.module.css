@@ -4,7 +4,8 @@
     background-repeat: no-repeat;
     background-position: center;
     padding: 10em 6.25em;
-    min-height: 100vh;  
+    max-height: 100%; 
+    height: -webkit-fill-available; 
 }
 .DeckPage span{
     border: 1px solid var(--primary-btn-text);
