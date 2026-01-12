@@ -50,6 +50,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [showAttackMenu, setShowAttackMenu] = useState(false)
     const [pendingCard, setPendingCard] = useState<number | null>(null)
     const [selectedDiceIndex, setSelectedDiceIndex] = useState<number | null>(null)
+    const [characterList, setCharacterList] = useState(characters)
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
@@ -117,6 +118,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const handleAttackMove = (move: string, dmg: number) => {
         console.log("Selected attack move:", move)
         console.log("Damage", dmg)
+        dmgDeal(activeCard, dmg)
         setShowAttackMenu(false);
     }
 
@@ -131,6 +133,24 @@ export const PlayPage: FC<PlayPageProps> = (
 
         }
     }, [firstTurn])
+
+    const dmgDeal = (id: number | null, dmg: number) =>{
+        setCharacterList(prev => prev.map(
+          c => {
+            if(c.id !== id) return c;
+            let shield = c.shield ?? 0;
+            let health = c.health ?? 0;
+
+            const shieldDmg = Math.min(shield, dmg);
+            shield -= shieldDmg;
+
+            const remaining = dmg - shieldDmg;
+            health = Math.max(0, health - remaining)
+
+            return{...c, shield, health}
+          }  
+        ))
+    }
 
     return(
         <div className={style.playPageBody}>
@@ -156,7 +176,7 @@ export const PlayPage: FC<PlayPageProps> = (
             )}
             <div className={style.playPanel}>
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
-                <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
+                <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
                         {(() => {
