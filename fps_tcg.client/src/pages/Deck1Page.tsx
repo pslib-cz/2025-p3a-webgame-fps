@@ -97,6 +97,9 @@ const Deck1Page = () => {
     }, [selectedSupportIds]);
 
     const handleSaveDeck = () => {
+        if (deckName === '') {
+            setDeckName("Deck1");
+        }
         const deckData = {
             name: deckName,
             attacks: selectedAttackIds,
@@ -124,7 +127,8 @@ const Deck1Page = () => {
                 value={deckName}
                 onChange={(e) => setDeckName(e.target.value)}
                 onKeyDown={(e) => {
-                    if (e.key === 'Enter') setIsEditing(false);
+                    if (e.key === 'Enter' && deckName !== '') setIsEditing(false);
+                    else if (e.key === 'Enter' && deckName === '') setDeckName("Deck1");
                 }}
                 />
             ) : (
