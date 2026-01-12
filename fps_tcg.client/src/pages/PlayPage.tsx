@@ -118,7 +118,11 @@ export const PlayPage: FC<PlayPageProps> = (
     const handleAttackMove = (move: string, dmg: number) => {
         console.log("Selected attack move:", move)
         console.log("Damage", dmg)
+        // if(targetId == null){
+        //     console.log("Choose target")
+        // }
         dmgDeal(activeCard, dmg)
+        // setTargetId(null)
         setShowAttackMenu(false);
     }
 
@@ -148,8 +152,7 @@ export const PlayPage: FC<PlayPageProps> = (
             health = Math.max(0, health - remaining)
 
             return{...c, shield, health}
-          }  
-        ))
+          }))
     }
 
     return(
