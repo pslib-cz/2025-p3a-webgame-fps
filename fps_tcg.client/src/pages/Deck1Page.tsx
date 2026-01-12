@@ -105,11 +105,11 @@ const Deck1Page = () => {
             attacks: selectedAttackIds,
             supports: selectedSupportIds
         };
-        localStorage.setItem('myDeck', JSON.stringify(deckData));
+        localStorage.setItem('myDeck1', JSON.stringify(deckData));
     }
 
     useEffect(() => {
-        const savedDeck = localStorage.getItem('myDeck');
+        const savedDeck = localStorage.getItem('myDeck1');
         if (savedDeck) {
             const { name, attacks, supports } = JSON.parse(savedDeck);
             setDeckName(name);
