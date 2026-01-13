@@ -29,7 +29,9 @@ const DicePage: FC<DicePageProps> = ({ onRollConfirmed, onSymbolsRolled }) => {
     const handleConfirm = () => {
         const newSymbols = diceSymbols.map((sym, i) => selected[i] ? getRandomSymbol() : sym);
         setDiceSymbols(newSymbols);
-        if (onSymbolsRolled) onSymbolsRolled(newSymbols);
+        if (onSymbolsRolled) {
+            onSymbolsRolled(newSymbols);
+        }
         setSelected(new Array(8).fill(false));
         onRollConfirmed();
     };
