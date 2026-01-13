@@ -241,7 +241,8 @@ export const PlayPage: FC<PlayPageProps> = (
                 )}
             </div>
             <div className={style.dicePanel}>
-                {diceSymbols.map((symbol, index) => (
+                {diceSymbols
+                .map((symbol, index) => (
                     <Dice key={index} symbol={symbol} isSelected={selectedDiceIndex === index} 
                     onClick={() => {if(pendingCard)return setSelectedDiceIndex(index)}} />
                 ))}
