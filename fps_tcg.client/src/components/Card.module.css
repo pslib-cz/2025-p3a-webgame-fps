@@ -35,8 +35,7 @@
 }
 .cardEffect{
     padding: 10px;
-    font-size: 13px;
-    gap: 10px;
+    font-size: 12px;
     border: 1px solid #543A14;
 }
 .img{
@@ -47,6 +46,22 @@
     border: 8px solid #023C0D;
     animation: moveCard 0.6s ease-out forwards; 
 }
+@media (max-width:1300px) {
+    .card{
+        background-size: cover;
+        width: 125px;
+        height: 200px;
+    }
+    .img{
+        width: 50%;
+    }
+    .cardName{
+        font-size: 10px;
+    }
+    .cardEffect{
+        font-size: 8px;
+    }
+}
 @media (min-width: 2000px) {
     .card{
         width: 225px;
@@ -54,7 +69,6 @@
     }      
     .img{
         width: 100%;
-        height: auto;
     }
 }
 @keyframes moveCard {

@@ -29,14 +29,19 @@ const DicePage: FC<DicePageProps> = ({ onRollConfirmed, onSymbolsRolled }) => {
     const handleConfirm = () => {
         const newSymbols = diceSymbols.map((sym, i) => selected[i] ? getRandomSymbol() : sym);
         setDiceSymbols(newSymbols);
-        if (onSymbolsRolled) {
-            onSymbolsRolled(newSymbols);
+        let changed = false; 
+        for (let i = 0; i < selected.length; i++) {
+             if (selected[i]) { 
+                changed = true; break; 
+            } 
+        }
+        if (changed) {
+            onSymbolsRolled?.(newSymbols);
             setTimeout(() => {
                 onRollConfirmed();
             }, 800)
-        }
+        } else onRollConfirmed();
         setSelected(new Array(8).fill(false));
-        onRollConfirmed();
     };
 
     return(   
