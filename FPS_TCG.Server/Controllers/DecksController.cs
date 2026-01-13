@@ -28,6 +28,15 @@ namespace FPS_TCG.Server.Controllers
             return await _context.Decks.ToListAsync();
         }
 
+        // GET: api/Decks with cards
+        [HttpGet("with-cards")]
+        public async Task<ActionResult<IEnumerable<Deck>>> GetDecksWithCards()
+        {
+            return await _context.Decks
+                .Include(d => d.Cards)
+                .ToListAsync();
+        }
+
         // GET: api/Decks/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Deck>> GetDeck(int id)
