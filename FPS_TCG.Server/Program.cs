@@ -1,12 +1,9 @@
-using System;
-using System.IO;
+using FPS_TCG.Server.Data;
+using FPS_TCG.Server.Img;
+using FPS_TCG.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using FPS_TCG.Server.Data;
-using FPS_TCG.Server.Models;
 using Scalar.AspNetCore;
-using FPS_TCG.Server.Img;
 
 var builder = WebApplication.CreateBuilder(args);
 
