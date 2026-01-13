@@ -1,4 +1,4 @@
-import { useState, useEffect, } from 'react'
+import { useState, useEffect, useRef, } from 'react'
 import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
@@ -172,9 +172,9 @@ export const PlayPage: FC<PlayPageProps> = (
     //       }))
     // }
 
-    const diceIndexDel = (arr: DiceSymbol[], index: number | null) => {
-        if(index === null) return arr;
-        return arr.filter((_, i) => i !== index)
+    const diceIndexDel = (arr: DiceSymbol[], index: number | null) => { 
+        if(index === null) return arr; 
+        return arr.filter((_, i) => i !== index) 
     }
 
     return(
@@ -191,8 +191,12 @@ export const PlayPage: FC<PlayPageProps> = (
             {!firstTurn && pendingCard && (
                 <button className={style.confirmButton} 
                 onClick={() => {
-                        diceIndexDel(diceSymbols, selectedDiceIndex)
-                        if(selectedDiceIndex === null) return alert("Choose dice to switch!");  
+                    if(selectedDiceIndex === null) return alert("Choose dice to switch!");  
+
+                        const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
+                        diceSymbols.length = 0; 
+                        diceSymbols.push(...newDice); 
+
                         setSelectedDiceIndex(null)
                         setActiveCard(pendingCard); 
                         setPendingCard(null);
