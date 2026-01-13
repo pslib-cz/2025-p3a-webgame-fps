@@ -50,7 +50,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [showAttackMenu, setShowAttackMenu] = useState(false)
     const [pendingCard, setPendingCard] = useState<number | null>(null)
     const [selectedDiceIndex, setSelectedDiceIndex] = useState<number | null>(null)
-    const [characterList, setCharacterList] = useState(characters)
+    const [characterList, setCharacterList] = useState([])
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
@@ -72,6 +72,23 @@ export const PlayPage: FC<PlayPageProps> = (
         };
         fetchCards();
         console.log({cards});
+    }, []);
+
+    useEffect(() => {
+        const fetchDeck = async () => {
+            try{
+                const response = await fetch('https://localhost:7077/api/Decks/1')
+                if(!response){
+                    throw new Error('Failed to fetch deck')
+                }
+                const data = await response.json();
+                setCharacterList(data)
+            } catch(error){
+                console.error('Error fetching deck', error)
+            }
+        };
+        fetchDeck();
+        console.log({characterList})
     }, []);
 
     const handleCharacterSelect = (cardId: number) => {
@@ -121,7 +138,7 @@ export const PlayPage: FC<PlayPageProps> = (
         // if(targetId == null){
         //     console.log("Choose target")
         // }
-        dmgDeal(activeCard, dmg)
+        // dmgDeal(activeCard, dmg)
         // setTargetId(null)
         setShowAttackMenu(false);
     }
@@ -138,21 +155,26 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }, [firstTurn])
 
-    const dmgDeal = (id: number | null, dmg: number) =>{
-        setCharacterList(prev => prev.map(
-          c => {
-            if(c.id !== id) return c;
-            let shield = c.shield ?? 0;
-            let health = c.health ?? 0;
+    // const dmgDeal = (id: number | null, dmg: number) =>{
+    //     setCharacterList(prev => prev.map(
+    //       c => {
+    //         if(c.id !== id) return c;
+    //         let shield = c.shield ?? 0;
+    //         let health = c.health ?? 0;
 
-            const shieldDmg = Math.min(shield, dmg);
-            shield -= shieldDmg;
+    //         const shieldDmg = Math.min(shield, dmg);
+    //         shield -= shieldDmg;
 
-            const remaining = dmg - shieldDmg;
-            health = Math.max(0, health - remaining)
+    //         const remaining = dmg - shieldDmg;
+    //         health = Math.max(0, health - remaining)
 
-            return{...c, shield, health}
-          }))
+    //         return{...c, shield, health}
+    //       }))
+    // }
+
+    const diceIndexDel = (arr: DiceSymbol[], index: number | null) => {
+        if(index === null) return arr;
+        return arr.filter((_, i) => i !== index)
     }
 
     return(
@@ -169,6 +191,7 @@ export const PlayPage: FC<PlayPageProps> = (
             {!firstTurn && pendingCard && (
                 <button className={style.confirmButton} 
                 onClick={() => {
+                        diceIndexDel(diceSymbols, selectedDiceIndex)
                         if(selectedDiceIndex === null) return alert("Choose dice to switch!");  
                         setSelectedDiceIndex(null)
                         setActiveCard(pendingCard); 
@@ -179,7 +202,7 @@ export const PlayPage: FC<PlayPageProps> = (
             )}
             <div className={style.playPanel}>
                 <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
-                <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
+                <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
                         {(() => {

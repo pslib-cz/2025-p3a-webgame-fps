@@ -31,6 +31,9 @@ const DicePage: FC<DicePageProps> = ({ onRollConfirmed, onSymbolsRolled }) => {
         setDiceSymbols(newSymbols);
         if (onSymbolsRolled) {
             onSymbolsRolled(newSymbols);
+            setTimeout(() => {
+                onRollConfirmed();
+            }, 800)
         }
         setSelected(new Array(8).fill(false));
         onRollConfirmed();
