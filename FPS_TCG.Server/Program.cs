@@ -42,71 +42,122 @@ using (var scope = app.Services.CreateScope())
         var dbPath = conn.DataSource;
         logger.LogInformation("Using SQLite file: {path}", dbPath);
 
-        // aplikuj migrace pøi startu
+        // Aplikuj migrace pøi startu (vytvoøí tabulky pokud chybí)
         await db.Database.MigrateAsync();
 
         var cardsBefore = await db.Cards.CountAsync();
         logger.LogInformation("Cards count before seed: {count}", cardsBefore);
 
-        if (!await db.Cards.AnyAsync())
+        // seed jen pokud neexistuje karta se stejným názvem
+        const string seedCardName = "JsemEdater";
+        var exists = await db.Cards.AnyAsync(c => c.Name == seedCardName);
+        if (!exists)
         {
-            // cesta ke složce Images (vedle spouštìného working directory / .csproj)
-            var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "Images");
-            logger.LogInformation("Images folder: {path}", imagesFolder);
+            // cesta ke složce Images (zkus nìkolika možných míst)
+            var possibleImages = new[]
+            {
+                Path.Combine(Directory.GetCurrentDirectory(), "Images"),
+                Path.Combine(AppContext.BaseDirectory ?? string.Empty, "Images"),
+                Path.Combine(Directory.GetCurrentDirectory(), "ImageToConvert"),
+                Path.Combine(AppContext.BaseDirectory ?? string.Empty, "ImageToConvert")
+            };
+            var imagesFolder = possibleImages.FirstOrDefault(Directory.Exists) ?? possibleImages[0];
+            logger.LogInformation("Images folder used for seed: {path}", imagesFolder);
 
+            // naèti obrázek (pokud existuje)
             var imageResult = ImageConvertor.LoadImageBytesFromFolder(imagesFolder, "Bleh");
 
-            // Zjisti aktuální max ID v DB a vytvoø unikátní ID pro seed
-            var maxCardId = await db.Cards.Select(c => (int?)c.CardId).MaxAsync() ?? 0;
-            var maxDeckId = await db.Decks.Select(d => (int?)d.DeckId).MaxAsync() ?? 0;
-            var newCardId = maxCardId + 1;
-            var newDeckId = maxDeckId + 1;
-
-            var card = new Card
+            // Pokud je požadavek, aby CardId i DeckId byly explicitnì nastaveny,
+            // vytvoøíme je bezpeènì jako max(existing)+1 a pøi kolizi provedeme nìkolika opakování.
+            var attempts = 0;
+            const int maxAttempts = 3;
+            while (true)
             {
-                CardId = newCardId,
-                Name = "JsemEdater",
-                type = "support",
-                health = 5,
-                shield = 5,
-                Skill1Name = "Edate",
-                Skill1Damage = 4,
-                Skill1Cost = 1,
-                Skill2Name = "IRLdate",
-                skill2Effect = "NoMoreEdater ",
-                Skill2Cost = 4,
-                supportCost = 2,
-                supportEffect = "prida stesti + 10",
-                ImageData = imageResult.Data,
-                ImageContentType = imageResult.ContentType,
-                ImageFileName = imageResult.FileName
-            };
+                attempts++;
 
-            var deck = new Deck
-            {
-                DeckId = newDeckId,
-                Name = "Starter Deck",
-                Cards = new List<Card>() // nech prázdné nebo pøidej card podle potøeby
-            };
+                // získej aktuální maxima (null-safe)
+                var maxCardId = await db.Cards.Select(c => (int?)c.CardId).MaxAsync() ?? 0;
+                var maxDeckId = await db.Decks.Select(d => (int?)d.DeckId).MaxAsync() ?? 0;
+                var newCardId = maxCardId + 1;
+                var newDeckId = maxDeckId + 1;
 
-            db.Cards.Add(card);
-            db.Decks.Add(deck);
+                var card = new Card
+                {
+                    CardId = newCardId,
+                    Name = seedCardName,
+                    type = "support",
+                    health = 5,
+                    shield = 5,
+                    Skill1Name = "Edate",
+                    Skill1Damage = 4,
+                    Skill1Cost = 1,
+                    Skill2Name = "IRLdate",
+                    skill2Effect = "NoMoreEdater",
+                    Skill2Cost = 4,
+                    supportCost = 2,
+                    supportEffect = "prida stesti + 10",
+                    ImageData = imageResult.Data,
+                    ImageContentType = imageResult.ContentType,
+                    ImageFileName = imageResult.FileName
+                };
 
-            logger.LogInformation("Saving seed to database (CardId={cardId}, DeckId={deckId})...", newCardId, newDeckId);
-            await db.SaveChangesAsync();
-            logger.LogInformation("Seed card saved.");
+                var deck = new Deck
+                {
+                    DeckId = newDeckId,
+                    Name = "Starter Deck",
+                    Cards = new List<Card>() // ponech prázdné nebo pøidej card pokud chceš vztah
+                };
 
-            var cardsAfter = await db.Cards.CountAsync();
-            logger.LogInformation("Cards count after seed: {count}", cardsAfter);
+                db.Cards.Add(card);
+                db.Decks.Add(deck);
+
+                logger.LogInformation("Attempt {attempt} saving seed (CardId={cardId}, DeckId={deckId})...", attempts, newCardId, newDeckId);
+
+                try
+                {
+                    await db.SaveChangesAsync();
+                    logger.LogInformation("Seed saved. Cards before: {before}, after: {after}", cardsBefore, await db.Cards.CountAsync());
+                    logger.LogInformation("GET cards at: /api/cards");
+                    break;
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    // pravdìpodobná kolise PK nebo jiný problém pøi vkládání - odstraò sledování entit a zkuste znovu
+                    logger.LogWarning(dbEx, "DbUpdateException on seed attempt {attempt}: {msg}", attempts, dbEx.Message);
+
+                    try
+                    {
+                        // Odregistrovat pøidané entity, aby se daly zkusit znovu s novými ID
+                        foreach (var entry in db.ChangeTracker.Entries().ToArray())
+                        {
+                            entry.State = EntityState.Detached;
+                        }
+                    }
+                    catch (Exception detachEx)
+                    {
+                        logger.LogWarning(detachEx, "Error detaching entries: {msg}", detachEx.Message);
+                    }
+
+                    if (attempts >= maxAttempts)
+                    {
+                        logger.LogError(dbEx, "Failed to save seed after {maxAttempts} attempts.", maxAttempts);
+                        throw;
+                    }
+
+                    // krátké zpoždìní pøed dalším pokusem
+                    await Task.Delay(100);
+                    continue;
+                }
+            }
         }
         else
         {
-            logger.LogInformation("Database already contains cards; skipping seed.");
+            logger.LogInformation("Seed skipped — card with name '{name}' already exists.", seedCardName);
         }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Error initializing database");
+        logger.LogError(ex, "Error initializing database: {message}", ex.Message);
         throw;
     }
 }
