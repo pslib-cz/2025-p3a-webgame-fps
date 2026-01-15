@@ -32,7 +32,8 @@ const DicePage: FC<DicePageProps> = ({ onRollConfirmed, onSymbolsRolled }) => {
         let changed = false; 
         for (let i = 0; i < selected.length; i++) {
              if (selected[i]) { 
-                changed = true; break; 
+                changed = true; 
+                break; 
             } 
         }
         if (changed) {

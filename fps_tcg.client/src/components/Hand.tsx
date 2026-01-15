@@ -17,7 +17,8 @@ const Hand: FC<HandProps> = ({
     }) => {
     return(
         <div className={style.handContainer}>
-            {cards.map(card => (
+            {cards.map(card => 
+            (
                 <Card
                     key={card.id}
                     {...card}

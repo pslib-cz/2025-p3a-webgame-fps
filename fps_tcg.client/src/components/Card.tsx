@@ -27,9 +27,10 @@ export type CardProps = {
 }
 
 const Card: FC<CardProps> = (props) =>{
-    if(props.type === 'attack'){
+    const { type, isSelected, onClick } = props;
+    if(type === 'attack'){
         return(
-            <div className={`${style.card} ${style.characterCard} ${props.isSelected ? style.activeCard : ''}`} onClick={props.onClick}>
+            <div className={`${style.card} ${style.characterCard} ${isSelected ? style.activeCard : ''}`} onClick={onClick}>
                 <img className={style.img} src={props.imgSrc} alt="Cat" />
                 <p className={style.cardName}>{props.name}</p>
                 <div className={style.cardStats}>
@@ -39,10 +40,10 @@ const Card: FC<CardProps> = (props) =>{
             </div>
         )
     }
-    if(props.type === 'support'){
-
+    
+    if(type === 'support'){
         return(
-            <div className={`${style.card} ${style.supportCard} ${props.isSelected}`} onClick={props.onClick}>
+            <div className={`${style.card} ${style.supportCard} ${isSelected}`} onClick={onClick}>
                 <p className={style.costTag}></p>
                 <img className={style.img} src={props.imgSrc} alt="support" />
                 <p className={style.cardName}>{props.name}</p>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, } from 'react'
+import { useState, useEffect } from 'react'
 import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
@@ -43,7 +43,7 @@ const mySupport = [
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
-    const [cards, setCards] = useState([]);
+    const [cards, setCards] = useState<any[]>([]);
     const[styles, setStyles] = useState(style.supportCards)
     const [selectedSup, setSelectedSup] = useState<number | null>(null)
     const [attackMenu, setAttackMenu] = useState<number | null>(null)
@@ -51,6 +51,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [pendingCard, setPendingCard] = useState<number | null>(null)
     const [selectedDiceIndex, setSelectedDiceIndex] = useState<number | null>(null)
     const [characterList, setCharacterList] = useState([])
+    const [targetId, setTargetId] = useState<number | null>(null);
 
     const handleSupportClick = () => {
         setShowAllSupport(true);
@@ -112,6 +113,8 @@ export const PlayPage: FC<PlayPageProps> = (
                 onCardPicked();
             }, 800)
         }
+        console.log('activeCharacterId:', activeCard); 
+        console.log('card.id:', card.id, 'selected:', card.id === activeCard);
     }
 
     const handleSupportClose = () =>{
@@ -133,13 +136,15 @@ export const PlayPage: FC<PlayPageProps> = (
     }
     
     const handleAttackMove = (move: string, dmg: number) => {
+        if(targetId == null){
+            console.log("Choose target")
+            console.log(targetId)
+            return;
+        }
         console.log("Selected attack move:", move)
         console.log("Damage", dmg)
-        // if(targetId == null){
-        //     console.log("Choose target")
-        // }
-        // dmgDeal(activeCard, dmg)
-        // setTargetId(null)
+        dmgDeal(targetId, dmg);
+        setTargetId(null)
         setShowAttackMenu(false);
     }
 
@@ -155,22 +160,26 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }, [firstTurn])
 
-    // const dmgDeal = (id: number | null, dmg: number) =>{
-    //     setCharacterList(prev => prev.map(
-    //       c => {
-    //         if(c.id !== id) return c;
-    //         let shield = c.shield ?? 0;
-    //         let health = c.health ?? 0;
+    const dmgDeal = (id: number | null, dmg: number) =>{
+        if(id == null) return;
+        setCards(
+            prev => prev.map(c => applyDmg(c, id, dmg)) 
+        );
+    }
 
-    //         const shieldDmg = Math.min(shield, dmg);
-    //         shield -= shieldDmg;
+    const applyDmg = (c: { id: any; shield: number; health: number }, id: number, dmg: number) => {
+        if(c.id !== id) return c;
+        let shield = c.shield ?? 0;
+        let health = c.health ?? 0;
 
-    //         const remaining = dmg - shieldDmg;
-    //         health = Math.max(0, health - remaining)
+        const shieldDmg = Math.min(shield, dmg);
+        shield -= shieldDmg;
 
-    //         return{...c, shield, health}
-    //       }))
-    // }
+        const remaining = dmg - shieldDmg;
+        health = Math.max(0, health - remaining)
+
+        return{...c, shield, health}
+    }
 
     const diceIndexDel = (arr: DiceSymbol[], index: number | null) => { 
         if(index === null) return arr; 
@@ -205,7 +214,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     }}>CONFIRM</button>
             )}
             <div className={style.playPanel}>
-                <Hand cards={cards} activeCharacterId={activeCard} onCharacterActive={handleCharacterSelect} />
+                <Hand cards={cards} activeCharacterId={targetId} onCharacterActive={(id) => setTargetId(id)} />
                 <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
