@@ -49,7 +49,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogInformation("Cards count before seed: {count}", cardsBefore);
 
         // seed jen pokud neexistuje karta se stejným názvem
-        const string seedCardName = "JsemEdater";
+        const string seedCardName = "NejsemEdater";
         var exists = await db.Cards.AnyAsync(c => c.Name == seedCardName);
         if (!exists)
         {
@@ -84,18 +84,18 @@ using (var scope = app.Services.CreateScope())
                 var card = new Card
                 {
                     CardId = newCardId,
-                    Name = seedCardName,
+                    Name = seedCardName,// line 52 tam napsat jmeno karty
                     type = "support",
                     health = 5,
                     shield = 5,
-                    Skill1Name = "Edate",
+                    Skill1Name = "Allegations",
                     Skill1Damage = 4,
                     Skill1Cost = 1,
-                    Skill2Name = "IRLdate",
-                    skill2Effect = "NoMoreEdater",
+                    Skill2Name = "Lez",
+                    skill2Effect = "ClearingTheAllegations",
                     Skill2Cost = 4,
                     supportCost = 2,
-                    supportEffect = "prida stesti + 10",
+                    supportEffect = "NajdeTiGF",
                     ImageData = imageResult.Data,
                     ImageContentType = imageResult.ContentType,
                     ImageFileName = imageResult.FileName
