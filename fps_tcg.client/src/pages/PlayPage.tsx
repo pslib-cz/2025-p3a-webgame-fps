@@ -148,15 +148,15 @@ export const PlayPage: FC<PlayPageProps> = (
         setShowAttackMenu(false);
     }
 
-    const drawCard = () => {
+    const drawSupportCards = (count: number) => {
         
     }
 
     useEffect(() => {
         if(firstTurn){
-
+            drawSupportCards(6)
         }else {
-
+            drawSupportCards(2)
         }
     }, [firstTurn])
 
@@ -262,8 +262,8 @@ export const PlayPage: FC<PlayPageProps> = (
             <div className={styles}>
                 {!showAllSupport &&(
                     <div onClick={handleSupportClick}>
-                        <Hand cards={showAllSupport ? mySupport : mySupport.slice(0, 2)} 
-                        activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(id)} />
+                        <Hand cards={mySupport.slice(0, 2)} 
+                        activeCharacterId={selectedSup} onCharacterActive={() => {}} />
                     </div>
                 )}
                 {showAllSupport &&(
