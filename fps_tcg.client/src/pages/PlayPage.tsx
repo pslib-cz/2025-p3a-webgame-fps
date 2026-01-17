@@ -66,14 +66,22 @@ export const PlayPage: FC<PlayPageProps> = (
                     throw new Error('Failed to fetch cards');
                 }
                 const data = await response.json();
-                setCards(data);
+                const normalizedCards = data.map((card: { cardId: any }) => ({
+                    ...card,
+                    id: card.cardId,
+                    isTarget: false
+                }));
+                setCards(normalizedCards);
             } catch (error) {
                 console.error('Error fetching cards', error);
             }
         };
         fetchCards();
-        console.log({cards});
     }, []);
+
+    useEffect(() => {
+        console.log('Cards updated:', cards);
+    }, [cards]);
 
     useEffect(() => {
         const fetchDeck = async () => {
@@ -122,6 +130,24 @@ export const PlayPage: FC<PlayPageProps> = (
         setStyles(style.supportCards); 
     };
 
+    const handleTargetSelect = (cardId: number) => {
+        if (cardId === undefined || cardId === null) {
+            console.error('No cardId provided to handleTargetSelect');
+            return;
+        }
+        console.log('Selecting target:', cardId);
+        console.log('Current cards:', cards);
+        const currentCard = cards.find(c => c.id === cardId);
+        const wasTarget = currentCard.isTarget === true;
+        setCards(prev => prev.map(c => ({
+            ...c,
+            isTarget: c.id === cardId ? !c.isTarget : false 
+        })));
+
+        const newTargetId = wasTarget ? null : cardId;
+        setTargetId(newTargetId);
+    }   
+
     const playSupport = () => {
         if(selectedSup == null) return;
 
@@ -143,6 +169,8 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         console.log("Selected attack move:", move)
         console.log("Damage", dmg)
+        console.log("Target card:", cards.find(c => c.id === targetId));
+
         dmgDeal(targetId, dmg);
         setTargetId(null)
         setShowAttackMenu(false);
@@ -162,9 +190,14 @@ export const PlayPage: FC<PlayPageProps> = (
 
     const dmgDeal = (id: number | null, dmg: number) =>{
         if(id == null) return;
-        setCards(
-            prev => prev.map(c => applyDmg(c, id, dmg)) 
-        );
+        // setCards(
+        //     prev => prev.map(c => applyDmg(c, id, dmg)) 
+        // );
+        const isInCards = cards.some(c => c.id === id);
+        
+        if(isInCards) {
+            setCards(prev => prev.map(c => applyDmg(c, id, dmg)));
+        }
     }
 
     const applyDmg = (c: { id: any; shield: number; health: number }, id: number, dmg: number) => {
@@ -214,7 +247,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     }}>CONFIRM</button>
             )}
             <div className={style.playPanel}>
-                <Hand cards={cards} activeCharacterId={targetId} onCharacterActive={(id) => setTargetId(id)} />
+                <Hand cards={cards} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} />
                 <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
