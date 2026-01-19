@@ -42,18 +42,18 @@ using (var scope = app.Services.CreateScope())
         var dbPath = conn.DataSource;
         logger.LogInformation("Using SQLite file: {path}", dbPath);
 
-        // Aplikuj migrace pøi startu (vytvoøí tabulky pokud chybí)
+        // Aplikuj migrace pï¿½i startu (vytvoï¿½ï¿½ tabulky pokud chybï¿½)
         await db.Database.MigrateAsync();
 
         var cardsBefore = await db.Cards.CountAsync();
         logger.LogInformation("Cards count before seed: {count}", cardsBefore);
 
-        // seed jen pokud neexistuje karta se stejným názvem
+        // seed jen pokud neexistuje karta se stejnï¿½m nï¿½zvem
         const string seedCardName = "NejsemEdater";
         var exists = await db.Cards.AnyAsync(c => c.Name == seedCardName);
         if (!exists)
         {
-            // cesta ke složce Images (zkus nìkolika možných míst)
+            // cesta ke sloï¿½ce Images (zkus nï¿½kolika moï¿½nï¿½ch mï¿½st)
             var possibleImages = new[]
             {
                 Path.Combine(Directory.GetCurrentDirectory(), "Images"),
@@ -64,18 +64,18 @@ using (var scope = app.Services.CreateScope())
             var imagesFolder = possibleImages.FirstOrDefault(Directory.Exists) ?? possibleImages[0];
             logger.LogInformation("Images folder used for seed: {path}", imagesFolder);
 
-            // naèti obrázek (pokud existuje)
+            // naï¿½ti obrï¿½zek (pokud existuje)
             var imageResult = ImageConvertor.LoadImageBytesFromFolder(imagesFolder, "Bleh");
 
-            // Pokud je požadavek, aby CardId i DeckId byly explicitnì nastaveny,
-            // vytvoøíme je bezpeènì jako max(existing)+1 a pøi kolizi provedeme nìkolika opakování.
+            // Pokud je poï¿½adavek, aby CardId i DeckId byly explicitnï¿½ nastaveny,
+            // vytvoï¿½ï¿½me je bezpeï¿½nï¿½ jako max(existing)+1 a pï¿½i kolizi provedeme nï¿½kolika opakovï¿½nï¿½.
             var attempts = 0;
             const int maxAttempts = 3;
             while (true)
             {
                 attempts++;
 
-                // získej aktuální maxima (null-safe)
+                // zï¿½skej aktuï¿½lnï¿½ maxima (null-safe)
                 var maxCardId = await db.Cards.Select(c => (int?)c.CardId).MaxAsync() ?? 0;
                 var maxDeckId = await db.Decks.Select(d => (int?)d.DeckId).MaxAsync() ?? 0;
                 var newCardId = maxCardId + 1;
@@ -105,7 +105,7 @@ using (var scope = app.Services.CreateScope())
                 {
                     DeckId = newDeckId,
                     Name = "Starter Deck",
-                    Cards = new List<Card>() // ponech prázdné nebo pøidej card pokud chceš vztah
+                    Cards = new List<Card>() // ponech prï¿½zdnï¿½ nebo pï¿½idej card pokud chceï¿½ vztah
                 };
 
                 db.Cards.Add(card);
@@ -122,12 +122,12 @@ using (var scope = app.Services.CreateScope())
                 }
                 catch (DbUpdateException dbEx)
                 {
-                    // pravdìpodobná kolise PK nebo jiný problém pøi vkládání - odstraò sledování entit a zkuste znovu
+                    // pravdï¿½podobnï¿½ kolise PK nebo jinï¿½ problï¿½m pï¿½i vklï¿½dï¿½nï¿½ - odstraï¿½ sledovï¿½nï¿½ entit a zkuste znovu
                     logger.LogWarning(dbEx, "DbUpdateException on seed attempt {attempt}: {msg}", attempts, dbEx.Message);
 
                     try
                     {
-                        // Odregistrovat pøidané entity, aby se daly zkusit znovu s novými ID
+                        // Odregistrovat pï¿½idanï¿½ entity, aby se daly zkusit znovu s novï¿½mi ID
                         foreach (var entry in db.ChangeTracker.Entries().ToArray())
                         {
                             entry.State = EntityState.Detached;
@@ -144,7 +144,7 @@ using (var scope = app.Services.CreateScope())
                         throw;
                     }
 
-                    // krátké zpoždìní pøed dalším pokusem
+                    // krï¿½tkï¿½ zpoï¿½dï¿½nï¿½ pï¿½ed dalï¿½ï¿½m pokusem
                     await Task.Delay(100);
                     continue;
                 }
@@ -152,7 +152,7 @@ using (var scope = app.Services.CreateScope())
         }
         else
         {
-            logger.LogInformation("Seed skipped — card with name '{name}' already exists.", seedCardName);
+            logger.LogInformation("Seed skipped ï¿½ card with name '{name}' already exists.", seedCardName);
         }
     }
     catch (Exception ex)
@@ -171,9 +171,9 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors();
+
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.MapControllers();

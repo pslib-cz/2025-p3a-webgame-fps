@@ -61,7 +61,37 @@ namespace FPS_TCG.Server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(deck).State = EntityState.Modified;
+            var existingDeck = await _context.Decks
+                .Include(d => d.Cards)
+                .FirstOrDefaultAsync(d => d.DeckId == id);
+
+            if (existingDeck == null)
+            {
+                return NotFound();
+            }
+
+            existingDeck.Name = deck.Name;
+
+            if (deck.Cards != null && deck.Cards.Count > 0)
+            {
+                var incomingIds = deck.Cards.Where(c => c.CardId > 0).Select(c => c.CardId).Distinct().ToList();
+                
+                var trackedCards = await _context.Cards
+                    .Where(c => incomingIds.Contains(c.CardId))
+                    .ToListAsync();
+
+                var missing = incomingIds.Except(trackedCards.Select(c => c.CardId)).ToList();
+                if (missing.Any())
+                {
+                    return BadRequest($"Referenced Card IDs not found: {string.Join(',', missing)}");
+                }
+
+                existingDeck.Cards = trackedCards;
+            }
+            else
+            {
+                existingDeck.Cards = new List<Card>();
+            }
 
             try
             {
