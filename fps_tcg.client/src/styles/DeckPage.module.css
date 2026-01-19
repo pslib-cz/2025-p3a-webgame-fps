@@ -123,3 +123,33 @@
     display: flex;
     gap: 20px;
 }
+
+.cardFan {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    cursor: pointer;
+}
+
+.fanCard {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+.fanCard1 {
+    transform: translate(-80%, -50%) rotate(-30deg);
+    z-index: 3;
+}
+
+.fanCard2 {
+    transform: translate(-50%, -50%) rotate(0deg);
+    z-index: 2;
+}
+
+.fanCard3 {
+    transform: translate(-20%, -50%) rotate(30deg);
+    z-index: 1;
+}
