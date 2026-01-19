@@ -163,10 +163,15 @@ export const PlayPage: FC<PlayPageProps> = (
     
     const handleAttackMove = (move: string, dmg: number) => {
         if(targetId == null){
-            console.log("Choose target")
+            alert("Choose target to attack")
             console.log(targetId)
             return;
         }
+        if(selectedDiceIndex == null) return alert("Choose dices to attack")
+ 
+        const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
+        diceSymbols.length = 0;
+        diceSymbols.push(...newDice);
         console.log("Selected attack move:", move)
         console.log("Damage", dmg)
         console.log("Target card:", cards.find(c => c.id === targetId));
@@ -313,7 +318,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 {diceSymbols
                 .map((symbol, index) => (
                     <Dice key={index} symbol={symbol} isSelected={selectedDiceIndex === index} 
-                    onClick={() => {if(pendingCard)return setSelectedDiceIndex(index)}} />
+                    onClick={() => {if(pendingCard || targetId)return setSelectedDiceIndex(index)}} />
                 ))}
             </div>
         </div>
