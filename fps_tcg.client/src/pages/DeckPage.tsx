@@ -12,8 +12,9 @@ interface Deck {
 }
 
 export const DeckPage: FC = () => {
-    const [deckSelect, setDeckSelect] = useState<string | null>(null)
+    const [deckSelect, setDeckSelect] = useState<Deck | null>(null)
     const [decks, setDecks] = useState<Deck[]>([]);
+    const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -66,7 +67,7 @@ export const DeckPage: FC = () => {
                     return (
                         <div key={deck.deckId}>
                             {attackCards.length > 0 ? (
-                                <div className={styles.cardFan} onClick={() => setDeckSelect(`Deck${deck.deckId}`)}>
+                                <div className={styles.cardFan} onClick={() => setDeckSelect(deck)}>
                                     {attackCards.map((card, index) => (
                                         <div key={card.id} className={`${styles.fanCard} ${styles[`fanCard${index + 1}`]}`}>
                                             <Card {...card} />
@@ -74,15 +75,20 @@ export const DeckPage: FC = () => {
                                     ))}
                                 </div>
                             ) : (
-                                <button onClick={() => setDeckSelect(`Deck${deck.deckId}`)} />
+                                <button onClick={() => setDeckSelect(deck)} />
                             )}
                             <h3>{deck.name}</h3>
                         </div>
                     );
                 })}
             </div>
-            {deckSelect && (<p className={styles.buttonEdit}
-                onClick={() => navigate(`/decksEdit/${deckSelect}`)}>EDIT</p>)}
+            {deckSelect && (
+                <div>
+                    <p className={styles.buttonEdit} onClick={() => navigate(`/decksEdit/Deck${deckSelect.deckId}`)}>EDIT</p>
+                    <p className={styles.buttonEdit} onClick={() => setActiveDeck(deckSelect)}>SET ACTIVE</p>
+                    <p className={styles.buttonEdit} onClick={() => console.log(`My selected deck is Deck${activeDeck?.deckId}`)}>whatismydick</p>
+                </div>
+            )}
         </div>
     )
             
