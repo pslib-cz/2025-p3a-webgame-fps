@@ -49,7 +49,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [attackMenu, setAttackMenu] = useState<number | null>(null)
     const [showAttackMenu, setShowAttackMenu] = useState(false)
     const [pendingCard, setPendingCard] = useState<number | null>(null)
-    const [selectedDiceIndex, setSelectedDiceIndex] = useState<number | null>(null)
+    const [selectedDiceIndex, setSelectedDiceIndex] = useState<number[]>([])
     const [characterList, setCharacterList] = useState([])
     const [targetId, setTargetId] = useState<number | null>(null);
 
@@ -161,23 +161,30 @@ export const PlayPage: FC<PlayPageProps> = (
         setStyles(style.supportCards)
     }
     
-    const handleAttackMove = (move: string, dmg: number) => {
+    const handleAttackMove = (move: string, dmg: number, cost: number) => {
         if(targetId == null){
             alert("Choose target to attack")
             console.log(targetId)
             return;
         }
-        if(selectedDiceIndex == null) return alert("Choose dices to attack")
+        if(selectedDiceIndex === null) return alert("Choose dices to attack")
+
+        if(selectedDiceIndex.length !== cost){
+            alert("Not enough dices selected.")
+        }
  
         const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
         diceSymbols.length = 0;
-        diceSymbols.push(...newDice);
+         for(let i = 0; i < newDice.length; i++) {
+            diceSymbols.push(newDice[i]);
+        }
         console.log("Selected attack move:", move)
         console.log("Damage", dmg)
         console.log("Target card:", cards.find(c => c.id === targetId));
 
         dmgDeal(targetId, dmg);
         setTargetId(null)
+        setSelectedDiceIndex([])
         setShowAttackMenu(false);
     }
 
@@ -195,9 +202,6 @@ export const PlayPage: FC<PlayPageProps> = (
 
     const dmgDeal = (id: number | null, dmg: number) =>{
         if(id == null) return;
-        // setCards(
-        //     prev => prev.map(c => applyDmg(c, id, dmg)) 
-        // );
         const isInCards = cards.some(c => c.id === id);
         
         if(isInCards) {
@@ -219,9 +223,23 @@ export const PlayPage: FC<PlayPageProps> = (
         return{...c, shield, health}
     }
 
-    const diceIndexDel = (arr: DiceSymbol[], index: number | null) => { 
-        if(index === null) return arr; 
-        return arr.filter((_, i) => i !== index) 
+    const handleDiceClick = (index: number) => {
+        if(pendingCard) {
+            setSelectedDiceIndex([index]);
+            return;
+        }
+        if(targetId) {
+            if(selectedDiceIndex.includes(index)) {
+                setSelectedDiceIndex(selectedDiceIndex.filter(i => i !== index))
+            } else {
+                setSelectedDiceIndex([...selectedDiceIndex, index])
+            }
+        }
+    }
+
+    const diceIndexDel = (arr: DiceSymbol[], indexes: number[]) => { 
+        if(indexes === null) return arr; 
+        return arr.filter((_, i) => !indexes.includes(i)) 
     }
 
     return(
@@ -242,9 +260,11 @@ export const PlayPage: FC<PlayPageProps> = (
 
                         const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
                         diceSymbols.length = 0; 
-                        diceSymbols.push(...newDice); 
+                        for(let i = 0; i < newDice.length; i++) {
+                            diceSymbols.push(newDice[i]);
+                        }
 
-                        setSelectedDiceIndex(null)
+                        setSelectedDiceIndex([])
                         setActiveCard(pendingCard); 
                         setPendingCard(null);
                         setShowAttackMenu(false)
@@ -261,7 +281,7 @@ export const PlayPage: FC<PlayPageProps> = (
                             if (!char) return null;
                             return(
                             <>
-                            <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name, char.skill1Damage)}>
+                            <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name, char.skill1Damage, char.skill1Cost)}>
                                 <div className={style.iconBlock}>
                                     <div className={style.swordBlock}>
                                         <img className={style.swordIcon} src={dmg} alt="damage"></img>
@@ -276,7 +296,7 @@ export const PlayPage: FC<PlayPageProps> = (
                                 {char.skill1Name}
                                 </div>
                             </div>
-                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name, char.skill2Damage)}>
+                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name, char.skill2Damage, char.skill2Cost)}>
                                 <div className={style.iconBlock}>
                                     <div className={style.swordBlock}>
                                         <img className={style.swordIcon} src={dmg} alt="damage"></img>
@@ -317,8 +337,8 @@ export const PlayPage: FC<PlayPageProps> = (
             <div className={style.dicePanel}>
                 {diceSymbols
                 .map((symbol, index) => (
-                    <Dice key={index} symbol={symbol} isSelected={selectedDiceIndex === index} 
-                    onClick={() => {if(pendingCard || targetId)return setSelectedDiceIndex(index)}} />
+                    <Dice key={index} symbol={symbol} isSelected={selectedDiceIndex.includes(index)} 
+                    onClick={() => handleDiceClick(index)} />
                 ))}
             </div>
         </div>
