@@ -169,23 +169,25 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         if(selectedDiceIndex === null) return alert("Choose dices to attack")
 
-        if(selectedDiceIndex.length !== cost){
-            alert("Not enough dices selected.")
-        }
- 
-        const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
-        diceSymbols.length = 0;
-         for(let i = 0; i < newDice.length; i++) {
-            diceSymbols.push(newDice[i]);
-        }
-        console.log("Selected attack move:", move)
-        console.log("Damage", dmg)
-        console.log("Target card:", cards.find(c => c.id === targetId));
+        if(selectedDiceIndex.length === cost){
+            const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
+            diceSymbols.length = 0;
+            for(let i = 0; i < newDice.length; i++) {
+                diceSymbols.push(newDice[i]);
+            }
+            console.log("Selected attack move:", move)
+            console.log("Damage", dmg)
+            console.log("Target card:", cards.find(c => c.id === targetId));
 
-        dmgDeal(targetId, dmg);
-        setTargetId(null)
-        setSelectedDiceIndex([])
-        setShowAttackMenu(false);
+            dmgDeal(targetId, dmg);
+            setTargetId(null)
+            setSelectedDiceIndex([])
+            setShowAttackMenu(false);
+        }else if(selectedDiceIndex.length > cost){
+            alert("Too much dices selected!")
+            setSelectedDiceIndex([])
+        }else alert("Select more dices!")
+
     }
 
     const drawSupportCards = (count: number) => {
@@ -272,7 +274,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     }}>CONFIRM</button>
             )}
             <div className={style.playPanel}>
-                <Hand cards={cards} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} />
+                <Hand cards={cards.slice(0,3)} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} />
                 <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
