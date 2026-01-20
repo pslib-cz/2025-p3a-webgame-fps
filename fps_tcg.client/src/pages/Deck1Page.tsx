@@ -123,6 +123,10 @@ const Deck1Page = () => {
         });
     }
 
+    const handleConfirmSupport = () => {
+        setShowSupportContainer(false);
+    }
+
     const buildSelectedCards = () => {
         const mergedIds = [...selectedAttackIds, ...selectedSupportIds];
         return mergedIds
@@ -262,16 +266,24 @@ const Deck1Page = () => {
                 </div>
             )}
             <div className={styles.containerEdit}>
-                <button onClick={handleSupportClick}></button>
-                <button onClick={handleSupportClick}></button>
-                <button onClick={handleSupportClick}></button>
-                <button onClick={handleSupportClick}></button>
-                <button onClick={handleSupportClick}></button>
-                <button onClick={handleSupportClick}></button>
+                <div className={styles.container}>
+                    {[0, 1, 2, 3, 4, 5].map((i) => {
+                        const card = cards.find(c => c.id === selectedSupportIds[i]);
+                        return (
+                            <div key={i}>
+                                {card ? (
+                                    <Card {...card} onClick={handleSupportClick}/>
+                                ) : (
+                                    <button onClick={handleSupportClick}></button>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
             {showSupportContainer && (
                 <div className={styles.cardContainer}>
-                    <div>  
+                    <div className={styles.cards}>  
                         {cards.filter(card => card.type === selectedType)
                             .map((card) => (
                                 <div key={card.id}>
@@ -281,6 +293,9 @@ const Deck1Page = () => {
                         }
                     </div>
                     <span onClick={handleSupportClick}>CANCEL</span>
+                    {selectedSupportIds.length > 0 && (
+                            <span onClick={handleConfirmSupport}>CONFIRM</span>
+                        )}
                 </div>
             )}
             {selectedAttackIds.length > 0 && (
