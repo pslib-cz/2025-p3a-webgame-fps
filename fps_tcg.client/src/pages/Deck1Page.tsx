@@ -150,6 +150,7 @@ const Deck1Page = () => {
             setDeckName("Deck1");
         }
         const TARGET_ID = 1;
+        setDeckName(deckName.slice(0, 15));
         const deckData = {
             deckId: TARGET_ID,
             name: deckName,
