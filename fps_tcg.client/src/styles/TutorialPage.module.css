@@ -5,9 +5,10 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
     width: 100vw;
-    height: 100vh;
+    height: 300vh;
     background-position: center;
     margin: -1.35em 0 0 0;
+    
 }
 .Tutorial h1 {
     padding-top: 30px;
@@ -24,3 +25,18 @@
     text-align: center;
     padding: 0.35rem 0.85rem;
 }
+
+.Text{
+    margin-left: 30%;
+    margin-right: 30%;
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 2px;
+}
+
+li{
+    margin-bottom: 25px; /*5=malo, 10=malo, 15=ujde, 20=prijde mi dobry,25= taky dobry, 30=prijde mi az moc*/
+}
+
