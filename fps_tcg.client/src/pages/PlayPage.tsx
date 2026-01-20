@@ -32,12 +32,12 @@ const characters = [
 ];
 
 const mySupport = [
-    { id: 10, name: "Cool Lamma 1", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 11, name: "Cool Lamma 2", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 12, name: "Cool Lamma 3", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 13, name: "Cool Lamma 4", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 14, name: "Cool Lamma 5", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"},
-    { id: 15, name: "Cool Lamma 6", type: "support" as CardType, imgSrc: lamma, supportCost: 7, supportEffect: "Your enemy stop 1 turn"}
+    { id: 10, name: "Cool Lamma 1", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
+    { id: 11, name: "Cool Lamma 2", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
+    { id: 12, name: "Cool Lamma 3", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
+    { id: 13, name: "Cool Lamma 4", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
+    { id: 14, name: "Cool Lamma 5", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
+    { id: 15, name: "Cool Lamma 6", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"}
 ];
 
 export const PlayPage: FC<PlayPageProps> = (
@@ -52,11 +52,8 @@ export const PlayPage: FC<PlayPageProps> = (
     const [selectedDiceIndex, setSelectedDiceIndex] = useState<number[]>([])
     const [characterList, setCharacterList] = useState([])
     const [targetId, setTargetId] = useState<number | null>(null);
-
-    const handleSupportClick = () => {
-        setShowAllSupport(true);
-        setStyles(style.supportCardsOpen)
-    }
+    const [mySupportDeck, setMySupportDeck] = useState<any[]>([])
+    const [mySupportHand, setMySupportHand] = useState<any[]>([])
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -124,12 +121,7 @@ export const PlayPage: FC<PlayPageProps> = (
         console.log('activeCharacterId:', activeCard); 
         console.log('card.id:', card.id, 'selected:', card.id === activeCard);
     }
-
-    const handleSupportClose = () =>{
-        setShowAllSupport(false);
-        setStyles(style.supportCards); 
-    };
-
+    
     const handleTargetSelect = (cardId: number) => {
         if (cardId === undefined || cardId === null) {
             console.error('No cardId provided to handleTargetSelect');
@@ -143,16 +135,28 @@ export const PlayPage: FC<PlayPageProps> = (
             ...c,
             isTarget: c.id === cardId ? !c.isTarget : false 
         })));
-
+        
         const newTargetId = wasTarget ? null : cardId;
         setTargetId(newTargetId);
-    }   
+    }  
+    
+    const handleSupportClick = () => {
+        setShowAllSupport(true);
+        setStyles(style.supportCardsOpen)
+    }
+
+    const handleSupportClose = () =>{
+        setShowAllSupport(false);
+        setStyles(style.supportCards); 
+    };
 
     const playSupport = () => {
         if(selectedSup == null) return;
 
         const support = mySupport.find(c => c.id === selectedSup);
         if(!support) return;
+
+
 
         console.log("Playing support card:", support.name);
 
@@ -191,7 +195,10 @@ export const PlayPage: FC<PlayPageProps> = (
     }
 
     const drawSupportCards = (count: number) => {
-        
+        for(let i = 0; i <= count; i++){
+            const hand = [i]
+            mySupportHand.push({hand})
+        }
     }
 
     useEffect(() => {

@@ -44,7 +44,7 @@ const Card: FC<CardProps> = (props) =>{
     if(type === 'support'){
         return(
             <div className={`${style.card} ${style.supportCard} ${isSelected}`} onClick={onClick}>
-                <p className={style.costTag}></p>
+                <p className={style.costTag}>{props.supportCost}</p>
                 <img className={style.img} src={props.imgSrc} alt="support" />
                 <p className={style.cardName}>{props.name}</p>
                 <p className={style.cardEffect}>{props.supportEffect}</p>
