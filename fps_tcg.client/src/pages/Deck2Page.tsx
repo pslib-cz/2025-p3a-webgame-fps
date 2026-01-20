@@ -61,21 +61,26 @@ const Deck2Page = () => {
         const loadDeckFromDB = async () => {
             try {
                 const TARGET_ID = 2;
-                const response = await fetch('https://localhost:7077/api/Decks/with-cards');
+                const response = await fetch(`https://localhost:7077/api/Decks/${TARGET_ID}/with-cards`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch decks');
                 }
-                const allDecks = await response.json();
-                const foundDeck = allDecks.find((d: any) => d.deckId === TARGET_ID) ?? allDecks.find((d: any) => d.name === "Deck2");
-                if (foundDeck) {
-                    setExistingDeck(foundDeck);
-                    setDeckName(foundDeck.name ?? "Deck2");
-                    if (foundDeck.cards) {
-                        const attacks = foundDeck.cards.filter((c: any) => cards.find(card => card.id === c.cardId && card.type === 'attack')).map((c: any) => c.cardId);
-                        const supports = foundDeck.cards.filter((c: any) => cards.find(card => card.id === c.cardId && card.type === 'support')).map((c: any) => c.cardId);
-                        setSelectedAttackIds(attacks);
-                        setSelectedSupportIds(supports);
-                    }
+                const deck = await response.json();
+                if (deck.deckId !== TARGET_ID) {
+                    throw new Error(`Deck ID mismatch. Expected ${TARGET_ID}, got ${deck.deckId}`);
+                }
+                setExistingDeck(deck);
+                setDeckName(deck.name ?? "Deck1");
+
+                if (deck.cards) {
+                    const attacks = deck.cards
+                        .filter((c: any) => c.type === 'attack')
+                        .map((c: any) => c.cardId);
+                    const supports = deck.cards
+                        .filter((c: any) => c.type === 'support')
+                        .map((c: any) => c.cardId);
+                    setSelectedAttackIds(attacks);
+                    setSelectedSupportIds(supports);
                 }
             } catch (error) {
                 console.error('Error loading deck from DB', error);
@@ -109,7 +114,6 @@ const Deck2Page = () => {
         setShowSupportContainer(!showSupportContainer);
         setSelectedType('support');
     }
-
 
     const toggleSupportSelect = (id: number) => {
         setSelectedSupportIds(prev => {
@@ -164,7 +168,7 @@ const Deck2Page = () => {
                     body: JSON.stringify(deckData)
                 });
             } else {
-                response = await fetch('https://localhost:7077/api/Decks', {
+                response = await fetch(`https://localhost:7077/api/Decks/${TARGET_ID}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -179,10 +183,9 @@ const Deck2Page = () => {
 
             let savedDeck: any = null;
             if (response.status === 204) {
-                const refresh = await fetch('https://localhost:7077/api/Decks/with-cards');
+                const refresh = await fetch(`https://localhost:7077/api/Decks/${TARGET_ID}/with-cards`);
                 if (refresh.ok) {
-                    const all = await refresh.json();
-                    savedDeck = all.find((d: any) => d.deckId === TARGET_ID) ?? all.find((d: any) => d.name === deckName);
+                    savedDeck = await refresh.json();
                 }
             } else {
                 savedDeck = await response.json();

@@ -20,7 +20,7 @@ export const DeckPage: FC = () => {
     useEffect(() => {
         const fetchDecks = async () => {
             try {
-                const response = await fetch('https://localhost:7077/api/Decks/with-cards');
+                const response = await fetch('https://localhost:7077/api/Decks');
                 if (!response.ok) {
                     throw new Error('Failed to fetch decks');
                 }
