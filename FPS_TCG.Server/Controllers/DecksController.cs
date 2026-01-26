@@ -11,7 +11,7 @@ using FPS_TCG.Server.Models;
 namespace FPS_TCG.Server.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController] 
     public class DecksController : ControllerBase
     {
         private readonly AppDbContext _context;

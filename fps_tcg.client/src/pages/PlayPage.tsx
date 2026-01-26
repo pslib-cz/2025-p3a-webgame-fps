@@ -22,13 +22,13 @@ type PlayPageProps = {
 const characters = [
     { id: 1, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
         skill1Name: "scratch", skill1Damage: 1, skill1Cost: 1, 
-        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3 },
+        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3, skill2Effect: 'Knight' },
     { id: 2, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
         skill1Name: "scratch", skill1Damage: 2, skill1Cost: 1, 
-        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3 },
+        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3, skill2Effect: 'Magic' },
     { id: 3, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
         skill1Name: "scratch", skill1Damage: 1, skill1Cost: 1, 
-        skill2Name: "Ultimate bleh", skill2Damage: 4, skill2Cost: 2 }
+        skill2Name: "Ultimate bleh", skill2Damage: 4, skill2Cost: 2, skill2Effect: 'Tank' }
 ];
 
 const mySupport = [
@@ -178,12 +178,26 @@ export const PlayPage: FC<PlayPageProps> = (
         setStyles(style.supportCards)
     }
     
-    const handleAttackMove = (move: string, dmg: number, cost: number) => {
+    const handleAttackMove = (move: string, dmg: number, cost: number, effect?: string) => {
         if(targetId == null){
             alert("Choose target to attack")
             console.log(targetId)
             return;
         }
+
+        // if(effect){
+        //     const validDices= ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue'].some(type => type === effect)
+        //     console.log("Inside Effect")
+
+        //     const selectedDice = selectedDiceIndex.map(i => diceSymbols[i])
+        //     console.log(selectedDice)
+        //     const hasInvalid = selectedDice.some(dice => dice !== effect && dice !== 'Jester')
+        //     if(hasInvalid){
+        //         alert(`This skill required ${effect} or Jester dices`)
+        //         return;
+        //     }
+        // }
+
         if(selectedDiceIndex === null) return alert("Choose dices to attack")
 
         if(selectedDiceIndex.length === cost){
@@ -324,7 +338,7 @@ export const PlayPage: FC<PlayPageProps> = (
                                 {char.skill1Name}
                                 </div>
                             </div>
-                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name, char.skill2Damage, char.skill2Cost)}>
+                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name, char.skill2Damage, char.skill2Cost, char.skill2Effect)}>
                                 <div className={style.iconBlock}>
                                     <div className={style.swordBlock}>
                                         <img className={style.swordIcon} src={dmg} alt="damage"></img>
