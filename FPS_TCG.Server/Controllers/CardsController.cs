@@ -43,7 +43,6 @@ namespace FPS_TCG.Server.Controllers
         [HttpGet]
 
         // POST api/cards/with-image
-        // multipart/form-data: form fields + file field "image"
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Card>>> GetAllAsync()
         {
@@ -111,23 +110,6 @@ namespace FPS_TCG.Server.Controllers
             _db.Cards.Remove(card);
             await _db.SaveChangesAsync();
             return NoContent();
-        }
-
-
-
-        private static bool IsPng(byte[] b)
-        {
-            return b.Length >= 8 &&
-                   b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47 &&
-                   b[4] == 0x0D && b[5] == 0x0A && b[6] == 0x1A && b[7] == 0x0A;
-        }
-
-        private static string PathForDownloadName(string? originalName, string forcedExt)
-        {
-            if (string.IsNullOrEmpty(originalName))
-                return $"image.{forcedExt}";
-            var name = Path.GetFileNameWithoutExtension(originalName);
-            return $"{name}.{forcedExt}";
         }
     }
 }

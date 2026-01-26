@@ -28,23 +28,6 @@ namespace FPS_TCG.Server.Controllers
             return await _context.Decks.ToListAsync();
         }
 
-
-        // GET: api/Decks/5/with-cards
-        [HttpGet("{id}/with-cards")]
-        public async Task<ActionResult<Deck>> GetDeckWithCards(int id)
-        {
-            var deck = await _context.Decks
-                .Include(d => d.Cards)
-                .FirstOrDefaultAsync(d => d.DeckId == id);
-
-            if (deck == null)
-            {
-                return NotFound();
-            }
-
-            return deck;
-        }
-
         // PUT: api/Decks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
