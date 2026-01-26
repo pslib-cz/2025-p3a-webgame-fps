@@ -12,10 +12,20 @@ interface Deck {
 }
 
 export const DeckPage: FC = () => {
-    const [deckSelect, setDeckSelect] = useState<Deck | null>(null)
+    const [deckSelect, setDeckSelect] = useState<Deck | null>(null);
     const [decks, setDecks] = useState<Deck[]>([]);
     const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const stored = localStorage.getItem('activeDeck');
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                setActiveDeck(parsed);
+            } catch {}
+        }
+    }, []);
 
     useEffect(() => {
         const fetchDecks = async () => {
@@ -25,13 +35,20 @@ export const DeckPage: FC = () => {
                     throw new Error('Failed to fetch decks');
                 }
                 const data = await response.json();
-                
                 const deckData = [1, 2, 3].map(id => {
                     const found = data.find((d: any) => d.deckId === id);
                     return found ? { deckId: id, name: found.name, cards: found.cards || [] } : { deckId: id, name: `Deck${id}`, cards: [] };
                 });
-                
                 setDecks(deckData);
+
+                const stored = localStorage.getItem('activeDeck');
+                if (stored) {
+                    try {
+                        const parsed = JSON.parse(stored);
+                        const match = deckData.find(d => d.deckId === parsed.deckId);
+                        if (match) setActiveDeck(match);
+                    } catch {}
+                }
             } catch (error) {
                 console.error('Error fetching decks', error);
                 setDecks([
@@ -63,7 +80,7 @@ export const DeckPage: FC = () => {
         localStorage.setItem('activeDeck', JSON.stringify(deck));
     };
 
-    return(
+    return (
         <div className={styles.DeckPage}>
             <Link to="/"><span>&lt;- BACK</span></Link>
             <div className={styles.container}>
@@ -90,12 +107,11 @@ export const DeckPage: FC = () => {
             {deckSelect && (
                 <p className={styles.buttonEdit} onClick={() => navigate(`/decksEdit/Deck${deckSelect.deckId}`)}>EDIT</p>
             )}
-            {deckSelect && deckSelect !== activeDeck && (
+            {deckSelect && (!activeDeck || deckSelect.deckId !== activeDeck.deckId) && (
                 <p className={styles.buttonEdit} onClick={() => handleSetActiveDeck(deckSelect)}>SET ACTIVE</p>
             )}
         </div>
-    )
-            
+    );
+};
 
-}
 export default DeckPage;

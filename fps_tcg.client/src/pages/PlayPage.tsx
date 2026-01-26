@@ -9,6 +9,7 @@ import Dice from '../components/Dice'
 import lamma from '../assets/coollama.png'
 import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
+import type { CardProps } from "../components/Card";
 
 type PlayPageProps = {
     onCardPicked: () => void;
@@ -50,9 +51,9 @@ export const PlayPage: FC<PlayPageProps> = (
     const [showAttackMenu, setShowAttackMenu] = useState(false)
     const [pendingCard, setPendingCard] = useState<number | null>(null)
     const [selectedDiceIndex, setSelectedDiceIndex] = useState<number[]>([])
-    const [characterList, setCharacterList] = useState([])
+    const [characterList, setCharacterList] = useState<CardProps[]>([]);
     const [targetId, setTargetId] = useState<number | null>(null);
-    const [mySupportDeck, setMySupportDeck] = useState<any[]>([])
+    const [mySupportDeck, setMySupportDeck] = useState<CardProps[]>([]);
     const [mySupportHand, setMySupportHand] = useState<any[]>([])
     const [loadedDeck, setLoadedDeck] = useState(false)
 
@@ -82,32 +83,19 @@ export const PlayPage: FC<PlayPageProps> = (
     }, [cards]);
 
     useEffect(() => {
-        const fetchDeck = async () => {
-            try{
-                const response = await fetch('https://localhost:7077/api/Decks/1/with-cards')
-                if(!response.ok){
-                    throw new Error('Failed to fetch deck')
-                }
-                const data = await response.json();
-                console.log('Raw API response:', data);
-                const cardsArray = Array.isArray(data) ? data : (data.cards || []);
-                const normalizedDeck = cardsArray.map((card: { cardId: any }) => ({
-                    ...card,
-                    id: card.cardId
-                }));
-
-                const char = normalizedDeck.filter((card: { type: string }) => card.type !== 'support');
-                const supportCards = normalizedDeck.filter((card: { type: string }) => card.type === 'support');
-
-                setCharacterList(char);
-                setMySupportDeck(supportCards);
-                setLoadedDeck(true);
-                console.log('Deck loaded successfully!');
-            } catch(error){
-                console.error('Error fetching deck', error)
+        const stored = localStorage.getItem('activeDeck');
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                const cards: CardProps[] = Array.isArray(parsed.cards) ? parsed.cards : [];
+                setCharacterList(cards.filter((card: CardProps) => card.type === 'attack'));
+                setMySupportDeck(cards.filter((card: CardProps) => card.type !== 'attack'));
+            } catch {
+                setCharacterList([]);
+                setMySupportDeck([]);
             }
-        };
-        fetchDeck();
+        }
+        console.log(characterList)
     }, []);
 
     const handleCharacterSelect = (cardId: number) => {
