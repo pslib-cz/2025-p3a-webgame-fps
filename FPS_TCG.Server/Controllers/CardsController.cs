@@ -40,62 +40,10 @@ namespace FPS_TCG.Server.Controllers
 
             return CreatedAtAction(nameof(GetByIdAsync), new { id = card.CardId }, card);
         }
+        [HttpGet]
 
         // POST api/cards/with-image
         // multipart/form-data: form fields + file field "image"
-        [HttpPost("with-image")]
-        public async Task<IActionResult> CreateWithImage(
-            [FromForm] string name,
-            [FromForm] string type,
-            [FromForm] int health = 0,
-            [FromForm] int shield = 0,
-            [FromForm] string skill1Name = "",
-            [FromForm] int skill1Damage = 0,
-            [FromForm] int skill1Cost = 0,
-            [FromForm] string skill2Name = "",
-            [FromForm] string skill2Effect = "",
-            [FromForm] int skill2Cost = 0,
-            [FromForm] int supportCost = 0,
-            [FromForm] string supportEffect = "",
-            [FromForm] IFormFile? image = null)
-        {
-            var typeNormalized = type?.Trim().ToLowerInvariant();
-            if (typeNormalized != "attack" && typeNormalized != "support")
-                return BadRequest(new { error = "type must be either 'attack' or 'support'." });
-
-            var card = new Card
-            {
-                CardId = 1,
-                Name = name,
-                type = typeNormalized!,
-                health = health,
-                shield = 0,
-                Skill1Name = skill1Name,
-                Skill1Damage = skill1Damage,
-                Skill1Cost = skill1Cost,
-                Skill2Name = skill2Name,
-                skill2Effect = skill2Effect,
-                Skill2Cost = skill2Cost,
-                supportCost = supportCost,
-                supportEffect = supportEffect,
-
-            };
-
-            _db.Cards.Add(card);
-            await _db.SaveChangesAsync();
-
-            if (image != null && image.Length > 0)
-            {
-                using var ms = new MemoryStream();
-                await image.CopyToAsync(ms);
-
-                _db.Cards.Update(card);
-                await _db.SaveChangesAsync();
-            }
-
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = card.CardId }, card);
-        }
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Card>>> GetAllAsync()
         {
@@ -113,6 +61,7 @@ namespace FPS_TCG.Server.Controllers
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
                     skill2Effect = c.skill2Effect,
+                    Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
                     supportCost = c.supportCost,
                     supportEffect = c.supportEffect
@@ -140,6 +89,7 @@ namespace FPS_TCG.Server.Controllers
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
                     skill2Effect = c.skill2Effect,
+                    Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
                     supportCost = c.supportCost,
                     supportEffect = c.supportEffect

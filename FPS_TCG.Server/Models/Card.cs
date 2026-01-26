@@ -21,6 +21,7 @@ namespace FPS_TCG.Server.Models
 
         public required string Skill2Name { get; set; }
         public required string skill2Effect { get; set; }
+        public required int Skill2Damage { get; set; }
         public required int Skill2Cost { get; set; }
 
         public int supportCost { get; set; }
