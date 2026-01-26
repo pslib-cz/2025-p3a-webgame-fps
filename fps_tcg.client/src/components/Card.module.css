@@ -10,6 +10,18 @@
     background-image: url(../assets/cardfront.png);
     cursor: pointer;
 }
+.deadCard{
+    opacity: 60%;
+    width: 150px;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    text-align: center;
+    align-items: center;
+    background-image: url(../assets/cardfront.png);
+}
 .cardName{
     font-size: 16px;
     color: var(--white);
@@ -74,7 +86,7 @@
     }
 }
 @media (min-width: 2000px) {
-    .card{
+    .card, .deadCard{
         width: 225px;
         height: 375px;
     }      

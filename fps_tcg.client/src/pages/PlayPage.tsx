@@ -18,6 +18,8 @@ type PlayPageProps = {
     setFirstTurn: (value: boolean) => void;
     activeCard: number | null;
     setActiveCard: (value: number | null) => void;
+    deadCards: number[];
+    setDeadCards: (value: number[] | ((prev: number[]) => number[])) => void;
 }
 
 const characters = [
@@ -42,7 +44,7 @@ const mySupport = [
 ];
 
 export const PlayPage: FC<PlayPageProps> = (
-    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard}) => {
+    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, deadCards, setDeadCards}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [cards, setCards] = useState<any[]>([]);
     const [styles, setStyles] = useState(style.supportCards)
@@ -65,10 +67,13 @@ export const PlayPage: FC<PlayPageProps> = (
                     throw new Error('Failed to fetch cards');
                 }
                 const data = await response.json();
-                const normalizedCards = data.map((card: { cardId: any }) => ({
+                const normalizedCards = data.map((card: { cardId: any, health: any, shield: any }) => ({
                     ...card,
                     id: card.cardId,
-                    isTarget: false
+                    isTarget: false,
+                    isAlive: !deadCards.includes(card.cardId),
+                    health: deadCards.includes(card.cardId) ? 0 : card.health,
+                    shield: deadCards.includes(card.cardId) ? 0 : card.shield
                 }));
                 setCards(normalizedCards);
             } catch (error) {
@@ -94,7 +99,8 @@ export const PlayPage: FC<PlayPageProps> = (
                 const cardsArray = Array.isArray(data) ? data : (data.cards || []);
                 const normalizedDeck = cardsArray.map((card: { cardId: any }) => ({
                     ...card,
-                    id: card.cardId
+                    id: card.cardId,
+                    isAlive: !deadCards.includes(card.cardId)
                 }));
 
                 const char = normalizedDeck.filter((card: { type: string }) => card.type !== 'support');
@@ -199,6 +205,7 @@ export const PlayPage: FC<PlayPageProps> = (
         //     }
         // }
 
+
         if(selectedDiceIndex === null) return alert("Choose dices to attack")
 
         if(selectedDiceIndex.length === cost){
@@ -219,7 +226,6 @@ export const PlayPage: FC<PlayPageProps> = (
             alert("Too much dices selected!")
             setSelectedDiceIndex([])
         }else alert("Select more dices!")
-
     }
 
     const drawSupportCards = (count: number) => {
@@ -262,6 +268,11 @@ export const PlayPage: FC<PlayPageProps> = (
 
         const remaining = dmg - shieldDmg;
         health = Math.max(0, health - remaining)
+
+        if(health === 0 && c.health > 0){
+            console.log('Card died:', c);
+            setDeadCards(prev => [...prev, c.id])
+        }
 
         return{...c, shield, health}
     }
@@ -316,7 +327,7 @@ export const PlayPage: FC<PlayPageProps> = (
             )}
             <div className={style.playPanel}>
                 <Hand cards={cards.slice(0,3)} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} />
-                <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
+                <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
                         {(() => {

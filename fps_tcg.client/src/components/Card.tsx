@@ -27,23 +27,37 @@ export type CardProps = {
 }
 
 const Card: FC<CardProps> = (props) =>{
-    const { type, isSelected, onClick } = props;
-    if(type === 'attack'){
-        return(
-            <div className={`${style.card} ${style.characterCard} ${isSelected ? style.activeCard : ''}`} onClick={onClick}>
-                <img className={style.img} src={props.imgSrc} alt="Cat" />
-                <p className={style.cardName}>{props.name}</p>
-                <div className={style.cardStats}>
-                    <p className={style.health}><img src={imgHeart} alt="heart"></img>{props.health}</p>
-                    <p className={style.shield}><img src={imgShild} alt="shield"></img>{props.shield}</p>
+    if(props.type === 'attack'){
+        if(props.health !== 0){
+            return(
+                <div className={`${style.card} ${style.characterCard} ${props.isSelected ? style.activeCard : ''}`} 
+                onClick={props.onClick}>
+                    <img className={style.img} src={props.imgSrc} alt="Cat" />
+                    <p className={style.cardName}>{props.name}</p>
+                    <div className={style.cardStats}>
+                        <p className={style.health}><img src={imgHeart} alt="heart"></img>{props.health}</p>
+                        <p className={style.shield}><img src={imgShild} alt="shield"></img>{props.shield}</p>
+                    </div>
                 </div>
-            </div>
-        )
+            )
+        }
+        if(props.health === 0){
+            return(
+                <div className={`${style.deadCard} ${style.characterCard} ${props.isSelected ? undefined : ''}`} onClick={props.onClick}>
+                    <img className={style.img} src={props.imgSrc} alt="Cat" />
+                    <p className={style.cardName}>{props.name}</p>
+                    <div className={style.cardStats}>
+                        <p className={style.health}><img src={imgHeart} alt="heart"></img>{props.health}</p>
+                        <p className={style.shield}><img src={imgShild} alt="shield"></img>{props.shield}</p>
+                    </div>
+                </div>
+            )
+        }
     }
     
-    if(type === 'support'){
+    if(props.type === 'support'){
         return(
-            <div className={`${style.card} ${style.supportCard} ${isSelected}`} onClick={onClick}>
+            <div className={`${style.card} ${style.supportCard} ${props.isSelected}`} onClick={props.onClick}>
                 <p className={style.costTag}>{props.supportCost}</p>
                 <img className={style.img} src={props.imgSrc} alt="support" />
                 <p className={style.cardName}>{props.name}</p>
