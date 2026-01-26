@@ -34,14 +34,6 @@ namespace FPS_TCG.Server.Data
                         j.HasKey("DeckId", "CardId");
                         j.ToTable("DeckCards");
                     });
-
-
-            modelBuilder.Entity<Card>(b =>
-            {
-                b.Property(c => c.ImageData).HasColumnType("BLOB");
-                b.Property(c => c.ImageContentType).HasColumnType("TEXT");
-                b.Property(c => c.ImageFileName).HasColumnType("TEXT");
-            });
         }
     }
 }

@@ -1,5 +1,4 @@
 using FPS_TCG.Server.Data;
-using FPS_TCG.Server.Img;
 using FPS_TCG.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -19,7 +18,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
-        // Ignore reference cycles produced by EF Core navigation properties
         o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
@@ -48,18 +46,15 @@ using (var scope = app.Services.CreateScope())
         var dbPath = conn.DataSource;
         logger.LogInformation("Using SQLite file: {path}", dbPath);
 
-        // Aplikuj migrace p�i startu (vytvo�� tabulky pokud chyb�)
         await db.Database.MigrateAsync();
 
         var cardsBefore = await db.Cards.CountAsync();
         logger.LogInformation("Cards count before seed: {count}", cardsBefore);
 
-        // seed jen pokud neexistuje karta se stejn�m n�zvem
         const string seedCardName = "NejsemEdater";
         var exists = await db.Cards.AnyAsync(c => c.Name == seedCardName);
         if (!exists)
         {
-            // cesta ke slo�ce Images (zkus n�kolika mo�n�ch m�st)
             var possibleImages = new[]
             {
                 Path.Combine(Directory.GetCurrentDirectory(), "Images"),
@@ -70,18 +65,12 @@ using (var scope = app.Services.CreateScope())
             var imagesFolder = possibleImages.FirstOrDefault(Directory.Exists) ?? possibleImages[0];
             logger.LogInformation("Images folder used for seed: {path}", imagesFolder);
 
-            // na�ti obr�zek (pokud existuje)
-            var imageResult = ImageConvertor.LoadImageBytesFromFolder(imagesFolder, "Bleh");
-
-            // Pokud je po�adavek, aby CardId i DeckId byly explicitn� nastaveny,
-            // vytvo��me je bezpe�n� jako max(existing)+1 a p�i kolizi provedeme n�kolika opakov�n�.
             var attempts = 0;
             const int maxAttempts = 3;
             while (true)
             {
                 attempts++;
 
-                // z�skej aktu�ln� maxima (null-safe)
                 var maxCardId = await db.Cards.Select(c => (int?)c.CardId).MaxAsync() ?? 0;
                 var maxDeckId = await db.Decks.Select(d => (int?)d.DeckId).MaxAsync() ?? 0;
                 var newCardId = maxCardId + 1;
@@ -90,7 +79,7 @@ using (var scope = app.Services.CreateScope())
                 var card = new Card
                 {
                     CardId = newCardId,
-                    Name = seedCardName,// line 52 tam napsat jmeno karty
+                    Name = seedCardName,// line 54 tam napsat jmeno karty
                     type = "support",
                     health = 5,
                     shield = 5,
@@ -102,16 +91,13 @@ using (var scope = app.Services.CreateScope())
                     Skill2Cost = 4,
                     supportCost = 2,
                     supportEffect = "NajdeTiGF",
-                    ImageData = imageResult.Data,
-                    ImageContentType = imageResult.ContentType,
-                    ImageFileName = imageResult.FileName
                 };
 
                 var deck = new Deck
                 {
                     DeckId = newDeckId,
                     Name = "Starter Deck",
-                    Cards = new List<Card>() // ponech pr�zdn� nebo p�idej card pokud chce� vztah
+                    Cards = new List<Card>() 
                 };
 
                 db.Cards.Add(card);
@@ -128,12 +114,10 @@ using (var scope = app.Services.CreateScope())
                 }
                 catch (DbUpdateException dbEx)
                 {
-                    // pravd�podobn� kolise PK nebo jin� probl�m p�i vkl�d�n� - odstra� sledov�n� entit a zkuste znovu
                     logger.LogWarning(dbEx, "DbUpdateException on seed attempt {attempt}: {msg}", attempts, dbEx.Message);
 
                     try
                     {
-                        // Odregistrovat p�idan� entity, aby se daly zkusit znovu s nov�mi ID
                         foreach (var entry in db.ChangeTracker.Entries().ToArray())
                         {
                             entry.State = EntityState.Detached;
@@ -150,7 +134,6 @@ using (var scope = app.Services.CreateScope())
                         throw;
                     }
 
-                    // kr�tk� zpo�d�n� p�ed dal��m pokusem
                     await Task.Delay(100);
                     continue;
                 }
