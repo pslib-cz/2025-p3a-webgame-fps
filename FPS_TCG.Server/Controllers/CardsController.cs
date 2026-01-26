@@ -78,9 +78,7 @@ namespace FPS_TCG.Server.Controllers
                 Skill2Cost = skill2Cost,
                 supportCost = supportCost,
                 supportEffect = supportEffect,
-                ImageData = null,
-                ImageContentType = null,
-                ImageFileName = null
+
             };
 
             _db.Cards.Add(card);
@@ -90,9 +88,6 @@ namespace FPS_TCG.Server.Controllers
             {
                 using var ms = new MemoryStream();
                 await image.CopyToAsync(ms);
-                card.ImageData = ms.ToArray();
-                card.ImageContentType = image.ContentType;
-                card.ImageFileName = image.FileName;
 
                 _db.Cards.Update(card);
                 await _db.SaveChangesAsync();
@@ -102,25 +97,25 @@ namespace FPS_TCG.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CardDto>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<Card>>> GetAllAsync()
         {
             var cards = await _db.Cards
                 .AsNoTracking()
-                .Select(c => new CardDto
+                .Select(c => new Card
                 {
                     CardId = c.CardId,
                     Name = c.Name,
-                    Type = c.type,
-                    Health = c.health,
-                    Shield = c.shield,
+                    type = c.type,
+                    health = c.health,
+                    shield = c.shield,
                     Skill1Name = c.Skill1Name,
                     Skill1Damage = c.Skill1Damage,
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
-                    Skill2Effect = c.skill2Effect,
+                    skill2Effect = c.skill2Effect,
                     Skill2Cost = c.Skill2Cost,
-                    SupportCost = c.supportCost,
-                    SupportEffect = c.supportEffect
+                    supportCost = c.supportCost,
+                    supportEffect = c.supportEffect
                 })
                 .ToListAsync();
 
@@ -128,26 +123,26 @@ namespace FPS_TCG.Server.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CardDto>> GetByIdAsync(int id)
+        public async Task<ActionResult<Card>> GetByIdAsync(int id)
         {
             var card = await _db.Cards
                 .AsNoTracking()
                 .Where(c => c.CardId == id)
-                .Select(c => new CardDto
+                .Select(c => new Card
                 {
                     CardId = c.CardId,
                     Name = c.Name,
-                    Type = c.type,
-                    Health = c.health,
-                    Shield = c.shield,
+                    type = c.type,
+                    health = c.health,
+                    shield = c.shield,
                     Skill1Name = c.Skill1Name,
                     Skill1Damage = c.Skill1Damage,
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
-                    Skill2Effect = c.skill2Effect,
+                    skill2Effect = c.skill2Effect,
                     Skill2Cost = c.Skill2Cost,
-                    SupportCost = c.supportCost,
-                    SupportEffect = c.supportEffect
+                    supportCost = c.supportCost,
+                    supportEffect = c.supportEffect
                 })
                 .FirstOrDefaultAsync();
 
@@ -168,31 +163,7 @@ namespace FPS_TCG.Server.Controllers
             return NoContent();
         }
 
-        // GET api/cards/{id}/image/as-png - vrátí obrázek uložený v Card.ImageData jako PNG (pøevod ImageSharp)
-        [HttpGet("{id:int}/image/as-png")]
-        public async Task<IActionResult> GetCardImageAsPngAsync(int id)
-        {
-            var card = await _db.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.CardId == id);
-            if (card == null) return NotFound();
-            if (card.ImageData == null || card.ImageData.Length == 0) return NotFound();
 
-            // už je PNG?
-            if (IsPng(card.ImageData))
-                return File(card.ImageData, "image/png", PathForDownloadName(card.ImageFileName, "png"));
-
-            try
-            {
-                using var image = Image.Load(card.ImageData);
-                using var ms = new MemoryStream();
-                image.Save(ms, new PngEncoder());
-                var png = ms.ToArray();
-                return File(png, "image/png", PathForDownloadName(card.ImageFileName, "png"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "Image conversion failed", detail = ex.Message });
-            }
-        }
 
         private static bool IsPng(byte[] b)
         {
