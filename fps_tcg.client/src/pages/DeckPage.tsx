@@ -58,6 +58,11 @@ export const DeckPage: FC = () => {
             }));
     };
 
+    const handleSetActiveDeck = (deck: Deck) => {
+        setActiveDeck(deck);
+        localStorage.setItem('activeDeck', JSON.stringify(deck));
+    };
+
     return(
         <div className={styles.DeckPage}>
             <Link to="/"><span>&lt;- BACK</span></Link>
@@ -83,11 +88,10 @@ export const DeckPage: FC = () => {
                 })}
             </div>
             {deckSelect && (
-                <div>
-                    <p className={styles.buttonEdit} onClick={() => navigate(`/decksEdit/Deck${deckSelect.deckId}`)}>EDIT</p>
-                    <p className={styles.buttonEdit} onClick={() => setActiveDeck(deckSelect)}>SET ACTIVE</p>
-                    <p className={styles.buttonEdit} onClick={() => console.log(`My selected deck is Deck${activeDeck?.deckId}`)}>whatismydick</p>
-                </div>
+                <p className={styles.buttonEdit} onClick={() => navigate(`/decksEdit/Deck${deckSelect.deckId}`)}>EDIT</p>
+            )}
+            {deckSelect && deckSelect !== activeDeck && (
+                <p className={styles.buttonEdit} onClick={() => handleSetActiveDeck(deckSelect)}>SET ACTIVE</p>
             )}
         </div>
     )
