@@ -44,7 +44,7 @@ export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [cards, setCards] = useState<any[]>([]);
-    const[styles, setStyles] = useState(style.supportCards)
+    const [styles, setStyles] = useState(style.supportCards)
     const [selectedSup, setSelectedSup] = useState<number | null>(null)
     const [attackMenu, setAttackMenu] = useState<number | null>(null)
     const [showAttackMenu, setShowAttackMenu] = useState(false)
@@ -54,6 +54,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [targetId, setTargetId] = useState<number | null>(null);
     const [mySupportDeck, setMySupportDeck] = useState<any[]>([])
     const [mySupportHand, setMySupportHand] = useState<any[]>([])
+    const [loadedDeck, setLoadedDeck] = useState(false)
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -83,18 +84,30 @@ export const PlayPage: FC<PlayPageProps> = (
     useEffect(() => {
         const fetchDeck = async () => {
             try{
-                const response = await fetch('https://localhost:7077/api/Decks/1')
-                if(!response){
+                const response = await fetch('https://localhost:7077/api/Decks/1/with-cards')
+                if(!response.ok){
                     throw new Error('Failed to fetch deck')
                 }
                 const data = await response.json();
-                setCharacterList(data)
+                console.log('Raw API response:', data);
+                const cardsArray = Array.isArray(data) ? data : (data.cards || []);
+                const normalizedDeck = cardsArray.map((card: { cardId: any }) => ({
+                    ...card,
+                    id: card.cardId
+                }));
+
+                const char = normalizedDeck.filter((card: { type: string }) => card.type !== 'support');
+                const supportCards = normalizedDeck.filter((card: { type: string }) => card.type === 'support');
+
+                setCharacterList(char);
+                setMySupportDeck(supportCards);
+                setLoadedDeck(true);
+                console.log('Deck loaded successfully!');
             } catch(error){
                 console.error('Error fetching deck', error)
             }
         };
         fetchDeck();
-        console.log({characterList})
     }, []);
 
     const handleCharacterSelect = (cardId: number) => {
@@ -120,6 +133,7 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         console.log('activeCharacterId:', activeCard); 
         console.log('card.id:', card.id, 'selected:', card.id === activeCard);
+        console.log(loadedDeck)
     }
     
     const handleTargetSelect = (cardId: number) => {
@@ -153,13 +167,12 @@ export const PlayPage: FC<PlayPageProps> = (
     const playSupport = () => {
         if(selectedSup == null) return;
 
-        const support = mySupport.find(c => c.id === selectedSup);
+        const support = mySupportHand.find(c => c.id === selectedSup);
         if(!support) return;
-
-
 
         console.log("Playing support card:", support.name);
 
+        setMySupportHand(prevHand => prevHand.filter(c => c.id !== selectedSup));
         setSelectedSup(null)
         setShowAllSupport(false)
         setStyles(style.supportCards)
@@ -195,19 +208,25 @@ export const PlayPage: FC<PlayPageProps> = (
     }
 
     const drawSupportCards = (count: number) => {
-        for(let i = 0; i <= count; i++){
-            const hand = [i]
-            mySupportHand.push({hand})
-        }
+        setMySupportDeck(prevDeck => {
+            const newDeck = [...prevDeck];
+            const drawnCards = newDeck.splice(0, Math.min(count, newDeck.length));
+      
+            setMySupportHand(prevHand => [...prevHand, ...drawnCards]);
+      
+            return newDeck;
+        });
     }
 
     useEffect(() => {
+        if (!loadedDeck) return;
+
         if(firstTurn){
             drawSupportCards(6)
         }else {
             drawSupportCards(2)
         }
-    }, [firstTurn])
+    }, [firstTurn, loadedDeck])
 
     const dmgDeal = (id: number | null, dmg: number) =>{
         if(id == null) return;
@@ -329,13 +348,13 @@ export const PlayPage: FC<PlayPageProps> = (
             <div className={styles}>
                 {!showAllSupport &&(
                     <div onClick={handleSupportClick}>
-                        <Hand cards={mySupport.slice(0, 2)} 
+                        <Hand cards={mySupportHand.slice(0, 2)} 
                         activeCharacterId={selectedSup} onCharacterActive={() => {}} />
                     </div>
                 )}
                 {showAllSupport &&(
                     <>
-                        <Hand cards={mySupport} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(id)} />
+                        <Hand cards={mySupportHand} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(id)} />
                         <div className={style.supportButtons}>
                             <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
                             <button className={style.supportButton} onClick={playSupport}>PLAY</button>
