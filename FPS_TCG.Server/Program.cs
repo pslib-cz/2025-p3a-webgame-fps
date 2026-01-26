@@ -51,7 +51,7 @@ using (var scope = app.Services.CreateScope())
         var cardsBefore = await db.Cards.CountAsync();
         logger.LogInformation("Cards count before seed: {count}", cardsBefore);
 
-        const string seedCardName = "NejsemEdater";
+        const string seedCardName = "BlehCat";
         var exists = await db.Cards.AnyAsync(c => c.Name == seedCardName);
         if (!exists)
         {
@@ -80,17 +80,18 @@ using (var scope = app.Services.CreateScope())
                 {
                     CardId = newCardId,
                     Name = seedCardName,// line 54 tam napsat jmeno karty
-                    type = "support",
-                    health = 5,
-                    shield = 5,
-                    Skill1Name = "Allegations",
-                    Skill1Damage = 4,
+                    type = "attack",
+                    health = 10,
+                    shield = 2,
+                    Skill1Name = "Slash",
+                    Skill1Damage = 2,
                     Skill1Cost = 1,
-                    Skill2Name = "Lez",
-                    skill2Effect = "ClearingTheAllegations",
+                    Skill2Name = "skin cut",
+                    skill2Effect = "Makes the enemy bleed for 2 rounds",
+                    Skill2Damage = 4,
                     Skill2Cost = 4,
-                    supportCost = 2,
-                    supportEffect = "NajdeTiGF",
+                    supportCost = 0,
+                    supportEffect = "",
                 };
 
                 var deck = new Deck

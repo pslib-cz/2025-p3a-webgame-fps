@@ -61,6 +61,7 @@ namespace FPS_TCG.Server.Controllers
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
                     skill2Effect = c.skill2Effect,
+                    Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
                     supportCost = c.supportCost,
                     supportEffect = c.supportEffect
@@ -88,6 +89,7 @@ namespace FPS_TCG.Server.Controllers
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
                     skill2Effect = c.skill2Effect,
+                    Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
                     supportCost = c.supportCost,
                     supportEffect = c.supportEffect
