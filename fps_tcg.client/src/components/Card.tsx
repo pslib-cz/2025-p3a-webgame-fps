@@ -16,6 +16,7 @@ export type CardProps = {
     skill1Damage?: number,
     skill1Cost?:  number,
     skill2Name?: string,
+    skill2Damage?: number,
     skill2Effect?: string,
     skill2Cost?: number ,
 

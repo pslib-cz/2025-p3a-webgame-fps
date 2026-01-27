@@ -118,7 +118,7 @@ export const PlayPage: FC<PlayPageProps> = (
     }, []);
 
     const handleCharacterSelect = (cardId: number) => {
-        const card = characters.find(c => c.id === cardId);
+        const card = characterList.find(c => c.id === cardId);
         if (!card) return;
 
         setAttackMenu(cardId); 
@@ -327,15 +327,15 @@ export const PlayPage: FC<PlayPageProps> = (
             )}
             <div className={style.playPanel}>
                 <Hand cards={cards.slice(0,3)} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} />
-                <Hand cards={characters} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
+                <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
                 {showAttackMenu && activeCard && !firstTurn && (
                     <div className={style.attackMenu}>
                         {(() => {
-                            const char = characters.find(c => c.id === attackMenu);
+                            const char = characterList.find(c => c.id === attackMenu);
                             if (!char) return null;
                             return(
                             <>
-                            <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name, char.skill1Damage, char.skill1Cost)}>
+                            <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name!, char.skill1Damage!, char.skill1Cost!)}>
                                 <div className={style.iconBlock}>
                                     <div className={style.swordBlock}>
                                         <img className={style.swordIcon} src={dmg} alt="damage"></img>
@@ -350,7 +350,7 @@ export const PlayPage: FC<PlayPageProps> = (
                                 {char.skill1Name}
                                 </div>
                             </div>
-                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name, char.skill2Damage, char.skill2Cost, char.skill2Effect)}>
+                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name!, char.skill2Damage!, char.skill2Cost!, char.skill2Effect)}>
                                 <div className={style.iconBlock}>
                                     <div className={style.swordBlock}>
                                         <img className={style.swordIcon} src={dmg} alt="damage"></img>
