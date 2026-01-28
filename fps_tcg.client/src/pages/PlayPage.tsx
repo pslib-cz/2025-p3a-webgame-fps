@@ -34,15 +34,6 @@ const characters = [
         skill2Name: "Ultimate bleh", skill2Damage: 4, skill2Cost: 2, skill2Effect: 'Tank' }
 ];
 
-const mySupport = [
-    { id: 10, name: "Cool Lamma 1", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
-    { id: 11, name: "Cool Lamma 2", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
-    { id: 12, name: "Cool Lamma 3", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
-    { id: 13, name: "Cool Lamma 4", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
-    { id: 14, name: "Cool Lamma 5", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"},
-    { id: 15, name: "Cool Lamma 6", type: "support" as CardType, imgSrc: lamma, supportCost: 3, supportEffect: "Your enemy stop 1 turn"}
-];
-
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, deadCards, setDeadCards}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
@@ -82,11 +73,7 @@ export const PlayPage: FC<PlayPageProps> = (
         };
         fetchCards();
     }, []);
-
-    useEffect(() => {
-        console.log('Cards updated:', cards);
-    }, [cards]);
-
+    
     useEffect(() => {
         const fetchDeck = async () => {
             try{
@@ -121,26 +108,25 @@ export const PlayPage: FC<PlayPageProps> = (
         const card = characterList.find(c => c.id === cardId);
         if (!card) return;
 
-        setAttackMenu(cardId); 
-        setShowAttackMenu(true);
-        setPendingCard(cardId)
-
         if(cardId == activeCard){
             setPendingCard(null);
+            setShowAttackMenu(true);
+            setAttackMenu(cardId);
             return;
         }
 
         if(firstTurn){
             setActiveCard(cardId);
-
             setTimeout(() => {
                 setFirstTurn(false)
                 onCardPicked();
             }, 800)
         }
-        console.log('activeCharacterId:', activeCard); 
-        console.log('card.id:', card.id, 'selected:', card.id === activeCard);
-        console.log(loadedDeck)
+        else {
+            setPendingCard(cardId);
+            setShowAttackMenu(false);  
+            setAttackMenu(null);
+        }
     }
     
     const handleTargetSelect = (cardId: number) => {
@@ -310,7 +296,7 @@ export const PlayPage: FC<PlayPageProps> = (
             {!firstTurn && pendingCard && (
                 <button className={style.confirmButton} 
                 onClick={() => {
-                    if(selectedDiceIndex === null) return alert("Choose dice to switch!");  
+                    if(selectedDiceIndex.length === 0) return alert("Choose dice to switch!");  
 
                         const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
                         diceSymbols.length = 0; 
