@@ -34,7 +34,7 @@ const Deck3Page = () => {
                           id: c.cardId,
                           name: c.name,
                           type: c.type as CardType,
-                          imgSrc: `/api/Cards/${c.cardId}/image/as-png`,
+                          imgSrc: `https://localhost:7077/api/images/${c.cardId}.png`,
                           health: c.health ?? 0,
                           shield: c.shield ?? 0,
                           skill1Name: c.skill1Name,

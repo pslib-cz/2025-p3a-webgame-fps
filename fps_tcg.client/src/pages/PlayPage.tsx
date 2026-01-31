@@ -63,6 +63,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     id: card.cardId,
                     isTarget: false,
                     isAlive: !deadCards.includes(card.cardId),
+                    imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`,
                     health: deadCards.includes(card.cardId) ? 0 : card.health,
                     shield: deadCards.includes(card.cardId) ? 0 : card.shield
                 }));
@@ -87,7 +88,8 @@ export const PlayPage: FC<PlayPageProps> = (
                 const normalizedDeck = cardsArray.map((card: { cardId: any }) => ({
                     ...card,
                     id: card.cardId,
-                    isAlive: !deadCards.includes(card.cardId)
+                    isAlive: !deadCards.includes(card.cardId),
+                    imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`
                 }));
 
                 const char = normalizedDeck.filter((card: { type: string }) => card.type !== 'support');
