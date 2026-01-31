@@ -77,7 +77,7 @@ export const DeckPage: FC = () => {
 
     const handleSetActiveDeck = (deck: Deck) => {
         setActiveDeck(deck);
-        localStorage.setItem('activeDeck', deck.deckId.toString());
+        localStorage.setItem('activeDeck', JSON.stringify(deck));
     };
 
     return (

@@ -133,17 +133,18 @@ const Deck2Page = () => {
             .map(id => cards.find(c => c.id === id))
             .filter((c): c is CardProps => Boolean(c))
             .map(card => ({
-                cardId: card.id,
-                name: card.name,
+                CardId: card.id,
+                Name: card.name,
                 type: card.type,
                 health: card.health ?? 0,
                 shield: card.shield ?? 0,
-                skill1Name: card.skill1Name ?? "",
-                skill1Damage: card.skill1Damage ?? 0,
-                skill1Cost: card.skill1Cost ?? 0,
-                skill2Name: card.skill2Name ?? "",
+                Skill1Name: card.skill1Name ?? "",
+                Skill1Damage: card.skill1Damage ?? 0,
+                Skill1Cost: card.skill1Cost ?? 0,
+                Skill2Name: card.skill2Name ?? "",
                 skill2Effect: card.skill2Effect ?? "",
-                skill2Cost: card.skill2Cost ?? 0,
+                Skill2Damage: 0,
+                Skill2Cost: card.skill2Cost ?? 0,
                 supportCost: card.supportCost ?? 0,
                 supportEffect: card.supportEffect ?? ""
             }));
@@ -183,7 +184,12 @@ const Deck2Page = () => {
             }
             
             if (!response.ok) {
-                throw new Error('Failed to save deck');
+                const errorData = await response.json();
+                console.error('Server error response:', JSON.stringify(errorData, null, 2));
+                if (errorData.errors) {
+                    console.error('Validation errors:', errorData.errors);
+                }
+                throw new Error(errorData.detail || errorData.title || 'Failed to save deck');
             }
 
             let savedDeck: any = null;
