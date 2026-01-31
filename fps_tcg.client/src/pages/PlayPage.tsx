@@ -78,7 +78,13 @@ export const PlayPage: FC<PlayPageProps> = (
     useEffect(() => {
         const fetchDeck = async () => {
             try{
-                const response = await fetch(`https://localhost:7077/api/Decks/${localStorage.getItem('activeDeck')}/with-cards`)
+                const stored = localStorage.getItem('activeDeck');
+                if (!stored) {
+                    console.error('No active deck selected');
+                    return;
+                }
+                const activeDeck = JSON.parse(stored);
+                const response = await fetch(`https://localhost:7077/api/Decks/${activeDeck.deckId}/with-cards`)
                 if(!response.ok){
                     throw new Error('Failed to fetch deck')
                 }
