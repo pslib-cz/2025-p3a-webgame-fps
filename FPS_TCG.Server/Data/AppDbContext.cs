@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FPS_TCG.Server.Models;
 using Microsoft.EntityFrameworkCore;
-using FPS_TCG.Server.Models;
 
 namespace FPS_TCG.Server.Data
 {
@@ -17,7 +12,6 @@ namespace FPS_TCG.Server.Data
         public DbSet<Card> Cards { get; set; } = null!;
         public DbSet<Deck> Decks { get; set; } = null!;
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -27,8 +21,8 @@ namespace FPS_TCG.Server.Data
                 .WithMany(c => c.Decks)
                 .UsingEntity<Dictionary<string, object>>(
                     "DeckCard",
-                    j => j.HasOne<Card>().WithMany().HasForeignKey("CardId").OnDelete(DeleteBehavior.NoAction),
-                    j => j.HasOne<Deck>().WithMany().HasForeignKey("DeckId").OnDelete(DeleteBehavior.NoAction),
+                    j => j.HasOne<Card>().WithMany().HasForeignKey("CardId").OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<Deck>().WithMany().HasForeignKey("DeckId").OnDelete(DeleteBehavior.Cascade),
                     j =>
                     {
                         j.HasKey("DeckId", "CardId");

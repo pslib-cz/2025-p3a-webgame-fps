@@ -40,9 +40,7 @@ namespace FPS_TCG.Server.Controllers
 
             return CreatedAtAction(nameof(GetByIdAsync), new { id = card.CardId }, card);
         }
-        [HttpGet]
 
-        // POST api/cards/with-image
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Card>>> GetAllAsync()
         {
@@ -104,11 +102,19 @@ namespace FPS_TCG.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var card = await _db.Cards.FindAsync(id);
+            var card = await _db.Cards
+                .Include(c => c.Decks)
+                .FirstOrDefaultAsync(c => c.CardId == id);
+
             if (card == null)
                 return NotFound();
+
+            card.Decks.Clear();
+            await _db.SaveChangesAsync();
+
             _db.Cards.Remove(card);
             await _db.SaveChangesAsync();
+
             return NoContent();
         }
     }
