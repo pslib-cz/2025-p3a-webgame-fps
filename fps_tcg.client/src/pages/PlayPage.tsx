@@ -194,18 +194,19 @@ export const PlayPage: FC<PlayPageProps> = (
             return;
         }
 
-        if (effect && EFFECT_TO_DICE[effect]) {
-            const requiredDice = EFFECT_TO_DICE[effect];
+        if (effect && selectedDiceIndex.length) {
             const selectedDice = selectedDiceIndex.map(i => diceSymbols[i]);
 
-            const invalid = selectedDice.some(
-                dice => dice !== requiredDice && dice !== "Jester"
+            const invalid = selectedDice.some(d => 
+                (effect.toLowerCase() === "attack" && d !== "Knight" && d !== "Jester") ||
+                (effect.toLowerCase() === "shield" && d !== "Tank" && d !== "Jester") ||
+                (effect.toLowerCase() === "magic" && d !== "Mage" && d !== "Jester") ||
+                (effect.toLowerCase() === "heal" && d !== "Healer" && d !== "Jester") ||
+                (effect.toLowerCase() === "stealth" && d !== "Rogue" && d !== "Jester")
             );
 
             if (invalid) {
-                alert(
-                    `This skill requires ${requiredDice} dice or Jester`
-                );
+                alert("This skill requires specific dice or Jester");
                 return;
             }
         }
