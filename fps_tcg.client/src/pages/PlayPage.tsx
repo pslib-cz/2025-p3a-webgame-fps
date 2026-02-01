@@ -178,6 +178,14 @@ export const PlayPage: FC<PlayPageProps> = (
         setShowAllSupport(false)
         setStyles(style.supportCards)
     }
+
+    const EFFECT_TO_DICE: Record<string, DiceSymbol> = {
+        Attack: "Knight",
+        Shield: "Tank",
+        Magic: "Mage",
+        Heal: "Healer",
+        Stealth: "Rogue"
+    };
     
     const handleAttackMove = (move: string, dmg: number, cost: number, effect?: string) => {
         if(targetId == null){
@@ -186,19 +194,21 @@ export const PlayPage: FC<PlayPageProps> = (
             return;
         }
 
-        // if(effect){
-        //     const validDices= ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue'].some(type => type === effect)
-        //     console.log("Inside Effect")
+        if (effect && EFFECT_TO_DICE[effect]) {
+            const requiredDice = EFFECT_TO_DICE[effect];
+            const selectedDice = selectedDiceIndex.map(i => diceSymbols[i]);
 
-        //     const selectedDice = selectedDiceIndex.map(i => diceSymbols[i])
-        //     console.log(selectedDice)
-        //     const hasInvalid = selectedDice.some(dice => dice !== effect && dice !== 'Jester')
-        //     if(hasInvalid){
-        //         alert(`This skill required ${effect} or Jester dices`)
-        //         return;
-        //     }
-        // }
+            const invalid = selectedDice.some(
+                dice => dice !== requiredDice && dice !== "Jester"
+            );
 
+            if (invalid) {
+                alert(
+                    `This skill requires ${requiredDice} dice or Jester`
+                );
+                return;
+            }
+        }
 
         if(selectedDiceIndex === null) return alert("Choose dices to attack")
 
@@ -220,6 +230,7 @@ export const PlayPage: FC<PlayPageProps> = (
             alert("Too much dices selected!")
             setSelectedDiceIndex([])
         }else alert("Select more dices!")
+        console.log("Effect value:", effect);
     }
 
     const drawSupportCards = (count: number) => {
