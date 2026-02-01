@@ -3,10 +3,8 @@ import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
 import Hand from "../components/Hand"
-import cat from "../assets/blehcat.png"
-import type { CardType, DiceSymbol } from '../types'
+import type { DiceSymbol } from '../types'
 import Dice from '../components/Dice'
-import lamma from '../assets/coollama.png'
 import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
 import type { CardProps } from "../components/Card";
@@ -21,18 +19,6 @@ type PlayPageProps = {
     deadCards: number[];
     setDeadCards: (value: number[] | ((prev: number[]) => number[])) => void;
 }
-
-const characters = [
-    { id: 1, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
-        skill1Name: "scratch", skill1Damage: 1, skill1Cost: 1, 
-        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3, skill2Effect: 'Knight' },
-    { id: 2, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
-        skill1Name: "scratch", skill1Damage: 2, skill1Cost: 1, 
-        skill2Name: "Ultimate bleh", skill2Damage: 5, skill2Cost: 3, skill2Effect: 'Magic' },
-    { id: 3, name: "Bleh Cat", type: "attack" as CardType, imgSrc: cat, health: 10, shield: 10, 
-        skill1Name: "scratch", skill1Damage: 1, skill1Cost: 1, 
-        skill2Name: "Ultimate bleh", skill2Damage: 4, skill2Cost: 2, skill2Effect: 'Tank' }
-];
 
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, deadCards, setDeadCards}) => {
@@ -178,14 +164,6 @@ export const PlayPage: FC<PlayPageProps> = (
         setShowAllSupport(false)
         setStyles(style.supportCards)
     }
-
-    const EFFECT_TO_DICE: Record<string, DiceSymbol> = {
-        Attack: "Knight",
-        Shield: "Tank",
-        Magic: "Mage",
-        Heal: "Healer",
-        Stealth: "Rogue"
-    };
     
     const handleAttackMove = (move: string, dmg: number, cost: number, effect?: string) => {
         if(targetId == null){
