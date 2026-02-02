@@ -12,7 +12,7 @@ namespace FPS_TCG.Server.Data
         public DbSet<Card> Cards { get; set; } = null!;
         public DbSet<Deck> Decks { get; set; } = null!;
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)      
         {
             base.OnModelCreating(modelBuilder);
 
