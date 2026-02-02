@@ -18,12 +18,13 @@ type PlayPageProps = {
     setActiveCard: (value: number | null) => void;
     deadCards: number[];
     setDeadCards: (value: number[] | ((prev: number[]) => number[])) => void;
+    cards: any[];
+    setCards: (value: any[] | ((prev: any[]) => any[])) => void
 }
 
 export const PlayPage: FC<PlayPageProps> = (
-    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, deadCards, setDeadCards}) => {
+    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, deadCards, setDeadCards, cards, setCards}) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
-    const [cards, setCards] = useState<any[]>([]);
     const [styles, setStyles] = useState(style.supportCards)
     const [selectedSup, setSelectedSup] = useState<number | null>(null)
     const [attackMenu, setAttackMenu] = useState<number | null>(null)
@@ -38,6 +39,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
     useEffect(() => {
         const fetchCards = async () => {
+            if (cards.length > 0) return;
             try {
                 const response = await fetch('https://localhost:7077/api/Cards');
                 if (!response.ok) {
@@ -124,21 +126,15 @@ export const PlayPage: FC<PlayPageProps> = (
     }
     
     const handleTargetSelect = (cardId: number) => {
-        if (cardId === undefined || cardId === null) {
-            console.error('No cardId provided to handleTargetSelect');
-            return;
-        }
-        console.log('Selecting target:', cardId);
-        console.log('Current cards:', cards);
-        const currentCard = cards.find(c => c.id === cardId);
-        const wasTarget = currentCard.isTarget === true;
-        setCards(prev => prev.map(c => ({
-            ...c,
-            isTarget: c.id === cardId ? !c.isTarget : false 
-        })));
-        
-        const newTargetId = wasTarget ? null : cardId;
-        setTargetId(newTargetId);
+        if (!cardId) return;
+
+        setCards(prev =>
+            prev.map(c => ({
+                ...c,
+                isTarget: c.id === cardId ? !c.isTarget : false
+            }))
+        );
+        setTargetId(prev => (prev === cardId ? null : cardId));
     }  
     
     const handleSupportClick = () => {
@@ -213,24 +209,19 @@ export const PlayPage: FC<PlayPageProps> = (
     }
 
     const drawSupportCards = (count: number) => {
-        setMySupportDeck(prevDeck => {
-            const newDeck = [...prevDeck];
-            const drawnCards = newDeck.splice(0, Math.min(count, newDeck.length));
-      
-            setMySupportHand(prevHand => [...prevHand, ...drawnCards]);
-      
-            return newDeck;
-        });
+        if (mySupportDeck.length === 0) return;
+        const deckCopy = [...mySupportDeck];
+        const drawnCards = deckCopy.splice(0, Math.min(count, deckCopy.length));
+        setMySupportHand(prevHand => [...prevHand, ...drawnCards]);
+        setMySupportDeck(deckCopy);
     }
 
     useEffect(() => {
         if (!loadedDeck) return;
 
-        if(firstTurn){
-            drawSupportCards(6)
-        }else {
-            drawSupportCards(2)
-        }
+        if (firstTurn && mySupportHand.length === 0) {
+            drawSupportCards(6);
+        }else drawSupportCards(2)
     }, [firstTurn, loadedDeck])
 
     const dmgDeal = (id: number | null, dmg: number) =>{
@@ -287,7 +278,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 <img src={cardBack90} alt="cardBack" />
             </div>
             <button className={style.endRoundButton} onClick={() => {
-                if(firstTurn == false){
+                if(!firstTurn){
                     onCardPicked()
                 }
             }}>END ROUND</button>
