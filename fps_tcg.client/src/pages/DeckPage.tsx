@@ -30,22 +30,31 @@ export const DeckPage: FC = () => {
     useEffect(() => {
         const fetchDecks = async () => {
             try {
-                const response = await fetch('https://localhost:7077/api/Decks');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch decks');
-                }
-                const data = await response.json();
-                const deckData = [1, 2, 3].map(id => {
-                    const found = data.find((d: any) => d.deckId === id);
-                    return found ? { deckId: id, name: found.name, cards: found.cards || [] } : { deckId: id, name: `Deck${id}`, cards: [] };
-                });
-                setDecks(deckData);
-
+                const deckIds = [1, 2, 3];
+                const decksWithCards = await Promise.all(
+                    deckIds.map(async (id) => {
+                        try {
+                            const response = await fetch(`https://localhost:7077/api/Decks/${id}/with-cards`);
+                            if (response.ok) {
+                                const deck = await response.json();
+                                return deck;
+                            } else {
+                                return { deckId: id, name: `Deck${id}`, cards: [] };
+                            }
+                        } catch (error) {
+                            console.error(`Error fetching deck ${id}`, error);
+                            return { deckId: id, name: `Deck${id}`, cards: [] };
+                        }
+                    })
+                );
+    
+                setDecks(decksWithCards);
+    
                 const stored = localStorage.getItem('activeDeck');
                 if (stored) {
                     try {
                         const parsed = JSON.parse(stored);
-                        const match = deckData.find(d => d.deckId === parsed.deckId);
+                        const match = decksWithCards.find(d => d.deckId === parsed.deckId);
                         if (match) setActiveDeck(match);
                     } catch {}
                 }
@@ -69,7 +78,7 @@ export const DeckPage: FC = () => {
                 id: card.cardId,
                 name: card.name,
                 type: 'attack' as CardType,
-                imgSrc: card.imagePath,
+                imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`,
                 health: card.health,
                 shield: card.shield
             }));
@@ -86,6 +95,9 @@ export const DeckPage: FC = () => {
             <div className={styles.container}>
                 {decks.map(deck => {
                     const attackCards = getAttackCards(deck.cards || []);
+                    console.log('Deck:', deck);
+                    console.log('Deck cards:', deck.cards);
+                    console.log('Attack cards:', attackCards);
                     return (
                         <div key={deck.deckId}>
                             {attackCards.length > 0 ? (

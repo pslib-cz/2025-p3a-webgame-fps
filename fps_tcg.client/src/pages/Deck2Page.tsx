@@ -151,14 +151,11 @@ const Deck2Page = () => {
     }
 
     const handleSaveDeck = async () => {
-        if (deckName === '') {
-            setDeckName("Deck2");
-        }
+        const trimmedDeckName = deckName === '' ? "Deck2" : deckName.slice(0, 15);
         const TARGET_ID = 2;
-        setDeckName(deckName.slice(0, 15));
         const deckData = {
             deckId: TARGET_ID,
-            name: deckName,
+            name: trimmedDeckName,
             cards: buildSelectedCards()
         };
         
