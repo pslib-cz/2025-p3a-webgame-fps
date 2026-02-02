@@ -1,3 +1,251 @@
-﻿5) Endpoint pro získávání karet podle decku
-6) Endpoint pro mazání karet podle decku
-8) opravit chyby pri spousteni post {nova karta}
+﻿using FPS_TCG.Server.Data;
+using FPS_TCG.Server.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
+
+var builder = WebApplication.CreateBuilder(args);
+
+var connectionString =
+    builder.Configuration.GetConnectionString("default")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(connectionString)
+           .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
+
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        var conn = db.Database.GetDbConnection();
+        var dbPath = conn.DataSource;
+        logger.LogInformation("Using SQLite file: {path}", dbPath);
+
+        await db.Database.MigrateAsync();
+
+        var cardsBefore = await db.Cards.CountAsync();
+        logger.LogInformation("Cards count before seed: {count}", cardsBefore);
+
+        // --- Existing single-card seed (Mage) ---
+        const string seedCardName = "Mage";
+        var exists = await db.Cards.AnyAsync(c => c.Name == seedCardName);
+        if (!exists)
+        {
+            var possibleImages = new[]
+            {
+                Path.Combine(Directory.GetCurrentDirectory(), "Images"),
+                Path.Combine(AppContext.BaseDirectory ?? string.Empty, "Images"),
+                Path.Combine(Directory.GetCurrentDirectory(), "ImageToConvert"),
+                Path.Combine(AppContext.BaseDirectory ?? string.Empty, "ImageToConvert")
+            };
+            var imagesFolder = possibleImages.FirstOrDefault(Directory.Exists) ?? possibleImages[0];
+            logger.LogInformation("Images folder used for seed: {path}", imagesFolder);
+
+            var attempts = 0;
+            const int maxAttempts = 3;
+            while (true)
+            {
+                attempts++;
+
+                var maxCardId = await db.Cards.Select(c => (int?)c.CardId).MaxAsync() ?? 0;
+                var maxDeckId = await db.Decks.Select(d => (int?)d.DeckId).MaxAsync() ?? 0;
+                var newCardId = maxCardId + 1;
+                var newDeckId = maxDeckId + 1;
+
+                var card = new Card
+                {
+                    CardId = newCardId,
+                    Name = seedCardName,// line 54 tam napsat jmeno karty
+                    Type = "attack",
+                    Health = 8,
+                    Shield = 0,
+                    Skill1Name = "Bolt",
+                    Skill1Damage = 2,
+                    Skill1Cost = 2,
+                    Skill2Name = "Blast",
+                    Skill2Effect = "Mage",
+                    Skill2Damage = 3,
+                    Skill2Cost = 4,
+                    SupportCost = 0,
+                    SupportEffect = "",
+                };
+
+                db.Cards.Add(card);
+
+                logger.LogInformation("Attempt {attempt} saving seed (CardId={cardId}, DeckId={deckId})...", attempts, newCardId, newDeckId);
+
+                try
+                {
+                    await db.SaveChangesAsync();
+                    logger.LogInformation("Seed saved. Cards before: {before}, after: {after}", cardsBefore, await db.Cards.CountAsync());
+                    logger.LogInformation("GET cards at: /api/cards");
+                    break;
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    logger.LogWarning(dbEx, "DbUpdateException on seed attempt {attempt}: {msg}", attempts, dbEx.Message);
+
+                    try
+                    {
+                        foreach (var entry in db.ChangeTracker.Entries().ToArray())
+                        {
+                            entry.State = EntityState.Detached;
+                        }
+                    }
+                    catch (Exception detachEx)
+                    {
+                        logger.LogWarning(detachEx, "Error detaching entries: {msg}", detachEx.Message);
+                    }
+
+                    if (attempts >= maxAttempts)
+                    {
+                        logger.LogError(dbEx, "Failed to save seed after {maxAttempts} attempts.", maxAttempts);
+                        throw;
+                    }
+
+                    await Task.Delay(100);
+                    continue;
+                }
+            }
+        }
+        else
+        {
+            logger.LogInformation("Seed skipped — card with name '{name}' already exists.", seedCardName);
+        }
+
+        // --- Additional support cards seeding requested by user ---
+        var supportSeeds = new[]
+        {
+            new { Name = "Give attack",     Type = "support", SupportEffect = "give_attack"  },
+            new { Name = "Give shield",     Type = "support", SupportEffect = "give_shield"  },
+            new { Name = "Give heal",       Type = "support", SupportEffect = "give_heal"    },
+            new { Name = "Give magic",      Type = "support", SupportEffect = "give_magic"   },
+            new { Name = "Give stealth",    Type = "support", SupportEffect = "give_stealth" },
+            new { Name = "Give jester",     Type = "support", SupportEffect = "give_Jester"  },
+        };
+
+        // Get current max id once so we can assign sequential CardId values (if desired)
+        var currentMaxCardId = await db.Cards.Select(c => (int?)c.CardId).MaxAsync() ?? 0;
+
+        foreach (var seed in supportSeeds)
+        {
+            if (await db.Cards.AnyAsync(c => c.Name == seed.Name))
+            {
+                logger.LogInformation("Support seed skipped — card with name '{name}' already exists.", seed.Name);
+                continue;
+            }
+
+            // Build the Card entity with the same shape as your other seeds
+            currentMaxCardId++;
+            var card = new Card
+            {
+                CardId = (int)currentMaxCardId,
+                Name = seed.Name,
+                Type = seed.Type,
+                Health = 0,
+                Shield = 0,
+                Skill1Name = string.Empty,
+                Skill1Damage = 0,
+                Skill1Cost = 0,
+                Skill2Name = string.Empty,
+                Skill2Effect = string.Empty,
+                Skill2Damage = 0,
+                Skill2Cost = 0,
+                SupportCost = 1,
+                SupportEffect = seed.SupportEffect,
+            };
+
+            // Try saving with a small retry loop (similar to single-card logic)
+            var attempts = 0;
+            const int maxAttemptsPerSeed = 3;
+            while (true)
+            {
+                attempts++;
+                db.Cards.Add(card);
+
+                try
+                {
+                    await db.SaveChangesAsync();
+                    logger.LogInformation("Seeded support card '{name}' (CardId={id}).", seed.Name, card.CardId);
+                    break;
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    logger.LogWarning(dbEx, "DbUpdateException while seeding '{name}' attempt {attempt}: {msg}", seed.Name, attempts, dbEx.Message);
+                    try
+                    {
+                        foreach (var entry in db.ChangeTracker.Entries().ToArray())
+                        {
+                            entry.State = EntityState.Detached;
+                        }
+                    }
+                    catch (Exception detachEx)
+                    {
+                        logger.LogWarning(detachEx, "Error detaching entries: {msg}", detachEx.Message);
+                    }
+
+                    if (attempts >= maxAttemptsPerSeed)
+                    {
+                        logger.LogError(dbEx, "Failed to save seed '{name}' after {maxAttempts} attempts.", seed.Name, maxAttemptsPerSeed);
+                        throw;
+                    }
+
+                    // increment id to avoid collisions on retry
+                    currentMaxCardId++;
+                    card.CardId = (int)currentMaxCardId;
+
+                    await Task.Delay(100);
+                    continue;
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error initializing database: {message}", ex.Message);
+        throw;
+    }
+}
+
+app.UseDefaultFiles();
+app.MapStaticAssets();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
+app.UseCors();
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+app.MapControllers();
+app.MapFallbackToFile("/index.html");
+app.Run();
