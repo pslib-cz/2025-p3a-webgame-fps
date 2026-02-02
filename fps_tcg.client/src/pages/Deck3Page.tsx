@@ -135,18 +135,18 @@ const Deck3Page = () => {
             .map(card => ({
                 CardId: card.id,
                 Name: card.name,
-                type: card.type,
-                health: card.health ?? 0,
-                shield: card.shield ?? 0,
+                Type: card.type,
+                Health: card.health ?? 0,
+                Shield: card.shield ?? 0,
                 Skill1Name: card.skill1Name ?? "",
                 Skill1Damage: card.skill1Damage ?? 0,
                 Skill1Cost: card.skill1Cost ?? 0,
                 Skill2Name: card.skill2Name ?? "",
-                skill2Effect: card.skill2Effect ?? "",
+                Skill2Effect: card.skill2Effect ?? "",
                 Skill2Damage: 0,
                 Skill2Cost: card.skill2Cost ?? 0,
-                supportCost: card.supportCost ?? 0,
-                supportEffect: card.supportEffect ?? ""
+                SupportCost: card.supportCost ?? 0,
+                SupportEffect: card.supportEffect ?? ""
             }));
     }
 
@@ -171,7 +171,7 @@ const Deck3Page = () => {
                     body: JSON.stringify(deckData)
                 });
             } else {
-                response = await fetch(`https://localhost:7077/api/Decks/${TARGET_ID}`, {
+                response = await fetch(`https://localhost:7077/api/Decks`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
