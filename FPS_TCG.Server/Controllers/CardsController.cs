@@ -28,12 +28,12 @@ namespace FPS_TCG.Server.Controllers
             if (card == null)
                 return BadRequest();
 
-            var typeNormalized = card.type?.Trim().ToLowerInvariant();
+            var typeNormalized = card.Type?.Trim().ToLowerInvariant();
             if (typeNormalized != "attack" && typeNormalized != "support")
                 return BadRequest(new { error = "type must be either 'attack' or 'support'." });
 
-            card.type = typeNormalized;
-            card.shield = 0;
+            card.Type = typeNormalized;
+            card.Shield = 0;
 
             _db.Cards.Add(card);
             await _db.SaveChangesAsync();
@@ -50,18 +50,18 @@ namespace FPS_TCG.Server.Controllers
                 {
                     CardId = c.CardId,
                     Name = c.Name,
-                    type = c.type,
-                    health = c.health,
-                    shield = c.shield,
+                    Type = c.Type,
+                    Health = c.Health,
+                    Shield = c.Shield,
                     Skill1Name = c.Skill1Name,
                     Skill1Damage = c.Skill1Damage,
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
-                    skill2Effect = c.skill2Effect,
+                    Skill2Effect = c.Skill2Effect,
                     Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
-                    supportCost = c.supportCost,
-                    supportEffect = c.supportEffect
+                    SupportCost = c.SupportCost,
+                    SupportEffect = c.SupportEffect
                 })
                 .ToListAsync();
 
@@ -78,18 +78,18 @@ namespace FPS_TCG.Server.Controllers
                 {
                     CardId = c.CardId,
                     Name = c.Name,
-                    type = c.type,
-                    health = c.health,
-                    shield = c.shield,
+                    Type = c.Type,
+                    Health = c.Health,
+                    Shield = c.Shield,
                     Skill1Name = c.Skill1Name,
                     Skill1Damage = c.Skill1Damage,
                     Skill1Cost = c.Skill1Cost,
                     Skill2Name = c.Skill2Name,
-                    skill2Effect = c.skill2Effect,
+                    Skill2Effect = c.Skill2Effect,
                     Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
-                    supportCost = c.supportCost,
-                    supportEffect = c.supportEffect
+                    SupportCost = c.SupportCost,
+                    SupportEffect = c.SupportEffect
                 })
                 .FirstOrDefaultAsync();
 

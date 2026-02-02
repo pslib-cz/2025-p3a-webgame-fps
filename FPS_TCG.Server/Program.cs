@@ -80,18 +80,18 @@ using (var scope = app.Services.CreateScope())
                 {
                     CardId = newCardId,
                     Name = seedCardName,// line 54 tam napsat jmeno karty
-                    type = "attack",
-                    health = 8,
-                    shield = 0,
+                    Type = "attack",
+                    Health = 8,
+                    Shield = 0,
                     Skill1Name = "Bolt",
                     Skill1Damage = 2,   
                     Skill1Cost = 2,
                     Skill2Name = "Blast",
-                    skill2Effect = "Mage",
+                    Skill2Effect = "Mage",
                     Skill2Damage = 3,
                     Skill2Cost = 4,
-                    supportCost = 0,
-                    supportEffect = "",
+                    SupportCost = 0,
+                    SupportEffect = "",
                 };
 
                 db.Cards.Add(card);
