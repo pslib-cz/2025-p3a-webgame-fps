@@ -106,17 +106,15 @@ namespace FPS_TCG.Server.Controllers
         }
 
         // POST: api/Decks
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Deck>> PostDeck(Deck deck)
         {
             if (deck == null)
                 return BadRequest("Deck is null.");
 
-            // If caller supplied cards, ensure existing cards are attached (tracked) instead of re-inserted.
+
             if (deck.Cards != null && deck.Cards.Count > 0)
             {
-                // IDs that look like existing items
                 var incomingIds = deck.Cards.Where(c => c.CardId > 0).Select(c => c.CardId).Distinct().ToList();
 
                 List<Card> trackedExisting = new();
@@ -129,24 +127,20 @@ namespace FPS_TCG.Server.Controllers
                     var missing = incomingIds.Except(trackedExisting.Select(c => c.CardId)).ToList();
                     if (missing.Any())
                     {
-                        // caller referenced Card IDs that do not exist in DB
                         return BadRequest($"Referenced Card IDs not found: {string.Join(',', missing)}");
                     }
                 }
 
-                // Build final card list: replace inbound objects for existing ids with tracked entities
                 var finalCards = new List<Card>(deck.Cards.Count);
                 foreach (var incoming in deck.Cards)
                 {
                     if (incoming.CardId > 0)
                     {
-                        // use the tracked instance (so EF won't attempt to insert)
                         var tracked = trackedExisting.Single(c => c.CardId == incoming.CardId);
                         finalCards.Add(tracked);
                     }
                     else
                     {
-                        // new card — ensure CardId == 0 so DB can generate it
                         incoming.CardId = 0;
                         finalCards.Add(incoming);
                     }
@@ -162,14 +156,18 @@ namespace FPS_TCG.Server.Controllers
         }
 
         // DELETE: api/Decks/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteDeck(int id)
         {
-            var deck = await _context.Decks.FindAsync(id);
+            var deck = await _context.Decks
+                .Include(d => d.Cards)
+                .FirstOrDefaultAsync(d => d.DeckId == id);
+
             if (deck == null)
-            {
                 return NotFound();
-            }
+
+            deck.Cards.Clear();
+            await _context.SaveChangesAsync();
 
             _context.Decks.Remove(deck);
             await _context.SaveChangesAsync();

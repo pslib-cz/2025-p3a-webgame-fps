@@ -17,6 +17,14 @@ namespace FPS_TCG.Server.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Deck>()
+                .Property(d => d.DeckId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Card>()
+                .Property(c => c.CardId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Deck>()
                 .HasMany(d => d.Cards)
                 .WithMany(c => c.Decks)
                 .UsingEntity<Dictionary<string, object>>(

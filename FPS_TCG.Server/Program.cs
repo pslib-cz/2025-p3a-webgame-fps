@@ -96,6 +96,14 @@ using (var scope = app.Services.CreateScope())
 
                 db.Cards.Add(card);
 
+                var deck = new Deck
+                {
+                    DeckId = 0,
+                    Name = "Starting Deck",
+                    Cards = new List<Card> { card }
+                };
+                db.Decks.Add(deck);
+
                 logger.LogInformation("Attempt {attempt} saving seed (CardId={cardId}, DeckId={deckId})...", attempts, newCardId, newDeckId);
 
                 try
