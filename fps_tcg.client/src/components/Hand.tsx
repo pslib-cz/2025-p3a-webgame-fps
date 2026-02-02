@@ -17,10 +17,10 @@ const Hand: FC<HandProps> = ({
     }) => {
     return(
         <div className={style.handContainer}>
-            {cards.map(card => 
+            {cards.map((card, index) => 
             (
                 <Card
-                    key={card.id}
+                    key={`${card.id}-${index}`}
                     {...card}
                     isSelected={card.id === activeCharacterId}
                     onClick={() => onCharacterActive(card.id)}

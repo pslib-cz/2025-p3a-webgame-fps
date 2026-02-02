@@ -18,12 +18,17 @@ type PlayPageProps = {
     setActiveCard: (value: number | null) => void;
     deadCards: number[];
     setDeadCards: (value: number[] | ((prev: number[]) => number[])) => void;
+    cards: any[];
+    setCards: (value: any[] | ((prev: any[]) => any[])) => void;
+    supportHand: CardProps[]
+    setSupportHand: (value: CardProps[] | ((prev: CardProps[]) => CardProps[])) => void;
 }
 
 export const PlayPage: FC<PlayPageProps> = (
-    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, deadCards, setDeadCards}) => {
+    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, 
+        deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand
+    }) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
-    const [cards, setCards] = useState<any[]>([]);
     const [styles, setStyles] = useState(style.supportCards)
     const [selectedSup, setSelectedSup] = useState<number | null>(null)
     const [attackMenu, setAttackMenu] = useState<number | null>(null)
@@ -32,12 +37,12 @@ export const PlayPage: FC<PlayPageProps> = (
     const [selectedDiceIndex, setSelectedDiceIndex] = useState<number[]>([])
     const [characterList, setCharacterList] = useState<CardProps[]>([]);
     const [targetId, setTargetId] = useState<number | null>(null);
-    const [mySupportDeck, setMySupportDeck] = useState<CardProps[]>([]);
-    const [mySupportHand, setMySupportHand] = useState<any[]>([])
+    const [supportDeck, setSupportDeck] = useState<CardProps[]>([]);
     const [loadedDeck, setLoadedDeck] = useState(false)
 
     useEffect(() => {
         const fetchCards = async () => {
+            if (cards.length > 0) return;
             try {
                 const response = await fetch('https://localhost:7077/api/Cards');
                 if (!response.ok) {
@@ -88,7 +93,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 const supportCards = normalizedDeck.filter((card: { type: string }) => card.type === 'support');
 
                 setCharacterList(char);
-                setMySupportDeck(supportCards);
+                setSupportDeck(supportCards);
                 setLoadedDeck(true);
                 console.log('Deck loaded successfully!');
             } catch(error){
@@ -124,21 +129,15 @@ export const PlayPage: FC<PlayPageProps> = (
     }
     
     const handleTargetSelect = (cardId: number) => {
-        if (cardId === undefined || cardId === null) {
-            console.error('No cardId provided to handleTargetSelect');
-            return;
-        }
-        console.log('Selecting target:', cardId);
-        console.log('Current cards:', cards);
-        const currentCard = cards.find(c => c.id === cardId);
-        const wasTarget = currentCard.isTarget === true;
-        setCards(prev => prev.map(c => ({
-            ...c,
-            isTarget: c.id === cardId ? !c.isTarget : false 
-        })));
-        
-        const newTargetId = wasTarget ? null : cardId;
-        setTargetId(newTargetId);
+        if (!cardId) return;
+
+        setCards(prev =>
+            prev.map(c => ({
+                ...c,
+                isTarget: c.id === cardId ? !c.isTarget : false
+            }))
+        );
+        setTargetId(prev => (prev === cardId ? null : cardId));
     }  
     
     const handleSupportClick = () => {
@@ -150,20 +149,6 @@ export const PlayPage: FC<PlayPageProps> = (
         setShowAllSupport(false);
         setStyles(style.supportCards); 
     };
-
-    const playSupport = () => {
-        if(selectedSup == null) return;
-
-        const support = mySupportHand.find(c => c.id === selectedSup);
-        if(!support) return;
-
-        console.log("Playing support card:", support.name);
-
-        setMySupportHand(prevHand => prevHand.filter(c => c.id !== selectedSup));
-        setSelectedSup(null)
-        setShowAllSupport(false)
-        setStyles(style.supportCards)
-    }
     
     const handleAttackMove = (move: string, dmg: number, cost: number, effect?: string) => {
         if(targetId == null){
@@ -212,23 +197,56 @@ export const PlayPage: FC<PlayPageProps> = (
         console.log("Effect value:", effect);
     }
 
+    const playSupport = () => {
+        if(selectedSup == null) return;
+
+        const support = supportHand.find(c => c.id === selectedSup);
+        if(!support) return;
+
+        if (selectedDiceIndex.length < support.supportCost!) {
+            alert(`You need ${support.supportCost} dice to play this support card!`);
+            return;
+        }
+
+        const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
+        diceSymbols.length = 0;
+        for (let i = 0; i < newDice.length; i++) {
+            diceSymbols.push(newDice[i]);
+        }
+        setSelectedDiceIndex([]);
+
+        const handCopy = [...supportHand];
+        const cardIndex = handCopy.findIndex(card => card.id === selectedSup);
+        if (cardIndex !== -1) {
+            handCopy.splice(cardIndex, 1);
+        }
+
+        setSupportHand(handCopy);
+        setSelectedSup(null)
+        setShowAllSupport(false)
+        setStyles(style.supportCards)
+        console.log("Playing support card:", support.name);
+    }
+
     const drawSupportCards = (count: number) => {
-        setMySupportDeck(prevDeck => {
-            const newDeck = [...prevDeck];
-            const drawnCards = newDeck.splice(0, Math.min(count, newDeck.length));
-      
-            setMySupportHand(prevHand => [...prevHand, ...drawnCards]);
-      
-            return newDeck;
-        });
+        if (supportDeck.length === 0) return;
+        const deckCopy = [...supportDeck];
+        const drawnCards: CardProps[] = [];
+        for (let i = 0; i < count && deckCopy.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * deckCopy.length);
+            const card = deckCopy.splice(randomIndex, 1)[0];
+            drawnCards.push({...card});
+        }
+        setSupportHand(prevHand => [...prevHand, ...drawnCards]);
+        setSupportDeck(deckCopy);
     }
 
     useEffect(() => {
         if (!loadedDeck) return;
 
-        if(firstTurn){
-            drawSupportCards(6)
-        }else {
+        if (firstTurn && supportHand.length === 0) {
+            drawSupportCards(6);
+        }else if(!firstTurn && supportDeck.length > 0){
             drawSupportCards(2)
         }
     }, [firstTurn, loadedDeck])
@@ -273,6 +291,9 @@ export const PlayPage: FC<PlayPageProps> = (
                 setSelectedDiceIndex([...selectedDiceIndex, index])
             }
         }
+        if(selectedSup){
+            setSelectedDiceIndex([...selectedDiceIndex, index])
+        }
     }
 
     const diceIndexDel = (arr: DiceSymbol[], indexes: number[]) => { 
@@ -287,8 +308,8 @@ export const PlayPage: FC<PlayPageProps> = (
                 <img src={cardBack90} alt="cardBack" />
             </div>
             <button className={style.endRoundButton} onClick={() => {
-                if(firstTurn == false){
-                    onCardPicked()
+               if (!firstTurn) {
+                    onCardPicked();
                 }
             }}>END ROUND</button>
             {!firstTurn && pendingCard && (
@@ -358,13 +379,13 @@ export const PlayPage: FC<PlayPageProps> = (
             <div className={styles}>
                 {!showAllSupport &&(
                     <div onClick={handleSupportClick}>
-                        <Hand cards={mySupportHand.slice(0, 2)} 
+                        <Hand cards={supportHand.slice(0, 2)} 
                         activeCharacterId={selectedSup} onCharacterActive={() => {}} />
                     </div>
                 )}
                 {showAllSupport &&(
                     <>
-                        <Hand cards={mySupportHand} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(id)} />
+                        <Hand cards={supportHand} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(prev => (prev === id ? null : id))}/>
                         <div className={style.supportButtons}>
                             <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
                             <button className={style.supportButton} onClick={playSupport}>PLAY</button>
