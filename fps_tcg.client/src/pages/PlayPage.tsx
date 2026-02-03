@@ -446,7 +446,23 @@ export const PlayPage: FC<PlayPageProps> = (
                                     </div>
                                     <div className={style.priceBlock}>
                                         <img className={style.costIcon} src={cost} alt='cost'></img>
-                                        <span className={style.costValue}>{char.skill2Cost}</span>
+                                        <span className={style.costValue}
+                                        style={{
+                                        color:
+                                            char.skill2Effect?.toLowerCase() === "attack"
+                                            ? "#AF0000"
+                                            : char.skill2Effect?.toLowerCase() === "shield"
+                                            ? "#020BA6"
+                                            : char.skill2Effect?.toLowerCase() === "heal"
+                                            ? "#007616"
+                                            : char.skill2Effect?.toLowerCase() === "magic"
+                                            ? "#48047C"
+                                            : char.skill2Effect?.toLowerCase() === "stealth"
+                                            ? "#B97E00"
+                                            : "#F5F5F5",
+                                            WebkitTextStroke: "0.5px black",
+                                        }}
+                                        >{char.skill2Cost}</span>
                                     </div>
                                 </div>
                                 <div className={style.descriptionBlock}>
