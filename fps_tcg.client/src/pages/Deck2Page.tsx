@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import styles from '../styles/DeckPage.module.css';
+import styles from '../styles/DeckXPage.module.css';
 import { useState, useEffect } from 'react';
 import { type CardType } from '../types';
 import Card, { type CardProps } from '../components/Card';
@@ -12,12 +12,15 @@ interface DeckData {
 
 const Deck2Page = () => {
     const [deckName, setDeckName] = useState("Deck2")
+    const [originalDeckName, setOriginalDeckName] = useState("Deck2");
     const [isEditing, setIsEditing] = useState(false);
     const [cards, setCards] = useState<CardProps[]>([]);
     const [selectedType, setSelectedType] = useState<CardType | null>(null)
     const [selectedAttackIds, setSelectedAttackIds] = useState<number[]>([]);
+    const [originalAttackIds, setOriginalAttackIds] = useState<number[]>([]);
     const [showAttackContainer, setShowAttackContainer] = useState(false);
     const [selectedSupportIds, setSelectedSupportIds] = useState<number[]>([]);
+    const [originalSupportIds, setOriginalSupportIds] = useState<number[]>([]);
     const [showSupportContainer, setShowSupportContainer] = useState(false);
     const [existingDeck, setExistingDeck] = useState<DeckData | null>(null);
 
@@ -70,7 +73,8 @@ const Deck2Page = () => {
                     throw new Error(`Deck ID mismatch. Expected ${TARGET_ID}, got ${deck.deckId}`);
                 }
                 setExistingDeck(deck);
-                setDeckName(deck.name ?? "Deck1");
+                setDeckName(deck.name ?? "Deck2");
+                setOriginalDeckName(deck.name ?? "Deck2");
 
                 if (deck.cards) {
                     const attacks = deck.cards
@@ -80,7 +84,9 @@ const Deck2Page = () => {
                         .filter((c: any) => c.type === 'support')
                         .map((c: any) => c.cardId);
                     setSelectedAttackIds(attacks);
+                    setOriginalAttackIds(attacks);
                     setSelectedSupportIds(supports);
+                    setOriginalSupportIds(supports);
                 }
             } catch (error) {
                 console.error('Error loading deck from DB', error);
@@ -127,6 +133,15 @@ const Deck2Page = () => {
         setShowSupportContainer(false);
     }
 
+    const hasChanges = (): boolean => {
+        if (deckName !== originalDeckName) return true;
+        if (selectedAttackIds.length !== originalAttackIds.length) return true;
+        if (!selectedAttackIds.every((id, idx) => originalAttackIds[idx] === id)) return true;
+        if (selectedSupportIds.length !== originalSupportIds.length) return true;
+        if (!selectedSupportIds.every((id, idx) => originalSupportIds[idx] === id)) return true;
+        return false;
+    }
+
     const buildSelectedCards = () => {
         const mergedIds = [...selectedAttackIds, ...selectedSupportIds];
         return mergedIds
@@ -158,7 +173,7 @@ const Deck2Page = () => {
             name: trimmedDeckName,
             cards: buildSelectedCards()
         };
-        
+
         try {
             let response;
 
@@ -202,11 +217,14 @@ const Deck2Page = () => {
             if (savedDeck) {
                 console.log('Deck saved with ID:', savedDeck.deckId);
                 setExistingDeck(savedDeck);
+                setOriginalDeckName(trimmedDeckName);
                 if (savedDeck.cards) {
                     const attacks = savedDeck.cards.filter((c: any) => cards.find(card => card.id === c.cardId && card.type === 'attack')).map((c: any) => c.cardId);
                     const supports = savedDeck.cards.filter((c: any) => cards.find(card => card.id === c.cardId && card.type === 'support')).map((c: any) => c.cardId);
                     setSelectedAttackIds(attacks);
+                    setOriginalAttackIds(attacks);
                     setSelectedSupportIds(supports);
+                    setOriginalSupportIds(supports);
                 }
             }
         } catch (error) {
@@ -215,11 +233,11 @@ const Deck2Page = () => {
     }
 
     return(
-        <div className={styles.DeckPage}>
-            <Link to="/decksEdit/"><span>&lt;- BACK</span></Link>
+        <div className={styles.deckPage}>
+            <Link className={styles.button} to="/decksEdit/"><span>&lt;- BACK</span></Link>
             {isEditing ? (
                 <input
-                className={styles.nameOfDeckInp}
+                className={styles.nameInput}
                 value={deckName}
                 onChange={(e) => setDeckName(e.target.value)}
                 onKeyDown={(e) => {
@@ -229,13 +247,13 @@ const Deck2Page = () => {
                 />
             ) : (
                 <div
-                className={styles.nameOfDeck}
+                className={styles.name}
                 onClick={() => setIsEditing(true)}
                 >
                 {deckName}
                 </div>
             )}
-            <div className={styles.container}>
+            <div className={styles.attackContainer}>
                 {[0, 1, 2].map((i) => {
                     const card = cards.find(c => c.id === selectedAttackIds[i]);
                     return (
@@ -243,7 +261,7 @@ const Deck2Page = () => {
                             {card ? (
                                 <Card {...card} onClick={handleAttackClick}/>
                             ) : (
-                                <button onClick={handleAttackClick}></button>
+                                <button className={styles.placeholder} onClick={handleAttackClick}></button>
                             )}
                         </div>
                     );
@@ -261,28 +279,26 @@ const Deck2Page = () => {
                         }
                     </div>
                     <div>
-                        <span onClick={handleAttackClick}>CANCEL</span>
+                        <span className={styles.button} onClick={handleAttackClick}>CANCEL</span>
                         {selectedAttackIds.length > 0 && (
-                            <span onClick={handleConfirmAttack}>CONFIRM</span>
+                            <span className={styles.button} onClick={handleConfirmAttack}>CONFIRM</span>
                         )}
                     </div>
                 </div>
             )}
-            <div className={styles.containerEdit}>
-            <div className={styles.container}>
-                    {[0, 1, 2, 3, 4, 5].map((i) => {
-                        const card = cards.find(c => c.id === selectedSupportIds[i]);
-                        return (
-                            <div key={i}>
-                                {card ? (
-                                    <Card {...card} onClick={handleSupportClick}/>
-                                ) : (
-                                    <button onClick={handleSupportClick}></button>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+            <div className={styles.supportContainer}>
+                {[0, 1, 2, 3, 4, 5].map((i) => {
+                    const card = cards.find(c => c.id === selectedSupportIds[i]);
+                    return (
+                        <div key={i}>
+                            {card ? (
+                                <Card {...card} onClick={handleSupportClick}/>
+                            ) : (
+                                <button className={styles.placeholder} onClick={handleSupportClick}></button>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
             {showSupportContainer && (
                 <div className={styles.cardContainer}>
@@ -295,14 +311,14 @@ const Deck2Page = () => {
                             ))
                         }
                     </div>
-                    <span onClick={handleSupportClick}>CANCEL</span>
+                    <span className={styles.button} onClick={handleSupportClick}>CANCEL</span>
                     {selectedSupportIds.length > 0 && (
-                            <span onClick={handleConfirmSupport}>CONFIRM</span>
+                            <span className={styles.button} onClick={handleConfirmSupport}>CONFIRM</span>
                         )}
                 </div>
             )}
-            {selectedAttackIds.length > 0 && (
-                <span onClick={handleSaveDeck}>SAVE</span>
+            {selectedAttackIds.length > 0 && hasChanges() && (
+                <span className={`${styles.button} ${styles.saveButton}`} onClick={handleSaveDeck}>SAVE</span>
             )}
         </div>
     );
