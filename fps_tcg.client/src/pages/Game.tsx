@@ -17,6 +17,7 @@ const Game: FC<GameProps> = () =>{
     const [cards, setCards] = useState<any[]>([]);
     const [supportHand, setSupportHand] = useState<CardProps[]>([]);
     const [characterList, setCharacterList] = useState<CardProps[]>([]);
+    const [firstDraw, setFirstDraw] = useState(false);
 
     const startDiceRoll = () => {
         setCurrentView('Dice_Roll');
@@ -33,6 +34,7 @@ const Game: FC<GameProps> = () =>{
             firstTurn={firstTurn} setFirstTurn={setFirstTurn} activeCard={activeCard} setActiveCard={setActiveCard} 
             deadCards={deadCards} setDeadCards={setDeadCards} cards={cards} setCards={setCards}
             supportHand={supportHand} setSupportHand={setSupportHand} characterList={characterList} setCharacterList={setCharacterList}
+            firstDraw={firstDraw} setFirstDraw={setFirstDraw}
             />; 
     }
 }

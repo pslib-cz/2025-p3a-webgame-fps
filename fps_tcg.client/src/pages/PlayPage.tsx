@@ -25,11 +25,13 @@ type PlayPageProps = {
     setCharacterList: (value: CardProps[] | ((prev: CardProps[]) => CardProps[])) => void;
     supportHand: CardProps[];
     setSupportHand: (value: CardProps[] | ((prev: CardProps[]) => CardProps[])) => void;
+    firstDraw: boolean;
+    setFirstDraw:(value: boolean) => void;
 }
 
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, 
-        deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList
+        deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList, firstDraw, setFirstDraw
     }) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [styles, setStyles] = useState(style.supportCards)
@@ -242,7 +244,7 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
 
         case "stealth":
-            applyStealth(activeCard);
+            dmgDeal(targetId, dmg)
             break;
         default:
             dmgDeal(targetId, dmg);
@@ -278,10 +280,6 @@ export const PlayPage: FC<PlayPageProps> = (
         );
     };
 
-    const applyStealth = (id: number | null) => {
-        console.log("Stealth applied to", id);
-    };
-
     const playSupport = () => {
         if(selectedSup == null) return;
 
@@ -313,11 +311,13 @@ export const PlayPage: FC<PlayPageProps> = (
         console.log("Playing support card:", support.name);
     }
 
-    const drawSupportCards = (count: number) => {
+    const drawSupportCards = (count: number, handLimit: number = 6) => {
         if (supportDeck.length === 0) return;
         const deckCopy = [...supportDeck];
         const drawnCards: CardProps[] = [];
-        for (let i = 0; i < count && deckCopy.length > 0; i++) {
+        const available = Math.max(handLimit - supportHand.length, 0);
+        const drawCount = Math.min(count, available);
+        for (let i = 0; i < drawCount && deckCopy.length > 0; i++) {
             const randomIndex = Math.floor(Math.random() * deckCopy.length);
             const card = deckCopy.splice(randomIndex, 1)[0];
             drawnCards.push({...card});
@@ -329,9 +329,10 @@ export const PlayPage: FC<PlayPageProps> = (
     useEffect(() => {
         if (!loadedDeck) return;
 
-        if (firstTurn && supportHand.length === 0) {
+        if (firstTurn && !firstDraw) {
             drawSupportCards(6);
-        }else if(!firstTurn && supportDeck.length > 0){
+            setFirstDraw(true)
+        }else if(!firstTurn){
             drawSupportCards(2)
         }
     }, [firstTurn, loadedDeck])
