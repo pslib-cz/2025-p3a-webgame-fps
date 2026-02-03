@@ -17,7 +17,7 @@
     max-width: 1200px;
     width: 80%;
     padding: 5vh 3vw;
-    height: auto;
+    height: 100%;
 }
 .diceContainer{
     display: grid;
