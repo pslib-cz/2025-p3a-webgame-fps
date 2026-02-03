@@ -90,38 +90,33 @@ export const DeckPage: FC = () => {
     };
 
     return (
-        <div className={styles.DeckPage}>
-            <Link to="/"><span>&lt;- BACK</span></Link>
-            <div className={styles.container}>
-                {decks.map(deck => {
-                    const attackCards = getAttackCards(deck.cards || []);
-                    console.log('Deck:', deck);
-                    console.log('Deck cards:', deck.cards);
-                    console.log('Attack cards:', attackCards);
-                    return (
-                        <div key={deck.deckId}>
-                            {attackCards.length > 0 ? (
-                                <div className={styles.cardFan} onClick={() => setDeckSelect(deck)}>
-                                    {attackCards.map((card, index) => (
-                                        <div key={card.id} className={`${styles.fanCard} ${styles[`fanCard${index + 1}`]}`}>
-                                            <Card {...card} />
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <button onClick={() => setDeckSelect(deck)} />
-                            )}
-                            <h3>{deck.name}</h3>
-                        </div>
-                    );
-                })}
-            </div>
-            {deckSelect && (
-                <p className={styles.buttonEdit} onClick={() => navigate(`/decksEdit/Deck${deckSelect.deckId}`)}>EDIT</p>
-            )}
-            {deckSelect && (!activeDeck || deckSelect.deckId !== activeDeck.deckId) && (
-                <p className={styles.buttonEdit} onClick={() => handleSetActiveDeck(deckSelect)}>SET ACTIVE</p>
-            )}
+        <div className={styles.deckPage}>
+            <Link className={`${styles.button} ${styles.backButton}`} to="/"><span>&lt;- BACK</span></Link>
+            {decks.map(deck => {
+                const attackCards = getAttackCards(deck.cards || []);
+                return (
+                    < div key={deck.deckId} className={styles.deck}>
+                        {attackCards.length > 0 ? (
+                            <div className={styles.cardFan} onClick={() => setDeckSelect(deck)}>
+                                {attackCards.map((card, index) => (
+                                    <div key={card.id} className={`${styles.fanCard} ${styles[`fanCard${index + 1}`]}`}>
+                                        <Card {...card} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <button className={styles.placeholder} onClick={() => setDeckSelect(deck)} />
+                        )}
+                        <h3 className={styles.deckName}>{deck.name}</h3>
+                        {deckSelect && (
+                            <p className={styles.button} onClick={() => navigate(`/decksEdit/Deck${deckSelect.deckId}`)}>EDIT</p>
+                        )}
+                        {deckSelect && (!activeDeck || deckSelect.deckId !== activeDeck.deckId) && (
+                            <p className={styles.button} onClick={() => handleSetActiveDeck(deckSelect)}>SET ACTIVE</p>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 };

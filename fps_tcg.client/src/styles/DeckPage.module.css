@@ -1,37 +1,27 @@
-.DeckPage{
+.deckPage{
     background-image: url('../assets/pixil-frame-2.png');
-    background-size: cover;
     background-repeat: no-repeat;
-    background-position: center;
-    padding: 10em 6.25em;
-    max-height: 100%; 
-    height: -webkit-fill-available; 
+    background-size: cover;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: auto 1fr;
+    padding: 2.5em 5em;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
-.DeckPage span{
-    border: 1px solid var(--primary-btn-text);
-    background-color: var(--white);
-    color: var(--primary-btn-text);
-    font-size: 20px;
-    text-align: center;
-    padding: 0.5rem 1rem;
+
+.backButton {
+    grid-column: span 3;
+    margin-right: auto;
 }
-.DeckPage a{
-    text-decoration: none;
-}
-.container{
-    padding: 50px 85px;
-    display: flex;
-    flex-direction: row;
-    gap: 200px;
-    text-align: center;
-    justify-self: center;
-}
-.DeckPage h3{
+
+.deckName{
     font-size: 36px;
     color: var(--white);
     margin: 10px 0 0 0;
 }
-.DeckPage button{
+
+.placeholder {
     background-color: transparent;
     width: 250px;
     height: 250px;
@@ -39,89 +29,47 @@
     position: relative;
     cursor: pointer;
 }
-.DeckPage button::before{
+
+.placeholder::before{
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); 
-    width: 32px;
+    width: 15px;
     height: 80px;
     background-color: var(--white);
 }
-.DeckPage button::after {
+
+.placeholder::after {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); 
-    width: 97px;
+    width: 80px;
     height: 15px;
     background-color: var(--white);
 }
-.buttonEdit{
+
+.deck {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+}
+
+.button {
     justify-self: center;
-    cursor: pointer;
     border: 1px solid var(--primary-btn-text);
     background-color: var(--white);
     color: var(--primary-btn-text);
-    font-size: 20px;
+    font-size: 1.25rem;
     text-align: center;
-    padding: 0.5rem 1rem;
-    margin: 0;
-}
-/*
-.coins{
-    position: absolute;
-    top: 0;
-    right: -20%;
-}*/
-@media (min-width: 2000px) {
-    .DeckPage{
-        padding: 325px 100px;
-    }
-}
-.containerEdit{
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: auto;
-    gap: 50px;
-    justify-self: center;
-}
-.nameOfDeck{
-    color: var(--white);
-    text-align: center;
-    font-size: 36px;
-}
-.nameOfDeckInp{
-    font-family: "Press Start 2P", system-ui;
-    font-size: 36px;
-    background-color: transparent;
-    color: var(--white);
-    text-align: center;
-    border: none;
-}
-.cardContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 40px;
-    overflow-y: auto;
-}
-
-.cards {
-    display: flex;
-    gap: 20px;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    width: fit-content;
 }
 
 .cardFan {
@@ -140,7 +88,7 @@
 }
 
 .fanCard1 {
-    transform: translate(-80%, -50%) rotate(-30deg);
+    transform: translate(-90%, -50%) rotate(-15deg);
     z-index: 3;
 }
 
@@ -150,6 +98,6 @@
 }
 
 .fanCard3 {
-    transform: translate(-20%, -50%) rotate(30deg);
+    transform: translate(-10%, -50%) rotate(15deg);
     z-index: 1;
 }
