@@ -21,13 +21,15 @@ type PlayPageProps = {
     setDeadCards: (value: number[] | ((prev: number[]) => number[])) => void;
     cards: any[];
     setCards: (value: any[] | ((prev: any[]) => any[])) => void;
-    supportHand: CardProps[]
+    characterList: CardProps[];
+    setCharacterList: (value: CardProps[] | ((prev: CardProps[]) => CardProps[])) => void;
+    supportHand: CardProps[];
     setSupportHand: (value: CardProps[] | ((prev: CardProps[]) => CardProps[])) => void;
 }
 
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, 
-        deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand
+        deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList
     }) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [styles, setStyles] = useState(style.supportCards)
@@ -36,7 +38,6 @@ export const PlayPage: FC<PlayPageProps> = (
     const [showAttackMenu, setShowAttackMenu] = useState(false)
     const [pendingCard, setPendingCard] = useState<number | null>(null)
     const [selectedDiceIndex, setSelectedDiceIndex] = useState<number[]>([])
-    const [characterList, setCharacterList] = useState<CardProps[]>([]);
     const [targetId, setTargetId] = useState<number | null>(null);
     const [supportDeck, setSupportDeck] = useState<CardProps[]>([]);
     const [loadedDeck, setLoadedDeck] = useState(false)
@@ -85,12 +86,26 @@ export const PlayPage: FC<PlayPageProps> = (
                 const data = await response.json();
                 console.log('Raw API response:', data);
                 const cardsArray = Array.isArray(data) ? data : (data.cards || []);
-                const normalizedDeck = cardsArray.map((card: { cardId: any }) => ({
-                    ...card,
-                    id: card.cardId,
-                    isAlive: !deadCards.includes(card.cardId),
-                    imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`
-                }));
+                const normalizedDeck = cardsArray.map((card: { cardId: number; health: number; shield: number; type: string }) => {
+                    const currentCard  = characterList.find(c => c.id === card.cardId);
+                    let health = card.health;
+                    if (currentCard) {
+                        health = currentCard.health!;
+                    }
+                    let shield = card.shield;
+                    if (currentCard) {
+                        shield = currentCard.shield!;
+                    }
+
+                    return{
+                        ...card,
+                        id: card.cardId,
+                        isAlive: !deadCards.includes(card.cardId),
+                        health,
+                        shield,
+                        imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`
+                    }
+                });
 
                 const char = normalizedDeck.filter((card: { type: string }) => card.type !== 'support');
                 const supportCards = normalizedDeck.filter((card: { type: string }) => card.type === 'support');
@@ -126,8 +141,10 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         else {
             setPendingCard(cardId);
-            setShowAttackMenu(false);  
-            setAttackMenu(null);
+            if (!showAttackMenu) {
+                setShowAttackMenu(false);
+                setAttackMenu(null);
+            }
         }
     }
     
@@ -154,9 +171,17 @@ export const PlayPage: FC<PlayPageProps> = (
     };
     
     const handleAttackMove = (move: string, dmg: number, cost: number, effect?: string) => {
-        if(targetId == null){
-            alert("Choose target to attack")
-            console.log(targetId)
+        const effectType = effect?.toLowerCase()
+        const enemyTarget = effectType === "attack" || effectType === "magic";
+        const allyTarget = effectType === "shield" || effectType === "heal" || effectType === "stealth";
+
+        if (enemyTarget && targetId == null) {
+            alert("Choose enemy target");
+            return;
+        }
+
+        if (allyTarget && activeCard == null) {
+            alert("Choose ally");
             return;
         }
 
@@ -177,7 +202,15 @@ export const PlayPage: FC<PlayPageProps> = (
             }
         }
 
-        if(selectedDiceIndex === null) return alert("Choose dices to attack")
+        if (selectedDiceIndex.length < cost) {
+            alert(`Select ${cost} dice!`);
+            return;
+        }
+        if (selectedDiceIndex.length > cost) {
+            alert("Too many dice selected!");
+            setSelectedDiceIndex([]);
+            return;
+        }
 
         if(selectedDiceIndex.length === cost){
             const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
@@ -185,20 +218,69 @@ export const PlayPage: FC<PlayPageProps> = (
             for(let i = 0; i < newDice.length; i++) {
                 diceSymbols.push(newDice[i]);
             }
-            console.log("Selected attack move:", move)
-            console.log("Damage", dmg)
-            console.log("Target card:", cards.find(c => c.id === targetId));
-
-            dmgDeal(targetId, dmg);
+ 
+            setSelectedDiceIndex([])
             setTargetId(null)
-            setSelectedDiceIndex([])
             setShowAttackMenu(false);
-        }else if(selectedDiceIndex.length > cost){
-            alert("Too much dices selected!")
-            setSelectedDiceIndex([])
-        }else alert("Select more dices!")
-        console.log("Effect value:", effect);
+        }
+
+        switch (effectType) {
+        case "attack":
+            dmgDeal(targetId, dmg);
+            break;
+
+        case "shield":
+            giveShieldToAlly(activeCard, dmg);
+            break;
+
+        case "heal":
+            healAlly(activeCard, dmg);
+            break;
+
+        case "magic":
+            dmgDeal(targetId, dmg); 
+            break;
+
+        case "stealth":
+            applyStealth(activeCard);
+            break;
+        default:
+            dmgDeal(targetId, dmg);
+            break;
+        }
+
+
+        if (enemyTarget) {
+            setTargetId(null);
+            setShowAttackMenu(false);
+        }
+        if(allyTarget){
+            setShowAttackMenu(false);
+        }
+        console.log(move)
     }
+
+    const giveShieldToAlly = (id: number | null, value: number) => {
+        if (id == null) return;
+        setCharacterList(prev =>
+            prev.map(c =>
+                c.id === id ? { ...c, shield: (c.shield ?? 0) + value } : c
+            )
+        );
+    };
+
+    const healAlly = (id: number | null, value: number) => {
+        if (id == null) return;
+        setCharacterList(prev =>
+            prev.map(c =>
+                c.id === id ? { ...c, health: c.health! + value } : c
+            )
+        );
+    };
+
+    const applyStealth = (id: number | null) => {
+        console.log("Stealth applied to", id);
+    };
 
     const playSupport = () => {
         if(selectedSup == null) return;
@@ -283,19 +365,16 @@ export const PlayPage: FC<PlayPageProps> = (
     }
 
     const handleDiceClick = (index: number) => {
-        if(pendingCard) {
-            setSelectedDiceIndex([index]);
-            return;
-        }
-        if(targetId) {
-            if(selectedDiceIndex.includes(index)) {
-                setSelectedDiceIndex(selectedDiceIndex.filter(i => i !== index))
-            } else {
-                setSelectedDiceIndex([...selectedDiceIndex, index])
-            }
-        }
-        if(selectedSup){
-            setSelectedDiceIndex([...selectedDiceIndex, index])
+        const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu
+
+        if(!diceSel) return
+
+        if(diceSel){
+            setSelectedDiceIndex(prev =>
+                prev.includes(index)
+                    ? prev.filter(i => i !== index)
+                    : [...prev, index]
+            );
         }
     }
 
