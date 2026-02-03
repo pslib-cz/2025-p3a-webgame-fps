@@ -38,12 +38,19 @@
     padding: 0.5rem;
     font-family: "Press Start 2P", system-ui;
 }
+
 @media (min-width: 2000px) {
     /* .dicePageBody{
         padding: 50em 10em;
     } */
     .selectionContainer{
         width: 85%;
+    }
+}
+@media (max-width: 1500px) {
+    .dicePageBody > .selectionContainer{
+        height: auto;
+        gap: 50px;
     }
 }
 @media (max-width: 900px){

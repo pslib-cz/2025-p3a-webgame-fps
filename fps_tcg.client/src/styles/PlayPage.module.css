@@ -1,9 +1,24 @@
-@media (max-width: 1300px) {
+@media (min-width: 1300px) {
     .playPageBody{
         grid-template-rows: 1fr;
     }
     .deckBox img{
         width: 50%;
+    }
+}
+@media (max-width: 1300px) {
+    .deckBox{
+        width: 20%;
+    }
+    .playPageBody > .supportCards{
+        top: 75%;
+        left: 60%;
+    }
+    .playPageBody > .endRoundButton{
+        width: 200px;
+    }
+    .playPageBody > .confirmButton{
+        width: 200px;
     }
 }
 .playPageBody{
