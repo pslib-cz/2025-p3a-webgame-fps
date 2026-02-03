@@ -8,6 +8,7 @@ import Dice from '../components/Dice'
 import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
 import type { CardProps } from "../components/Card";
+import { useNavigate } from 'react-router'
 
 type PlayPageProps = {
     onCardPicked: () => void;
@@ -39,6 +40,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [targetId, setTargetId] = useState<number | null>(null);
     const [supportDeck, setSupportDeck] = useState<CardProps[]>([]);
     const [loadedDeck, setLoadedDeck] = useState(false)
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -71,7 +73,8 @@ export const PlayPage: FC<PlayPageProps> = (
             try{
                 const stored = localStorage.getItem('activeDeck');
                 if (!stored) {
-                    console.error('No active deck selected');
+                    alert('No active deck selected');
+                    navigate('/')
                     return;
                 }
                 const activeDeck = JSON.parse(stored);
