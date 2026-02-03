@@ -318,7 +318,7 @@ const Deck1Page = () => {
                 </div>
             )}
             {selectedAttackIds.length > 0 && hasChanges() && (
-                <span className={styles.button} onClick={handleSaveDeck}>SAVE</span>
+                <span className={`${styles.button} ${styles.saveButton}`} onClick={handleSaveDeck}>SAVE</span>
             )}
         </div>
     );
