@@ -3,11 +3,12 @@ import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
 import Hand from "../components/Hand"
-import type { DiceSymbol } from '../types'
+import type { DiceSymbol, Turn, GameStatus } from '../types'
 import Dice from '../components/Dice'
 import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
 import type { CardProps } from "../components/Card";
+import { EnemyAI, type EnemyCard } from '../enemy/Enemy';
 import { useNavigate } from 'react-router'
 
 type PlayPageProps = {
@@ -27,11 +28,16 @@ type PlayPageProps = {
     setSupportHand: (value: CardProps[] | ((prev: CardProps[]) => CardProps[])) => void;
     firstDraw: boolean;
     setFirstDraw:(value: boolean) => void;
+    currentTurn: Turn;
+    setCurrentTurn: (value: Turn) => void;
+    gameStatus: GameStatus;
+    setGameStatus: (value: GameStatus) => void;
 }
 
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, 
-        deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList, firstDraw, setFirstDraw
+        deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList, firstDraw, setFirstDraw,
+        currentTurn, setCurrentTurn, gameStatus, setGameStatus
     }) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [styles, setStyles] = useState(style.supportCards)
@@ -44,6 +50,56 @@ export const PlayPage: FC<PlayPageProps> = (
     const [supportDeck, setSupportDeck] = useState<CardProps[]>([]);
     const [loadedDeck, setLoadedDeck] = useState(false)
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (currentTurn === 'enemy') {
+            const executeEnemyTurn = async () => {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                const enemyCards: EnemyCard[] = cards.map(c => ({
+                    id: c.id,
+                    name: c.name || 'Enemy',
+                    type: c.type || 'attack',
+                    health: c.health,
+                    shield: c.shield,
+                    skill1Name: c.skill1Name,
+                    skill1Damage: c.skill1Damage,
+                    skill1Cost: c.skill1Cost,
+                    skill2Name: c.skill2Name,
+                    skill2Damage: c.skill2Damage,
+                    skill2Cost: c.skill2Cost,
+                    skill2Effect: c.skill2Effect,
+                    isAlive: c.isAlive
+                }));
+
+                const aliveEnemies = enemyCards.filter(c => c.isAlive && c.health > 0);
+                if (aliveEnemies.length === 0) {
+                    console.log('No alive enemies');
+                    setCurrentTurn('player');
+                    setGameStatus('playerTurn');
+                    onCardPicked();
+                    return;
+                }
+
+                const enemyActiveCard = aliveEnemies[0].id;
+                const ai = new EnemyAI(enemyCards, enemyActiveCard);
+                const attack = ai.evaluateAttack(characterList);
+
+                if (attack) {
+                    console.log('Enemy attacks player card:', attack);
+                    enemyDmgToPlayer(attack.targetId, attack.damage);
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                setCurrentTurn('player');
+                setGameStatus('playerTurn');
+                onCardPicked();
+            };
+
+            executeEnemyTurn();
+        }
+    }, [currentTurn]);
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -346,6 +402,15 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }
 
+    const enemyDmgToPlayer = (id: number | null, dmg: number) => {
+        if(id == null) return;
+        const isInCharacterList = characterList.some(c => c.id === id);
+        
+        if(isInCharacterList) {
+            setCharacterList(prev => prev.map(c => applyDmgToPlayer(c, id, dmg)));
+        }
+    }
+
     const applyDmg = (c: { id: any; shield: number; health: number }, id: number, dmg: number) => {
         if(c.id !== id) return c;
         let shield = c.shield ?? 0;
@@ -363,6 +428,24 @@ export const PlayPage: FC<PlayPageProps> = (
         }
 
         return{...c, shield, health}
+    }
+
+    const applyDmgToPlayer = (c: any, id: number, dmg: number) => {
+        if(c.id !== id) return c;
+        let shield = c.shield ?? 0;
+        let health = c.health ?? 0;
+
+        const shieldDmg = Math.min(shield, dmg);
+        shield -= shieldDmg;
+
+        const remaining = dmg - shieldDmg;
+        health = Math.max(0, health - remaining)
+
+        if(health === 0 && c.health > 0){
+            console.log('Player card died:', c);
+        }
+
+        return{...c, shield, health, isAlive: health > 0}
     }
 
     const handleDiceClick = (index: number) => {
@@ -392,7 +475,8 @@ export const PlayPage: FC<PlayPageProps> = (
             </div>
             <button className={style.endRoundButton} onClick={() => {
                if (!firstTurn) {
-                    onCardPicked();
+                    setCurrentTurn('enemy');
+                    setGameStatus('enemyTurn');
                 }
             }}>END ROUND</button>
             {!firstTurn && pendingCard && (
