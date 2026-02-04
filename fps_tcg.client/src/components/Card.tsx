@@ -23,15 +23,23 @@ export type CardProps = {
     supportCost?:  number,
     supportEffect?: string,
 
+    isActive?: boolean,
+    isTarget?: boolean,
+
     isSelected?: boolean,
     onClick?: () => void
 }
 
 const Card: FC<CardProps> = (props) =>{
+    const cardActive = [
+        props.isActive && style.activeCard,
+        props.isTarget && style.targetActiveCard
+    ].filter(Boolean).join(" ");
+
     if(props.type === 'attack'){
         if(props.health !== 0){
             return(
-                <div className={`${style.card} ${style.characterCard} ${props.isSelected ? style.activeCard : ''}`} 
+                <div className={`${style.card} ${style.characterCard} ${cardActive}`} 
                 onClick={props.onClick}>
                     <img className={style.img} src={props.imgSrc} alt="Cat" />
                     <p className={style.cardName}>{props.name}</p>
@@ -58,7 +66,7 @@ const Card: FC<CardProps> = (props) =>{
     
     if(props.type === 'support'){
         return(
-            <div className={`${style.card} ${style.supportCard} ${props.isSelected ? style.selSup : ''}`} 
+            <div className={`${style.card} ${style.supportCard} ${props.isSelected}`} 
             onClick={props.onClick}>
                 <p className={style.costTag}>{props.supportCost}</p>
                 <img className={style.img} src={props.imgSrc} alt="support" />

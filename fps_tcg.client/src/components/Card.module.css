@@ -59,6 +59,10 @@
     border: 8px solid #023C0D;
     animation: moveCard 0.6s ease-out forwards; 
 }
+.targetActiveCard{
+    border: 8px solid #3c0202;
+    animation: moveEnemyCard 0.6s ease-out forwards; 
+}
 .supportCard{
     gap: 5.5px;
 }
@@ -69,9 +73,6 @@
 .costTag{
     align-self: end;
     margin-top: -5px;
-}
-.selSup{
-    border: 8px solid #023C0D;
 }
 @media (max-width:1300px) {
     .card{
@@ -111,4 +112,8 @@
 @keyframes moveCard {
     0% { transform: translateY(0); } 
     100% { transform: translateY(-80px); }
+}
+@keyframes moveEnemyCard {
+    0% { transform: translateY(0); } 
+    100% { transform: translateY(80px); }
 }

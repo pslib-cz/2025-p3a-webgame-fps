@@ -3,7 +3,7 @@ import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
 import Hand from "../components/Hand"
-import type { DiceSymbol, Turn, GameStatus } from '../types'
+import type { DiceSymbol, Turn, GameStatus, GameResult } from '../types'
 import Dice from '../components/Dice'
 import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
@@ -32,12 +32,14 @@ type PlayPageProps = {
     setCurrentTurn: (value: Turn) => void;
     gameStatus: GameStatus;
     setGameStatus: (value: GameStatus) => void;
+    gameResult: GameResult;
+    setGameResult: (value: GameResult) => void;
 }
 
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, 
         deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList, firstDraw, setFirstDraw,
-        currentTurn, setCurrentTurn, gameStatus, setGameStatus
+        currentTurn, setCurrentTurn, gameStatus, setGameStatus, gameResult, setGameResult
     }) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [styles, setStyles] = useState(style.supportCards)
@@ -179,6 +181,21 @@ export const PlayPage: FC<PlayPageProps> = (
         fetchDeck();
     }, []);
 
+    useEffect(() => {
+        if (gameResult === "playing") return;
+
+        const aliveAllies = characterList.filter(c => c.health! > 0);
+        const aliveEnemies = cards.filter(c => c.health! > 0);
+
+        if (aliveEnemies.length === 0) {
+            setGameResult("win");
+            console.log(gameResult)
+        } else if (aliveAllies.length === 0) {
+            setGameResult("lose");
+            console.log(gameResult)
+        }
+    }, [cards, characterList, gameResult]);
+
     const handleCharacterSelect = (cardId: number) => {
         const card = characterList.find(c => c.id === cardId);
         if (!card) return;
@@ -279,7 +296,6 @@ export const PlayPage: FC<PlayPageProps> = (
  
             setSelectedDiceIndex([])
             setTargetId(null)
-            setShowAttackMenu(false);
         }
 
         switch (effectType) {
@@ -288,11 +304,11 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
 
         case "shield":
-            giveShieldToAlly(activeCard, dmg);
+            giveShieldToAlly(pendingCard, dmg);
             break;
 
         case "heal":
-            healAlly(activeCard, dmg);
+            healAlly(pendingCard, dmg);
             break;
 
         case "magic":
@@ -310,10 +326,6 @@ export const PlayPage: FC<PlayPageProps> = (
 
         if (enemyTarget) {
             setTargetId(null);
-            setShowAttackMenu(false);
-        }
-        if(allyTarget){
-            setShowAttackMenu(false);
         }
         console.log(move)
     }
@@ -469,120 +481,132 @@ export const PlayPage: FC<PlayPageProps> = (
 
     return(
         <div className={style.playPageBody}>
-            <div className={style.deckBox}>
-                <img src={cardBack90} alt="cardBack" />
-                <img src={cardBack90} alt="cardBack" />
-            </div>
-            <button className={style.endRoundButton} onClick={() => {
-               if (!firstTurn) {
-                    setCurrentTurn('enemy');
-                    setGameStatus('enemyTurn');
-                }
-            }}>END ROUND</button>
-            {!firstTurn && pendingCard && (
-                <button className={style.confirmButton} 
-                onClick={() => {
-                    if(selectedDiceIndex.length === 0) return alert("Choose dice to switch!");  
+                <div className={style.deckBox}>
+                    <img src={cardBack90} alt="cardBack" />
+                    <img src={cardBack90} alt="cardBack" />
+                </div>
+                <button className={style.endRoundButton} onClick={() => {
+                if (!firstTurn) {
+                        setCurrentTurn('enemy');
+                        setGameStatus('enemyTurn');
+                    }
+                }}>END ROUND</button>
+                {!firstTurn && pendingCard && (
+                    <button className={style.confirmButton} 
+                    onClick={() => {
+                        if(selectedDiceIndex.length === 0) return alert("Choose dice to switch!");  
 
-                        const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
-                        diceSymbols.length = 0; 
-                        for(let i = 0; i < newDice.length; i++) {
-                            diceSymbols.push(newDice[i]);
-                        }
+                            const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
+                            diceSymbols.length = 0; 
+                            for(let i = 0; i < newDice.length; i++) {
+                                diceSymbols.push(newDice[i]);
+                            }
 
-                        setSelectedDiceIndex([])
-                        setActiveCard(pendingCard); 
-                        setPendingCard(null);
-                        setShowAttackMenu(false)
-                        console.log('Dice:', selectedDiceIndex, 'was used')
-                    }}>CONFIRM</button>
-            )}
-            <div className={style.playPanel}>
-                <Hand cards={cards.slice(0,3)} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} />
-                <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} />
-                {showAttackMenu && activeCard && !firstTurn && (
-                    <div className={style.attackMenu}>
-                        {(() => {
-                            const char = characterList.find(c => c.id === attackMenu);
-                            if (!char) return null;
-                            return(
-                            <>
-                            <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name!, char.skill1Damage!, char.skill1Cost!)}>
-                                <div className={style.iconBlock}>
-                                    <div className={style.swordBlock}>
-                                        <img className={style.swordIcon} src={dmg} alt="damage"></img>
-                                        <span className={style.damageValue}>{char.skill1Damage}</span>
-                                    </div>
-                                    <div className={style.priceBlock}>
-                                        <img className={style.costIcon} src={cost} alt='cost'></img>
-                                        <span className={style.costValue}>{char.skill1Cost}</span>
-                                    </div>
-                                </div>
-                                <div className={style.descriptionBlock}>
-                                {char.skill1Name}
-                                </div>
-                            </div>
-                            <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name!, char.skill2Damage!, char.skill2Cost!, char.skill2Effect)}>
-                                <div className={style.iconBlock}>
-                                    <div className={style.swordBlock}>
-                                        <img className={style.swordIcon} src={dmg} alt="damage"></img>
-                                        <span className={style.damageValue}>{char.skill2Damage}</span>
-                                    </div>
-                                    <div className={style.priceBlock}>
-                                        <img className={style.costIcon} src={cost} alt='cost'></img>
-                                        <span className={style.costValue}
-                                        style={{
-                                        color:
-                                            char.skill2Effect?.toLowerCase() === "attack"
-                                            ? "#AF0000"
-                                            : char.skill2Effect?.toLowerCase() === "shield"
-                                            ? "#020BA6"
-                                            : char.skill2Effect?.toLowerCase() === "heal"
-                                            ? "#007616"
-                                            : char.skill2Effect?.toLowerCase() === "magic"
-                                            ? "#48047C"
-                                            : char.skill2Effect?.toLowerCase() === "stealth"
-                                            ? "#B97E00"
-                                            : "#F5F5F5",
-                                            WebkitTextStroke: "0.5px black",
-                                        }}
-                                        >{char.skill2Cost}</span>
-                                    </div>
-                                </div>
-                                <div className={style.descriptionBlock}>
-                                {char.skill2Name}
-                                </div>
-                            </div>
-                            </>
-                            )
-                        })()}
-                    </div>
+                            setSelectedDiceIndex([])
+                            setActiveCard(pendingCard); 
+                            setPendingCard(null);
+                            setShowAttackMenu(false)
+                            console.log('Dice:', selectedDiceIndex, 'was used')
+                        }}>CONFIRM</button>
                 )}
-            </div>
-            <div className={styles}>
-                {!showAllSupport &&(
-                    <div onClick={handleSupportClick}>
-                        <Hand cards={supportHand.slice(0, 2)} 
-                        activeCharacterId={selectedSup} onCharacterActive={() => {}} />
-                    </div>
-                )}
-                {showAllSupport &&(
-                    <>
-                        <Hand cards={supportHand} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(prev => (prev === id ? null : id))}/>
-                        <div className={style.supportButtons}>
-                            <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
-                            <button className={style.supportButton} onClick={playSupport}>PLAY</button>
+                <div className={style.playPanel}>
+                    <Hand cards={cards.slice(0,3)} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} mode='target'/>
+                    <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
+                    {showAttackMenu && activeCard && !firstTurn && (
+                        <div className={style.attackMenu}>
+                            {(() => {
+                                const char = characterList.find(c => c.id === attackMenu);
+                                if (!char) return null;
+                                return(
+                                <>
+                                <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name!, char.skill1Damage!, char.skill1Cost!)}>
+                                    <div className={style.iconBlock}>
+                                        <div className={style.swordBlock}>
+                                            <img className={style.swordIcon} src={dmg} alt="damage"></img>
+                                            <span className={style.damageValue}>{char.skill1Damage}</span>
+                                        </div>
+                                        <div className={style.priceBlock}>
+                                            <img className={style.costIcon} src={cost} alt='cost'></img>
+                                            <span className={style.costValue}>{char.skill1Cost}</span>
+                                        </div>
+                                    </div>
+                                    <div className={style.descriptionBlock}>
+                                    {char.skill1Name}
+                                    </div>
+                                </div>
+                                <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name!, char.skill2Damage!, char.skill2Cost!, char.skill2Effect)}>
+                                    <div className={style.iconBlock}>
+                                        <div className={style.swordBlock}>
+                                            <img className={style.swordIcon} src={dmg} alt="damage"></img>
+                                            <span className={style.damageValue}>{char.skill2Damage}</span>
+                                        </div>
+                                        <div className={style.priceBlock}>
+                                            <img className={style.costIcon} src={cost} alt='cost'></img>
+                                            <span className={style.costValue}
+                                            style={{
+                                            color:
+                                                char.skill2Effect?.toLowerCase() === "attack"
+                                                ? "#AF0000"
+                                                : char.skill2Effect?.toLowerCase() === "shield"
+                                                ? "#020BA6"
+                                                : char.skill2Effect?.toLowerCase() === "heal"
+                                                ? "#007616"
+                                                : char.skill2Effect?.toLowerCase() === "magic"
+                                                ? "#48047C"
+                                                : char.skill2Effect?.toLowerCase() === "stealth"
+                                                ? "#B97E00"
+                                                : "#F5F5F5",
+                                                WebkitTextStroke: "0.5px black",
+                                            }}
+                                            >{char.skill2Cost}</span>
+                                        </div>
+                                    </div>
+                                    <div className={style.descriptionBlock}>
+                                    {char.skill2Name}
+                                    </div>
+                                </div>
+                                </>
+                                )
+                            })()}
                         </div>
-                    </>
-                )}
-            </div>
-            <div className={style.dicePanel}>
-                {diceSymbols
-                .map((symbol, index) => (
-                    <Dice key={index} symbol={symbol} isSelected={selectedDiceIndex.includes(index)} 
-                    onClick={() => handleDiceClick(index)} />
-                ))}
-            </div>
+                    )}
+                </div>
+                <div className={styles}>
+                    {!showAllSupport &&(
+                        <div onClick={handleSupportClick}>
+                            <Hand cards={supportHand.slice(0, 2)} 
+                            activeCharacterId={selectedSup} onCharacterActive={() => {}} />
+                        </div>
+                    )}
+                    {showAllSupport &&(
+                        <>
+                            <Hand cards={supportHand} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(prev => (prev === id ? null : id))}/>
+                            <div className={style.supportButtons}>
+                                <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
+                                <button className={style.supportButton} onClick={playSupport}>PLAY</button>
+                            </div>
+                        </>
+                    )}
+                </div>
+                <div className={style.dicePanel}>
+                    {diceSymbols
+                    .map((symbol, index) => (
+                        <Dice key={index} symbol={symbol} isSelected={selectedDiceIndex.includes(index)} 
+                        onClick={() => handleDiceClick(index)} />
+                    ))}
+                </div>
+            {gameResult === "win" && (
+                <div className={style.endScreenWin}>
+                    <h3>WIN</h3>
+                    <button onClick={() => navigate("/")}>Back to Menu</button>
+                </div>
+            )}
+            {gameResult === "lose" && (
+                <div className={style.endScreenLose}>
+                    <h3>LOSE</h3>
+                    <button onClick={() => navigate("/")}>Back to Menu</button>
+                </div>
+            )}
         </div>
     )
 }
