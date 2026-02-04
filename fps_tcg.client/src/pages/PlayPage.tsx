@@ -247,8 +247,8 @@ export const PlayPage: FC<PlayPageProps> = (
     
     const handleAttackMove = (move: string, dmg: number, cost: number, effect?: string) => {
         const effectType = effect?.toLowerCase()
-        const enemyTarget = effectType === "attack" || effectType === "magic";
-        const allyTarget = effectType === "shield" || effectType === "heal" || effectType === "stealth";
+        const enemyTarget = effectType === "attack" || effectType === "magic" || effectType === "stealth";
+        const allyTarget = effectType === "shield" || effectType === "heal";
 
         if (enemyTarget && targetId == null) {
             alert("Choose enemy target");
@@ -264,11 +264,11 @@ export const PlayPage: FC<PlayPageProps> = (
             const selectedDice = selectedDiceIndex.map(i => diceSymbols[i]);
 
             const invalid = selectedDice.some(d => 
-                (effect.toLowerCase() === "attack" && d !== "Knight" && d !== "Jester") ||
-                (effect.toLowerCase() === "shield" && d !== "Tank" && d !== "Jester") ||
-                (effect.toLowerCase() === "magic" && d !== "Mage" && d !== "Jester") ||
-                (effect.toLowerCase() === "heal" && d !== "Healer" && d !== "Jester") ||
-                (effect.toLowerCase() === "stealth" && d !== "Rogue" && d !== "Jester")
+                (effectType === "attack" && d !== "Knight" && d !== "Jester") ||
+                (effectType === "shield" && d !== "Tank" && d !== "Jester") ||
+                (effectType === "magic" && d !== "Mage" && d !== "Jester") ||
+                (effectType === "heal" && d !== "Healer" && d !== "Jester") ||
+                (effectType === "stealth" && d !== "Rogue" && d !== "Jester")
             );
 
             if (invalid) {
@@ -372,25 +372,46 @@ export const PlayPage: FC<PlayPageProps> = (
             handCopy.splice(cardIndex, 1);
         }
 
-        setSupportHand(handCopy);
+        const effectToDice: Record<string, DiceSymbol> = {
+            stealth: "Rogue",
+            attack: "Knight",
+            shield: "Tank",
+            magic: "Mage",
+            heal: "Healer",
+            Jester: 'Jester'
+        };
+
+        if (support.supportEffect?.startsWith("give_")) {
+            const effectName  = support.supportEffect.split("_")[1];
+            const diceToGive = effectToDice[effectName];
+            
+            diceSymbols.push(diceToGive);
+            
+            console.log(`Added dice from support: ${diceToGive}`);
+        }
+
+        setSupportHand(prev => prev.filter(c => c.id !== selectedSup));
+        
         setSelectedSup(null)
         setShowAllSupport(false)
         setStyles(style.supportCards)
-        console.log("Playing support card:", support.name);
     }
 
     const drawSupportCards = (count: number, handLimit: number = 6) => {
         if (supportDeck.length === 0) return;
         const deckCopy = [...supportDeck];
-        const drawnCards: CardProps[] = [];
-        const available = Math.max(handLimit - supportHand.length, 0);
-        const drawCount = Math.min(count, available);
-        for (let i = 0; i < drawCount && deckCopy.length > 0; i++) {
+        const spaceInHand = handLimit - supportHand.length;
+        const drawCount = Math.min(count, spaceInHand);
+
+        const newCards: CardProps[] = [];
+
+        for (let i = 0; i < drawCount; i++) {
             const randomIndex = Math.floor(Math.random() * deckCopy.length);
-            const card = deckCopy.splice(randomIndex, 1)[0];
-            drawnCards.push({...card});
+            const card = deckCopy[randomIndex];
+            newCards.push({ ...card });
+            deckCopy.splice(randomIndex, 1);
         }
-        setSupportHand(prevHand => [...prevHand, ...drawnCards]);
+        setSupportHand(prev => [...prev, ...newCards]);
         setSupportDeck(deckCopy);
     }
 
@@ -580,7 +601,8 @@ export const PlayPage: FC<PlayPageProps> = (
                     )}
                     {showAllSupport &&(
                         <>
-                            <Hand cards={supportHand} activeCharacterId={selectedSup} onCharacterActive={(id) => setSelectedSup(prev => (prev === id ? null : id))}/>
+                            <Hand cards={supportHand} activeCharacterId={selectedSup} 
+                            onCharacterActive={(card) => setSelectedSup(prev => (prev === card ? null : card))}/>
                             <div className={style.supportButtons}>
                                 <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
                                 <button className={style.supportButton} onClick={playSupport}>PLAY</button>

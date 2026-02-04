@@ -66,7 +66,7 @@ const Card: FC<CardProps> = (props) =>{
     
     if(props.type === 'support'){
         return(
-            <div className={`${style.card} ${style.supportCard} ${props.isSelected}`} 
+            <div className={`${style.card} ${style.supportCard} ${props.isSelected? style.activeCard: ''}`} 
             onClick={props.onClick}>
                 <p className={style.costTag}>{props.supportCost}</p>
                 <img className={style.img} src={props.imgSrc} alt="support" />
