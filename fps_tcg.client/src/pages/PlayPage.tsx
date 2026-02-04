@@ -85,10 +85,28 @@ export const PlayPage: FC<PlayPageProps> = (
 
                 const enemyActiveCard = aliveEnemies[0].id;
                 const ai = new EnemyAI(enemyCards, enemyActiveCard);
-                const attack = ai.evaluateAttack(characterList);
+                
+                if (!activeCard) {
+                    console.log('Player has no active card');
+                    setCurrentTurn('player');
+                    setGameStatus('playerTurn');
+                    onCardPicked();
+                    return;
+                }
+
+                const playerActiveCard = characterList.find(c => c.id === activeCard);
+                if (!playerActiveCard || playerActiveCard.health! <= 0) {
+                    console.log('Player active card not found or dead');
+                    setCurrentTurn('player');
+                    setGameStatus('playerTurn');
+                    onCardPicked();
+                    return;
+                }
+
+                const attack = ai.evaluateAttack([playerActiveCard]);
 
                 if (attack) {
-                    console.log('Enemy attacks player card:', attack);
+                    console.log('Enemy attacks player active card:', attack);
                     enemyDmgToPlayer(attack.targetId, attack.damage);
                 }
 
