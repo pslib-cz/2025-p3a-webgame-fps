@@ -108,10 +108,10 @@ export const DeckPage: FC = () => {
                             <button className={styles.placeholder} onClick={() => setDeckSelect(deck)} />
                         )}
                         <h3 className={styles.deckName}>{deck.name}</h3>
-                        {deckSelect && (
+                        {deckSelect && deckSelect.deckId === deck.deckId && (
                             <p className={styles.button} onClick={() => navigate(`/decksEdit/Deck${deckSelect.deckId}`)}>EDIT</p>
                         )}
-                        {deckSelect && (!activeDeck || deckSelect.deckId !== activeDeck.deckId) && (
+                        {deckSelect && deckSelect.deckId === deck.deckId && (!activeDeck || deckSelect.deckId !== activeDeck.deckId) && (
                             <p className={styles.button} onClick={() => handleSetActiveDeck(deckSelect)}>SET ACTIVE</p>
                         )}
                     </div>

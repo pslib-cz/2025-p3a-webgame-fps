@@ -10,6 +10,19 @@
     box-sizing: border-box;
 }
 
+.button {
+    justify-self: center;
+    border: 1px solid var(--primary-btn-text);
+    background-color: var(--white);
+    color: var(--primary-btn-text);
+    font-size: 1.25rem;
+    text-align: center;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    width: fit-content;
+    margin: 0;
+}
+
 .backButton {
     grid-column: span 3;
     margin-right: auto;
@@ -56,20 +69,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    margin-top: 50%;
     gap: 2em;
-}
-
-.button {
-    justify-self: center;
-    border: 1px solid var(--primary-btn-text);
-    background-color: var(--white);
-    color: var(--primary-btn-text);
-    font-size: 1.25rem;
-    text-align: center;
-    padding: 0.5em 1em;
-    text-decoration: none;
-    width: fit-content;
 }
 
 .cardFan {

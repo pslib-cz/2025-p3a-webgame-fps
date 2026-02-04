@@ -3,7 +3,6 @@
     height: 250px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
     padding: 15px;
     text-align: center;
     align-items: center;
@@ -51,8 +50,10 @@
     border: 1px solid #543A14;
 }
 .img{
-    width: 80%;
-    height: auto;
+    width: 100%;
+    display: block;
+    margin: 0;
+    padding: 0; 
 }
 .activeCard{
     border: 8px solid #023C0D;
