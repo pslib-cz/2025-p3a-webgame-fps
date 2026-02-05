@@ -3,6 +3,7 @@ import { type FC } from "react";
 import style from '../components/Card.module.css'
 import imgHeart from '../assets/heart.png'
 import imgShild from '../assets/shild.png'
+import imgPrice from '../assets/price.png'
 
 export type CardProps = {
     id: number,
@@ -60,7 +61,10 @@ const Card: FC<CardProps> = (props) =>{
         return(
             <div className={`${style.card} ${style.supportCard} ${props.isSelected ? style.selSup : ''}`} 
             onClick={props.onClick}>
-                <p className={style.costTag}>{props.supportCost}</p>
+                <div className={style.costContainer}>
+                    <img src={imgPrice} alt="price"/>
+                    <p className={style.costTag}>{props.supportCost}</p>
+                </div>
                 <img className={style.img} src={props.imgSrc} alt="support" />
                 <p className={style.cardName}>{props.name}</p>
                 <p className={style.cardEffect}>{props.supportEffect}</p>
