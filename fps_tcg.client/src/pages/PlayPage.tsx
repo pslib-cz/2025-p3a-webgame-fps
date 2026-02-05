@@ -34,12 +34,14 @@ type PlayPageProps = {
     setGameStatus: (value: GameStatus) => void;
     gameResult: GameResult;
     setGameResult: (value: GameResult) => void;
+    activeEnemyId: number | null;
+    setActiveEnemyId: (value: number | null) => void;
 }
 
 export const PlayPage: FC<PlayPageProps> = (
     { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, 
         deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList, firstDraw, setFirstDraw,
-        currentTurn, setCurrentTurn, gameStatus, setGameStatus, gameResult, setGameResult
+        currentTurn, setCurrentTurn, gameStatus, setGameStatus, gameResult, setGameResult, activeEnemyId, setActiveEnemyId
     }) => {
     const [showAllSupport, setShowAllSupport] = useState(false);
     const [styles, setStyles] = useState(style.supportCards)
@@ -83,7 +85,8 @@ export const PlayPage: FC<PlayPageProps> = (
                     return;
                 }
 
-                const enemyActiveCard = aliveEnemies[0].id;
+                const enemyActiveCard = activeEnemyId ?? aliveEnemies[0].id;
+                setActiveEnemyId(enemyActiveCard);
                 const ai = new EnemyAI(enemyCards, enemyActiveCard);
                 
                 if (!activeCard) {
@@ -200,19 +203,33 @@ export const PlayPage: FC<PlayPageProps> = (
     }, []);
 
     useEffect(() => {
+        if (activeEnemyId !== null) return;
+
+        const aliveEnemies = cards.filter(c => c.isAlive && c.health > 0);
+        if (aliveEnemies.length > 0) {
+            setActiveEnemyId(aliveEnemies[0].id);
+        }
+    }, [cards]);
+
+    useEffect(() => {
         if (gameResult === "playing") return;
 
         const aliveAllies = characterList.filter(c => c.health! > 0);
         const aliveEnemies = cards.filter(c => c.health! > 0);
 
+        if (!aliveEnemies) {
+            const nextEnemy = cards.find(c => c.isAlive && c.health > 0);
+            setActiveEnemyId(nextEnemy ? nextEnemy.id : null);
+        }
+
         if (aliveEnemies.length === 0) {
             setGameResult("win");
             console.log(gameResult)
-        } else if (aliveAllies.length === 0) {
+        }else if (aliveAllies.length === 0) {
             setGameResult("lose");
             console.log(gameResult)
         }
-    }, [cards, characterList, gameResult]);
+    }, [cards, characterList, gameResult, activeEnemyId]);
 
     const handleCharacterSelect = (cardId: number) => {
         const card = characterList.find(c => c.id === cardId);
@@ -268,7 +285,7 @@ export const PlayPage: FC<PlayPageProps> = (
         const enemyTarget = effectType === "attack" || effectType === "magic" || effectType === "stealth";
         const allyTarget = effectType === "shield" || effectType === "heal";
 
-        if (enemyTarget && targetId == null) {
+        if (activeEnemyId == null) {
             alert("Choose enemy target");
             return;
         }
@@ -286,7 +303,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 (effectType === "shield" && d !== "Tank" && d !== "Jester") ||
                 (effectType === "magic" && d !== "Mage" && d !== "Jester") ||
                 (effectType === "heal" && d !== "Healer" && d !== "Jester") ||
-                (effectType === "stealth" && d !== "Rogue" && d !== "Jester")
+                (effectType === "rogue" && d !== "Rogue" && d !== "Jester")
             );
 
             if (invalid) {
@@ -318,7 +335,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
         switch (effectType) {
         case "attack":
-            dmgDeal(targetId, dmg);
+            dmgDeal(activeEnemyId, dmg);
             break;
 
         case "shield":
@@ -330,22 +347,22 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
 
         case "magic":
-            dmgDeal(targetId, dmg); 
+            dmgDeal(activeEnemyId, dmg); 
             break;
 
-        case "stealth":
+        case "rogue":
             dmgDeal(targetId, dmg)
             break;
         default:
-            dmgDeal(targetId, dmg);
+            dmgDeal(activeEnemyId, dmg);
             break;
         }
-
 
         if (enemyTarget) {
             setTargetId(null);
         }
         console.log(move)
+        console.log(activeEnemyId)
     }
 
     const giveShieldToAlly = (id: number | null, value: number) => {
@@ -549,7 +566,7 @@ export const PlayPage: FC<PlayPageProps> = (
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
-                    <Hand cards={cards.slice(0,3)} activeCharacterId={targetId} onCharacterActive={handleTargetSelect} mode='target'/>
+                    <Hand cards={cards.slice(0,3)} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
                     <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
                     {showAttackMenu && activeCard && !firstTurn && (
                         <div className={style.attackMenu}>
@@ -592,7 +609,7 @@ export const PlayPage: FC<PlayPageProps> = (
                                                 ? "#007616"
                                                 : char.skill2Effect?.toLowerCase() === "magic"
                                                 ? "#48047C"
-                                                : char.skill2Effect?.toLowerCase() === "stealth"
+                                                : char.skill2Effect?.toLowerCase() === "rogue"
                                                 ? "#B97E00"
                                                 : "#F5F5F5",
                                                 WebkitTextStroke: "0.5px black",

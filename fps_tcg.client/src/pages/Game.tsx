@@ -21,6 +21,7 @@ const Game: FC<GameProps> = () =>{
     const [currentTurn, setCurrentTurn] = useState<Turn>('player');
     const [gameStatus, setGameStatus] = useState<GameStatus>('playerTurn');
     const [gameResult, setGameResult] = useState<GameResult>("playing");
+    const [activeEnemyId, setActiveEnemyId] = useState<number | null>(null);
 
     const startDiceRoll = () => {
         setCurrentView('Dice_Roll');
@@ -39,7 +40,7 @@ const Game: FC<GameProps> = () =>{
             supportHand={supportHand} setSupportHand={setSupportHand} characterList={characterList} setCharacterList={setCharacterList}
             firstDraw={firstDraw} setFirstDraw={setFirstDraw}
             currentTurn={currentTurn} setCurrentTurn={setCurrentTurn} gameStatus={gameStatus} setGameStatus={setGameStatus}
-            gameResult={gameResult} setGameResult={setGameResult}
+            gameResult={gameResult} setGameResult={setGameResult} activeEnemyId={activeEnemyId} setActiveEnemyId={setActiveEnemyId}
             />; 
     }
 }
