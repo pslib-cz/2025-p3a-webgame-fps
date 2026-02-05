@@ -6,7 +6,7 @@ type HandCard = Pick<CardProps, 'id' | 'name' | 'imgSrc' | 'type' | 'supportCost
 
 type HandProps = {
     cards: HandCard[];
-    onCharacterActive: (cardId: number) => void;
+    onCharacterActive: (cardId: number, index: number) => void;
     activeCharacterId: number | null;
     mode?: "active" | "target";
 }
@@ -26,8 +26,8 @@ const Hand: FC<HandProps> = ({
                     {...card}
                     isActive={mode === "active" && card.id === activeCharacterId}
                     isTarget={mode === "target" && card.id === activeCharacterId}
-                    isSelected={card.id === activeCharacterId}
-                    onClick={() => onCharacterActive(card.id)}
+                    isSelected={card.id === activeCharacterId || index === activeCharacterId}
+                    onClick={() => onCharacterActive(card.id, index)}
                 />
             ))}
         </div>

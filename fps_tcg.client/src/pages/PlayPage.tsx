@@ -391,8 +391,9 @@ export const PlayPage: FC<PlayPageProps> = (
     const playSupport = () => {
         if(selectedSup == null) return;
 
-        const support = supportHand.find(c => c.id === selectedSup);
-        if(!support) return;
+        //const support = supportHand.find(c => c.id === selectedSup);
+        const support = supportHand[selectedSup];
+        if (!support) return;
 
         if (selectedDiceIndex.length < support.supportCost!) {
             alert(`You need ${support.supportCost} dice to play this support card!`);
@@ -406,11 +407,7 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         setSelectedDiceIndex([]);
 
-        const handCopy = [...supportHand];
-        const cardIndex = handCopy.findIndex(card => card.id === selectedSup);
-        if (cardIndex !== -1) {
-            handCopy.splice(cardIndex, 1);
-        }
+        setSupportHand(prev => prev.filter((_, i) => i !== selectedSup));
 
         const effectToDice: Record<string, DiceSymbol> = {
             stealth: "Rogue",
@@ -642,7 +639,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     {showAllSupport &&(
                         <>
                             <Hand cards={supportHand} activeCharacterId={selectedSup} 
-                            onCharacterActive={(card) => setSelectedSup(prev => (prev === card ? null : card))}/>
+                            onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}/>
                             <div className={style.supportButtons}>
                                 <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
                                 <button className={style.supportButton} onClick={playSupport}>PLAY</button>
