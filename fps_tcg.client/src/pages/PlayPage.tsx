@@ -203,13 +203,17 @@ export const PlayPage: FC<PlayPageProps> = (
     }, []);
 
     useEffect(() => {
-        if (activeEnemyId !== null) return;
-
         const aliveEnemies = cards.filter(c => c.isAlive && c.health > 0);
-        if (aliveEnemies.length > 0) {
-            setActiveEnemyId(aliveEnemies[0].id);
+        
+        if (aliveEnemies.length === 0) {
+            setActiveEnemyId(null);
+            return;
+        } else {
+            if (!activeEnemyId || !aliveEnemies.some(e => e.id === activeEnemyId)) {
+                setActiveEnemyId(aliveEnemies[0].id);
+            }
         }
-    }, [cards]);
+    }, [cards, activeEnemyId]);
 
     useEffect(() => {
         if (gameResult === "playing") return;
@@ -229,7 +233,7 @@ export const PlayPage: FC<PlayPageProps> = (
             setGameResult("lose");
             console.log(gameResult)
         }
-    }, [cards, characterList, gameResult, activeEnemyId]);
+    }, [cards, characterList, gameResult]); 
 
     const handleCharacterSelect = (cardId: number) => {
         const card = characterList.find(c => c.id === cardId);
