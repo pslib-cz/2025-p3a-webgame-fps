@@ -152,7 +152,7 @@ namespace FPS_TCG.Server.Controllers
             _context.Decks.Add(deck);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDeck", new { id = deck.DeckId }, deck);
+            return CreatedAtAction("GetDeckWithCards", new { id = deck.DeckId }, deck);
         }
 
         // DELETE: api/Decks/5
