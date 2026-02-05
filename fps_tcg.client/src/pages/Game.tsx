@@ -1,7 +1,7 @@
 import DicePage from "./DiceRollPage";
 import PlayPage from "./PlayPage";
 import { useState, type FC } from 'react';
-import { type GameView, type DiceSymbol } from "../types";
+import { type GameView, type DiceSymbol, type GameStatus, type Turn, type GameResult } from "../types";
 import type { CardProps } from "../components/Card";
 
 type GameProps = {
@@ -18,6 +18,9 @@ const Game: FC<GameProps> = () =>{
     const [supportHand, setSupportHand] = useState<CardProps[]>([]);
     const [characterList, setCharacterList] = useState<CardProps[]>([]);
     const [firstDraw, setFirstDraw] = useState(false);
+    const [currentTurn, setCurrentTurn] = useState<Turn>('player');
+    const [gameStatus, setGameStatus] = useState<GameStatus>('playerTurn');
+    const [gameResult, setGameResult] = useState<GameResult>("playing");
 
     const startDiceRoll = () => {
         setCurrentView('Dice_Roll');
@@ -35,6 +38,8 @@ const Game: FC<GameProps> = () =>{
             deadCards={deadCards} setDeadCards={setDeadCards} cards={cards} setCards={setCards}
             supportHand={supportHand} setSupportHand={setSupportHand} characterList={characterList} setCharacterList={setCharacterList}
             firstDraw={firstDraw} setFirstDraw={setFirstDraw}
+            currentTurn={currentTurn} setCurrentTurn={setCurrentTurn} gameStatus={gameStatus} setGameStatus={setGameStatus}
+            gameResult={gameResult} setGameResult={setGameResult}
             />; 
     }
 }
