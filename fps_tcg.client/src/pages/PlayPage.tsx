@@ -210,7 +210,8 @@ export const PlayPage: FC<PlayPageProps> = (
             return;
         } else {
             if (!activeEnemyId || !aliveEnemies.some(e => e.id === activeEnemyId)) {
-                setActiveEnemyId(aliveEnemies[0].id);
+                const randomIndex = Math.floor(Math.random() * (aliveEnemies.length - 2));
+                setActiveEnemyId(aliveEnemies[randomIndex].id);
             }
         }
     }, [cards, activeEnemyId]);
