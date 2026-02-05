@@ -285,9 +285,49 @@ export const PlayPage: FC<PlayPageProps> = (
         setStyles(style.supportCards); 
     };
     
-    const handleAttackMove = (move: string, dmg: number, cost: number, effect?: string) => {
+    const executeEnemyCounterAttack = async (overridePlayerCardId?: number | null) => {
+        const enemyCards: EnemyCard[] = cards.map(c => ({
+            id: c.id,
+            name: c.name || 'Enemy',
+            type: c.type || 'attack',
+            health: c.health,
+            shield: c.shield,
+            skill1Name: c.skill1Name,
+            skill1Damage: c.skill1Damage,
+            skill1Cost: c.skill1Cost,
+            skill2Name: c.skill2Name,
+            skill2Damage: c.skill2Damage,
+            skill2Cost: c.skill2Cost,
+            skill2Effect: c.skill2Effect,
+            isAlive: c.isAlive
+        }));
+
+        const aliveEnemies = enemyCards.filter(c => c.isAlive && c.health > 0);
+        if (aliveEnemies.length === 0) return;
+
+        const enemyActiveCard = activeEnemyId ?? aliveEnemies[0].id;
+        if (activeEnemyId !== enemyActiveCard) {
+            setActiveEnemyId(enemyActiveCard);
+        }
+
+        const playerCardId = overridePlayerCardId ?? activeCard;
+        if (!playerCardId) return;
+
+        const playerActiveCard = characterList.find(c => c.id === playerCardId);
+        if (!playerActiveCard || playerActiveCard.health! <= 0) return;
+
+        const ai = new EnemyAI(enemyCards, enemyActiveCard);
+        const attack = ai.evaluateAttack([playerActiveCard]);
+
+        if (attack) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            enemyDmgToPlayer(attack.targetId, attack.damage);
+        }
+    };
+
+    const handleAttackMove = async (move: string, dmg: number, cost: number, effect?: string) => {
         const effectType = effect?.toLowerCase()
-        const enemyTarget = effectType === "attack" || effectType === "magic" || effectType === "stealth";
+        const enemyTarget = !effectType || effectType === "attack" || effectType === "magic" || effectType === "stealth" || effectType === "rogue";
         const allyTarget = effectType === "shield" || effectType === "heal";
 
         if (activeEnemyId == null) {
@@ -365,6 +405,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
         if (enemyTarget) {
             setTargetId(null);
+            await executeEnemyCounterAttack();
         }
         console.log(move)
         console.log(activeEnemyId)
@@ -545,13 +586,14 @@ export const PlayPage: FC<PlayPageProps> = (
                 </div>
                 <button className={style.endRoundButton} onClick={() => {
                 if (!firstTurn) {
-                        setCurrentTurn('enemy');
-                        setGameStatus('enemyTurn');
+                        setCurrentTurn('player');
+                        setGameStatus('playerTurn');
+                        onCardPicked();
                     }
                 }}>END ROUND</button>
                 {!firstTurn && pendingCard && (
                     <button className={style.confirmButton} 
-                    onClick={() => {
+                    onClick={async () => {
                         if(selectedDiceIndex.length === 0) return alert("Choose dice to switch!");  
 
                             const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
@@ -565,6 +607,7 @@ export const PlayPage: FC<PlayPageProps> = (
                             setPendingCard(null);
                             setShowAttackMenu(false)
                             console.log('Dice:', selectedDiceIndex, 'was used')
+                            await executeEnemyCounterAttack(pendingCard);
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
