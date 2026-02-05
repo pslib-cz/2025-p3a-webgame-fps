@@ -1,6 +1,6 @@
 .diceContainer{
-    width: 100px;
-    height: 100px;
+    width: 82px;
+    height: 82px;
     stroke: var(--primary-btn-text);
     stroke-width: 3px;
 }

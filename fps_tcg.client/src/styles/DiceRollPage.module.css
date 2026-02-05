@@ -1,11 +1,12 @@
 .dicePageBody{
     background-image: url('../assets/GRASS_1-modified.png');
-    background-repeat: repeat;
+    background-repeat: no-repeat;
     background-size: cover;
+    min-height: 100vh;
+    box-sizing: border-box;
     display: flex;
     justify-content: center;
-    padding: 12.72vw 5vh;
-    height: -webkit-fill-available;
+    align-items: center;
 }
 .selectionContainer{
     background-image: url('../assets/pixil-frame-2.png');
@@ -14,39 +15,28 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 1200px;
-    width: 80%;
-    padding: 5vh 3vw;
-    height: 100%;
+    width: 50%;
+    padding: 5em;
 }
 .diceContainer{
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 4vh 4vw;
-    padding: 6.25em;
+    grid-template-columns: repeat(4, auto);
+    grid-template-rows: repeat(2, auto);
+    gap: 3em;
+    padding-bottom: 3em;
 }
 .confirmButton {
     border: 1px solid var(--primary-btn-text);
     background-color: var(--white);
     color: var(--primary-btn-text);
-    width: 200px;
-    height: 2.5rem;
-    font-size: 20px;
+    font-size: 1.25rem;
     text-align: center;
-    align-content: center;
-    padding: 0.5rem;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    width: fit-content;
     font-family: "Press Start 2P", system-ui;
 }
 
-@media (min-width: 2000px) {
-    /* .dicePageBody{
-        padding: 50em 10em;
-    } */
-    .selectionContainer{
-        width: 85%;
-    }
-}
 @media (max-width: 1500px) {
     .dicePageBody > .selectionContainer{
         height: auto;
