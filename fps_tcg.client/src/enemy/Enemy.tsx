@@ -26,12 +26,12 @@ type EnemyAttackResult = {
 export class EnemyAI {
     private enemyCards: EnemyCard[];
     private activeEnemyCard: number | null;
-    private cardTurnCounters: Map<number, number>;
+    private enemyTurnCounter: number;
 
-    constructor(cards: EnemyCard[], activeCard: number | null, turnCounters?: Map<number, number>) {
+    constructor(cards: EnemyCard[], activeCard: number | null, turnCounter?: number) {
         this.enemyCards = cards;
         this.activeEnemyCard = activeCard;
-        this.cardTurnCounters = turnCounters || new Map();
+        this.enemyTurnCounter = turnCounter || 0;
     }
 
     public evaluateAttack(playerCards: any[]): EnemyAttackResult | null {
@@ -52,10 +52,12 @@ export class EnemyAI {
             return null;
         }
 
-        const currentTurns = this.cardTurnCounters.get(this.activeEnemyCard) || 0;
-        this.cardTurnCounters.set(this.activeEnemyCard, currentTurns + 1);
+        const nextAttackNumber = this.enemyTurnCounter + 1;
+        const bestAttack = this.selectBestAttack(activeCard, aliveTargets, nextAttackNumber);
 
-        const bestAttack = this.selectBestAttack(activeCard, aliveTargets, currentTurns + 1);
+        if (bestAttack) {
+            this.enemyTurnCounter = nextAttackNumber;
+        }
         return bestAttack;
     }
 
@@ -106,8 +108,8 @@ export class EnemyAI {
         return false;
     }
 
-    public getTurnCounters(): Map<number, number> {
-        return this.cardTurnCounters;
+    public getTurnCounter(): number {
+        return this.enemyTurnCounter;
     }
 }
 
@@ -118,21 +120,21 @@ export function useEnemyAI(
     onEnemyAttack: (attack: EnemyAttackResult) => void
 ) {
     const [isThinking, setIsThinking] = useState(false);
-    const [turnCounters, setTurnCounters] = useState<Map<number, number>>(new Map());
+    const [turnCounter, setTurnCounter] = useState(0);
     
     const executeEnemyTurn = async () => {
         setIsThinking(true);
         
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const ai = new EnemyAI(enemyCards, activeEnemyCard, turnCounters);
+        const ai = new EnemyAI(enemyCards, activeEnemyCard, turnCounter);
 
         const attack = ai.evaluateAttack(playerCards);
         
         if (attack) {
             console.log('Enemy attacks with:', attack);
             onEnemyAttack(attack);
-            setTurnCounters(new Map(ai.getTurnCounters()));
+            setTurnCounter(ai.getTurnCounter());
         } else {
             console.log('Enemy has no valid target or active card');
         }

@@ -53,6 +53,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const [targetId, setTargetId] = useState<number | null>(null);
     const [supportDeck, setSupportDeck] = useState<CardProps[]>([]);
     const [loadedDeck, setLoadedDeck] = useState(false)
+    const [enemyAttackCounter, setEnemyAttackCounter] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -87,7 +88,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
                 const enemyActiveCard = activeEnemyId ?? aliveEnemies[0].id;
                 setActiveEnemyId(enemyActiveCard);
-                const ai = new EnemyAI(enemyCards, enemyActiveCard);
+                const ai = new EnemyAI(enemyCards, enemyActiveCard, enemyAttackCounter);
                 
                 if (!activeCard) {
                     console.log('Player has no active card');
@@ -111,6 +112,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 if (attack) {
                     console.log('Enemy attacks player active card:', attack);
                     enemyDmgToPlayer(attack.targetId, attack.damage);
+                    setEnemyAttackCounter(ai.getTurnCounter());
                 }
 
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -316,12 +318,13 @@ export const PlayPage: FC<PlayPageProps> = (
         const playerActiveCard = characterList.find(c => c.id === playerCardId);
         if (!playerActiveCard || playerActiveCard.health! <= 0) return;
 
-        const ai = new EnemyAI(enemyCards, enemyActiveCard);
+        const ai = new EnemyAI(enemyCards, enemyActiveCard, enemyAttackCounter);
         const attack = ai.evaluateAttack([playerActiveCard]);
 
         if (attack) {
             await new Promise(resolve => setTimeout(resolve, 800));
             enemyDmgToPlayer(attack.targetId, attack.damage);
+            setEnemyAttackCounter(ai.getTurnCounter());
         }
     };
 
