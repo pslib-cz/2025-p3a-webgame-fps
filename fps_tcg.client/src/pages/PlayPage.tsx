@@ -227,9 +227,7 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }, [cards, activeEnemyId]);
 
-    useEffect(() => {
-        if (gameResult === "playing") return;
-
+    const checkGameState = () => {
         const aliveAllies = characterList.filter(c => c.health! > 0);
         const aliveEnemies = cards.filter(c => c.health! > 0);
 
@@ -239,13 +237,14 @@ export const PlayPage: FC<PlayPageProps> = (
         }
 
         if (aliveEnemies.length === 0) {
-            setGameResult("win");
-            console.log(gameResult)
+            setGameStatus('gameOver');
+            setGameResult('win');
         }else if (aliveAllies.length === 0) {
-            setGameResult("lose");
-            console.log(gameResult)
+            setGameStatus('gameOver');
+            setGameResult('lose');
         }
-    }, [cards, characterList, gameResult]); 
+        console.log(gameStatus)
+    }; 
 
     const handleCharacterSelect = (cardId: number) => {
         const card = characterList.find(c => c.id === cardId);
@@ -356,9 +355,12 @@ export const PlayPage: FC<PlayPageProps> = (
             return;
         }
 
-        if (allyTarget && activeCard == null) {
-            alert("Choose ally");
-            return;
+        if (allyTarget) {
+            const target = pendingCard ?? activeCard;
+            if (!target) {
+                alert("Choose an active card or ally card!");
+                return;
+            }
         }
 
         const activeChar = characterList.find(c => c.id === activeCard);
@@ -411,11 +413,11 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
 
         case "shield":
-            giveShieldToAlly(pendingCard, dmg);
+            giveShieldToAlly(pendingCard || activeCard, dmg);
             break;
 
         case "heal":
-            healAlly(pendingCard, dmg);
+            healAlly(pendingCard || activeCard, dmg);
             break;
 
         case "magic":
@@ -430,29 +432,32 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
         }
 
-        if (enemyTarget) {
+        checkGameState()
+
+        if (enemyTarget && gameStatus !== "gameOver") {
             setTargetId(null);
             const cardsForCounter = updatedEnemyCards ?? cards;
             await executeEnemyCounterAttack(undefined, cardsForCounter);
         }
         console.log(move)
-        console.log(activeEnemyId)
     }
 
     const giveShieldToAlly = (id: number | null, value: number) => {
-        if (id == null) return;
+        const choosenId = id ?? activeCard;
+        if (choosenId == null) return;
         setCharacterList(prev =>
             prev.map(c =>
-                c.id === id ? { ...c, shield: (c.shield ?? 0) + value } : c
+                c.id === choosenId ? { ...c, shield: (c.shield ?? 0) + value } : c
             )
         );
     };
 
     const healAlly = (id: number | null, value: number) => {
-        if (id == null) return;
+        const choosenId = id ?? activeCard;
+        if (choosenId == null) return;
         setCharacterList(prev =>
             prev.map(c =>
-                c.id === id ? { ...c, health: c.health! + value } : c
+                c.id === choosenId ? { ...c, health: c.health! + value } : c
             )
         );
     };
@@ -550,7 +555,11 @@ export const PlayPage: FC<PlayPageProps> = (
         const isInCharacterList = characterList.some(c => c.id === id);
         
         if(isInCharacterList) {
-            setCharacterList(prev => prev.map(c => applyDmgToPlayer(c, id, dmg)));
+            setCharacterList(prev => {
+                const updated = prev.map(c => applyDmgToPlayer(c, id, dmg))
+                checkGameState()
+                return updated;
+            });
         }
     }
 
@@ -594,7 +603,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const handleDiceClick = (index: number) => {
         const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu
 
-        if(!showAttackMenu){
+        if(!showAttackMenu && !showAllSupport){
             alert("Click on your active card to show menu of attacks")
         }
 
@@ -738,13 +747,13 @@ export const PlayPage: FC<PlayPageProps> = (
                         onClick={() => handleDiceClick(index)} />
                     ))}
                 </div>
-            {gameResult === "win" && (
+            {gameStatus === 'gameOver' && gameResult === 'win' && (
                 <div className={style.endScreenWin}>
                     <h3>WIN</h3>
                     <button onClick={() => navigate("/")}>Back to Menu</button>
                 </div>
             )}
-            {gameResult === "lose" && (
+            {gameStatus === 'gameOver' && gameResult === 'lose' && (
                 <div className={style.endScreenLose}>
                     <h3>LOSE</h3>
                     <button onClick={() => navigate("/")}>Back to Menu</button>

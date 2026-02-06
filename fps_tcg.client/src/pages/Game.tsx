@@ -20,7 +20,7 @@ const Game: FC<GameProps> = () =>{
     const [firstDraw, setFirstDraw] = useState(false);
     const [currentTurn, setCurrentTurn] = useState<Turn>('player');
     const [gameStatus, setGameStatus] = useState<GameStatus>('playerTurn');
-    const [gameResult, setGameResult] = useState<GameResult>("playing");
+    const [gameResult, setGameResult] = useState<GameResult>(null);
     const [activeEnemyId, setActiveEnemyId] = useState<number | null>(null);
 
     const startDiceRoll = () => {
