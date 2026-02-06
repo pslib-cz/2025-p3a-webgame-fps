@@ -31,7 +31,6 @@ export const DeckPage: FC = () => {
     useEffect(() => {
         const fetchDecks = async () => {
             try {
-                // Get deck IDs from localStorage, default to empty array
                 const storedIds = JSON.parse(localStorage.getItem('deckIds') || '[]');
                 const deckIds: number[] = storedIds.slice(0, MAX_DECKS);
                 
@@ -96,8 +95,12 @@ export const DeckPage: FC = () => {
 
     return (
         <div className={styles.deckPage}>
-            <Link className={`${styles.button} ${styles.backButton}`} to="/"><span>&lt;- BACK</span></Link>
-            {decks.map(deck => {
+            <div className={styles.header}>  
+                <Link className={`${styles.button} ${styles.backButton}`} to="/"><span>&lt;- BACK</span></Link>
+                <p className={styles.activeDeck}>Selected deck: {activeDeck ? activeDeck.name : "None"}</p>
+            </div>
+            <div className={styles.decksContainer}>
+                {decks.map(deck => {
                 const attackCards = getAttackCards(deck.cards || []);
                 return (
                     <div key={deck.deckId} className={styles.deck}>
@@ -128,9 +131,10 @@ export const DeckPage: FC = () => {
                         className={styles.placeholder} 
                         onClick={() => navigate('/decksEdit/new')}
                     />
-                    <h3 className={styles.deckName}>Create New Deck</h3>
+                    <h3 className={styles.deckName}>Create Deck</h3>
                 </div>
             )}
+            </div>
         </div>
     );
 };
