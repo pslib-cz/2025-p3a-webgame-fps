@@ -180,3 +180,15 @@
     font-size: 16px; 
     color: var(--white); 
 }
+.endScreenWin{
+    position: absolute;
+    justify-self: center;
+    align-self: center;
+    background-color: grey;
+}
+.endScreenLose{
+    position: absolute;
+    justify-self: center;
+    align-self: center;
+    background-color: grey;
+}

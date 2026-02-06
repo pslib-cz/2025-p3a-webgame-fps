@@ -3,11 +3,16 @@
     background-repeat: no-repeat;
     background-size: cover;
     display: grid;
-    grid-template-columns: repeat(3, auto);
     grid-template-rows: auto 1fr;
     padding: 2.5em 5em;
     min-height: 100vh;
     box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    gap: 5em;
+    align-items: center;
 }
 
 .button {
@@ -24,14 +29,21 @@
 }
 
 .backButton {
-    grid-column: span 3;
-    margin-right: auto;
+    height: fit-content;
+}
+
+.activeDeck {
+    font-size: 36px;
+    color: var(--white);
+    margin: 0;
 }
 
 .deckName{
     font-size: 36px;
     color: var(--white);
     margin: 10px 0 0 0;
+    text-align: center;
+    line-height: 50px;
 }
 
 .placeholder {
@@ -69,8 +81,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 50%;
     gap: 2em;
+    width: 400px;
+    flex-shrink: 0;
+    margin-top: 13%;
+}
+
+.decksContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 3em;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 1em;
 }
 
 .cardFan {

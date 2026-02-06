@@ -15,7 +15,6 @@
     height: 250px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
     padding: 15px;
     text-align: center;
     align-items: center;
@@ -123,9 +122,9 @@
 }
 @keyframes moveCard {
     0% { transform: translateY(0); } 
-    100% { transform: translateY(-80px); }
+    100% { transform: translateY(-50px); }
 }
 @keyframes moveEnemyCard {
     0% { transform: translateY(0); } 
-    100% { transform: translateY(80px); }
+    100% { transform: translateY(50px); }
 }

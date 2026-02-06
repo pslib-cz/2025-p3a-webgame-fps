@@ -182,7 +182,6 @@ const DeckXPage = () => {
             let response;
 
             if (isNewDeck) {
-                // Create new deck
                 response = await fetch(`https://localhost:7077/api/Decks`, {
                     method: 'POST',
                     headers: {
@@ -191,7 +190,6 @@ const DeckXPage = () => {
                     body: JSON.stringify(deckData)
                 });
             } else if (existingDeck && existingDeck.deckId === numericDeckId) {
-                // Update existing deck
                 response = await fetch(`https://localhost:7077/api/Decks/${numericDeckId}`, {
                     method: 'PUT',
                     headers: {
@@ -200,7 +198,6 @@ const DeckXPage = () => {
                     body: JSON.stringify(deckData)
                 });
             } else {
-                // Create deck with specific ID
                 response = await fetch(`https://localhost:7077/api/Decks`, {
                     method: 'POST',
                     headers: {
@@ -221,20 +218,17 @@ const DeckXPage = () => {
 
             let savedDeck: any = null;
             if (response.status === 204) {
-                // PUT returns 204, need to fetch the updated deck
                 const refresh = await fetch(`https://localhost:7077/api/Decks/${numericDeckId}/with-cards`);
                 if (refresh.ok) {
                     savedDeck = await refresh.json();
                 }
             } else {
-                // POST returns the created deck
                 savedDeck = await response.json();
             }
 
             if (savedDeck) {
                 console.log('Deck saved with ID:', savedDeck.deckId);
                 
-                // Update localStorage with new deck ID
                 const storedIds = JSON.parse(localStorage.getItem('deckIds') || '[]');
                 if (!storedIds.includes(savedDeck.deckId)) {
                     storedIds.push(savedDeck.deckId);
@@ -242,10 +236,8 @@ const DeckXPage = () => {
                 }
 
                 if (isNewDeck) {
-                    // Redirect to the newly created deck
                     navigate(`/decksEdit/${savedDeck.deckId}`);
                 } else {
-                    // Update state for existing deck
                     setExistingDeck(savedDeck);
                     setOriginalDeckName(trimmedDeckName);
                     if (savedDeck.cards) {

@@ -227,9 +227,7 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }, [cards, activeEnemyId]);
 
-    useEffect(() => {
-        if (gameResult === "playing") return;
-
+    const checkGameState = () => {
         const aliveAllies = characterList.filter(c => c.health! > 0);
         const aliveEnemies = cards.filter(c => c.health! > 0);
 
@@ -239,17 +237,25 @@ export const PlayPage: FC<PlayPageProps> = (
         }
 
         if (aliveEnemies.length === 0) {
-            setGameResult("win");
-            console.log(gameResult)
+            setGameStatus('gameOver');
+            setGameResult('win');
         }else if (aliveAllies.length === 0) {
-            setGameResult("lose");
-            console.log(gameResult)
+            setGameStatus('gameOver');
+            setGameResult('lose');
         }
-    }, [cards, characterList, gameResult]); 
+        console.log(gameStatus)
+    }; 
 
     const handleCharacterSelect = (cardId: number) => {
         const card = characterList.find(c => c.id === cardId);
         if (!card) return;
+
+        const isDead = card.health! <= 0;
+
+        if (isDead) {
+            alert("This card is defeated.");
+            return;
+        }
 
         if(cardId == activeCard){
             setPendingCard(null);
@@ -344,13 +350,22 @@ export const PlayPage: FC<PlayPageProps> = (
         const enemyTarget = !effectType || effectType === "attack" || effectType === "magic" || effectType === "stealth" || effectType === "rogue";
         const allyTarget = effectType === "shield" || effectType === "heal";
 
-        if (activeEnemyId == null) {
+        if (effectType === "rogue" && targetId === null) {
             alert("Choose enemy target");
             return;
         }
 
-        if (allyTarget && activeCard == null) {
-            alert("Choose ally");
+        if (allyTarget) {
+            const target = pendingCard ?? activeCard;
+            if (!target) {
+                alert("Choose an active card or ally card!");
+                return;
+            }
+        }
+
+        const activeChar = characterList.find(c => c.id === activeCard);
+        if (!activeChar || activeChar.health! <= 0) {
+            alert("Active card is defeated.");
             return;
         }
 
@@ -398,11 +413,11 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
 
         case "shield":
-            giveShieldToAlly(pendingCard, dmg);
+            giveShieldToAlly(pendingCard || activeCard, dmg);
             break;
 
         case "heal":
-            healAlly(pendingCard, dmg);
+            healAlly(pendingCard || activeCard, dmg);
             break;
 
         case "magic":
@@ -417,29 +432,32 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
         }
 
-        if (enemyTarget) {
+        checkGameState()
+
+        if (enemyTarget && gameStatus !== "gameOver") {
             setTargetId(null);
             const cardsForCounter = updatedEnemyCards ?? cards;
             await executeEnemyCounterAttack(undefined, cardsForCounter);
         }
         console.log(move)
-        console.log(activeEnemyId)
     }
 
     const giveShieldToAlly = (id: number | null, value: number) => {
-        if (id == null) return;
+        const choosenId = id ?? activeCard;
+        if (choosenId == null) return;
         setCharacterList(prev =>
             prev.map(c =>
-                c.id === id ? { ...c, shield: (c.shield ?? 0) + value } : c
+                c.id === choosenId ? { ...c, shield: (c.shield ?? 0) + value } : c
             )
         );
     };
 
     const healAlly = (id: number | null, value: number) => {
-        if (id == null) return;
+        const choosenId = id ?? activeCard;
+        if (choosenId == null) return;
         setCharacterList(prev =>
             prev.map(c =>
-                c.id === id ? { ...c, health: c.health! + value } : c
+                c.id === choosenId ? { ...c, health: c.health! + value } : c
             )
         );
     };
@@ -447,7 +465,6 @@ export const PlayPage: FC<PlayPageProps> = (
     const playSupport = () => {
         if(selectedSup == null) return;
 
-        //const support = supportHand.find(c => c.id === selectedSup);
         const support = supportHand[selectedSup];
         if (!support) return;
 
@@ -504,8 +521,9 @@ export const PlayPage: FC<PlayPageProps> = (
             newCards.push({ ...card });
             deckCopy.splice(randomIndex, 1);
         }
-        setSupportHand(prev => [...prev, ...newCards]);
         setSupportDeck(deckCopy);
+        
+        setSupportHand(prev => [...prev, ...newCards]);
     }
 
     useEffect(() => {
@@ -537,7 +555,11 @@ export const PlayPage: FC<PlayPageProps> = (
         const isInCharacterList = characterList.some(c => c.id === id);
         
         if(isInCharacterList) {
-            setCharacterList(prev => prev.map(c => applyDmgToPlayer(c, id, dmg)));
+            setCharacterList(prev => {
+                const updated = prev.map(c => applyDmgToPlayer(c, id, dmg))
+                checkGameState()
+                return updated;
+            });
         }
     }
 
@@ -581,6 +603,10 @@ export const PlayPage: FC<PlayPageProps> = (
     const handleDiceClick = (index: number) => {
         const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu
 
+        if(!showAttackMenu && !showAllSupport){
+            alert("Click on your active card to show menu of attacks")
+        }
+
         if(!diceSel) return
 
         if(diceSel){
@@ -615,20 +641,25 @@ export const PlayPage: FC<PlayPageProps> = (
                 {!firstTurn && pendingCard && (
                     <button className={style.confirmButton} 
                     onClick={async () => {
-                        if(selectedDiceIndex.length === 0) return alert("Choose dice to switch!");  
-
+                        const deadActiveCard = activeCard !== null && characterList.find(c => c.id === activeCard)?.health! <= 0;
+                        if(!deadActiveCard && selectedDiceIndex.length === 0) { 
+                            alert("Choose dice to switch!");
+                            return;
+                        }  
+                        if(!deadActiveCard){
                             const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
                             diceSymbols.length = 0; 
                             for(let i = 0; i < newDice.length; i++) {
                                 diceSymbols.push(newDice[i]);
                             }
+                        }
 
-                            setSelectedDiceIndex([])
-                            setActiveCard(pendingCard); 
-                            setPendingCard(null);
-                            setShowAttackMenu(false)
-                            console.log('Dice:', selectedDiceIndex, 'was used')
-                            await executeEnemyCounterAttack(pendingCard);
+                        setSelectedDiceIndex([])
+                        setActiveCard(pendingCard); 
+                        setPendingCard(null);
+                        setShowAttackMenu(false)
+
+                        await executeEnemyCounterAttack(pendingCard);
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
@@ -718,13 +749,13 @@ export const PlayPage: FC<PlayPageProps> = (
                         onClick={() => handleDiceClick(index)} />
                     ))}
                 </div>
-            {gameResult === "win" && (
+            {gameStatus === 'gameOver' && gameResult === 'win' && (
                 <div className={style.endScreenWin}>
                     <h3>WIN</h3>
                     <button onClick={() => navigate("/")}>Back to Menu</button>
                 </div>
             )}
-            {gameResult === "lose" && (
+            {gameStatus === 'gameOver' && gameResult === 'lose' && (
                 <div className={style.endScreenLose}>
                     <h3>LOSE</h3>
                     <button onClick={() => navigate("/")}>Back to Menu</button>
