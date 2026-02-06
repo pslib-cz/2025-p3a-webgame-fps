@@ -242,6 +242,13 @@ export const PlayPage: FC<PlayPageProps> = (
         const card = characterList.find(c => c.id === cardId);
         if (!card) return;
 
+        const isDead = card.health! <= 0;
+
+        if (isDead) {
+            alert("This card is defeated.");
+            return;
+        }
+
         if(cardId == activeCard){
             setPendingCard(null);
             setShowAttackMenu(true);
@@ -333,13 +340,19 @@ export const PlayPage: FC<PlayPageProps> = (
         const enemyTarget = !effectType || effectType === "attack" || effectType === "magic" || effectType === "stealth" || effectType === "rogue";
         const allyTarget = effectType === "shield" || effectType === "heal";
 
-        if (activeEnemyId == null) {
+        if (effectType === "rogue" && targetId === null) {
             alert("Choose enemy target");
             return;
         }
 
         if (allyTarget && activeCard == null) {
             alert("Choose ally");
+            return;
+        }
+
+        const activeChar = characterList.find(c => c.id === activeCard);
+        if (!activeChar || activeChar.health! <= 0) {
+            alert("Active card is defeated.");
             return;
         }
 
@@ -435,7 +448,6 @@ export const PlayPage: FC<PlayPageProps> = (
     const playSupport = () => {
         if(selectedSup == null) return;
 
-        //const support = supportHand.find(c => c.id === selectedSup);
         const support = supportHand[selectedSup];
         if (!support) return;
 
@@ -492,8 +504,9 @@ export const PlayPage: FC<PlayPageProps> = (
             newCards.push({ ...card });
             deckCopy.splice(randomIndex, 1);
         }
-        setSupportHand(prev => [...prev, ...newCards]);
         setSupportDeck(deckCopy);
+        
+        setSupportHand(prev => [...prev, ...newCards]);
     }
 
     useEffect(() => {
@@ -565,6 +578,10 @@ export const PlayPage: FC<PlayPageProps> = (
     const handleDiceClick = (index: number) => {
         const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu
 
+        if(!showAttackMenu){
+            alert("Click on your active card to show menu of attacks")
+        }
+
         if(!diceSel) return
 
         if(diceSel){
@@ -597,20 +614,25 @@ export const PlayPage: FC<PlayPageProps> = (
                 {!firstTurn && pendingCard && (
                     <button className={style.confirmButton} 
                     onClick={async () => {
-                        if(selectedDiceIndex.length === 0) return alert("Choose dice to switch!");  
-
+                        const deadActiveCard = activeCard !== null && characterList.find(c => c.id === activeCard)?.health! <= 0;
+                        if(!deadActiveCard && selectedDiceIndex.length === 0) { 
+                            alert("Choose dice to switch!");
+                            return;
+                        }  
+                        if(!deadActiveCard){
                             const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
                             diceSymbols.length = 0; 
                             for(let i = 0; i < newDice.length; i++) {
                                 diceSymbols.push(newDice[i]);
                             }
+                        }
 
-                            setSelectedDiceIndex([])
-                            setActiveCard(pendingCard); 
-                            setPendingCard(null);
-                            setShowAttackMenu(false)
-                            console.log('Dice:', selectedDiceIndex, 'was used')
-                            await executeEnemyCounterAttack(pendingCard);
+                        setSelectedDiceIndex([])
+                        setActiveCard(pendingCard); 
+                        setPendingCard(null);
+                        setShowAttackMenu(false)
+
+                        await executeEnemyCounterAttack(pendingCard);
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
