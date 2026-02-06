@@ -99,7 +99,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 setActiveEnemyId(resolvedEnemyActiveCard);
                 const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyAttackCounter);
                 
-                if (!activeCard) {
+                if (activeCard == null) {
                     console.log('Player has no active card');
                     setCurrentTurn('player');
                     setGameStatus('playerTurn');
@@ -215,15 +215,15 @@ export const PlayPage: FC<PlayPageProps> = (
 
     useEffect(() => {
         const aliveEnemies = cards.filter(c => c.isAlive && c.health > 0);
-        
+
         if (aliveEnemies.length === 0) {
             setActiveEnemyId(null);
             return;
-        } else {
-            if (!activeEnemyId || !aliveEnemies.some(e => e.id === activeEnemyId)) {
-                const randomIndex = Math.floor(Math.random() * (aliveEnemies.length - 2));
-                setActiveEnemyId(aliveEnemies[randomIndex].id);
-            }
+        }
+
+        if (activeEnemyId == null || !aliveEnemies.some(e => e.id === activeEnemyId)) {
+            const randomIndex = Math.floor(Math.random() * aliveEnemies.length);
+            setActiveEnemyId(aliveEnemies[randomIndex].id);
         }
     }, [cards, activeEnemyId]);
 
@@ -324,7 +324,7 @@ export const PlayPage: FC<PlayPageProps> = (
         }
 
         const playerCardId = overridePlayerCardId ?? activeCard;
-        if (!playerCardId) return;
+        if (playerCardId == null) return;
 
         const playerActiveCard = characterList.find(c => c.id === playerCardId);
         if (!playerActiveCard || playerActiveCard.health! <= 0) return;
@@ -607,6 +607,8 @@ export const PlayPage: FC<PlayPageProps> = (
                 if (!firstTurn) {
                         setCurrentTurn('player');
                         setGameStatus('playerTurn');
+                        setShowAttackMenu(false);
+                        setAttackMenu(null);
                         onCardPicked();
                     }
                 }}>END ROUND</button>
@@ -632,7 +634,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 <div className={style.playPanel}>
                     <Hand cards={cards.slice(0,3)} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
                     <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
-                    {showAttackMenu && activeCard && !firstTurn && (
+                    {showAttackMenu && activeCard != null && !firstTurn && (
                         <div className={style.attackMenu}>
                             {(() => {
                                 const char = characterList.find(c => c.id === attackMenu);
