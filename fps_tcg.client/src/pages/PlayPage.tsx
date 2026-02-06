@@ -56,6 +56,14 @@ export const PlayPage: FC<PlayPageProps> = (
     const [enemyAttackCounter, setEnemyAttackCounter] = useState(0);
     const navigate = useNavigate();
 
+    const resolveEnemyActiveCardId = (aliveEnemies: EnemyCard[]) => {
+        if (aliveEnemies.length === 0) return null;
+        if (activeEnemyId != null && aliveEnemies.some(e => e.id === activeEnemyId)) {
+            return activeEnemyId;
+        }
+        return aliveEnemies[0].id;
+    };
+
     useEffect(() => {
         if (currentTurn === 'enemy') {
             const executeEnemyTurn = async () => {
@@ -86,9 +94,10 @@ export const PlayPage: FC<PlayPageProps> = (
                     return;
                 }
 
-                const enemyActiveCard = activeEnemyId ?? aliveEnemies[0].id;
-                setActiveEnemyId(enemyActiveCard);
-                const ai = new EnemyAI(enemyCards, enemyActiveCard, enemyAttackCounter);
+                const resolvedEnemyActiveCard = resolveEnemyActiveCardId(aliveEnemies);
+                if (resolvedEnemyActiveCard == null) return;
+                setActiveEnemyId(resolvedEnemyActiveCard);
+                const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyAttackCounter);
                 
                 if (!activeCard) {
                     console.log('Player has no active card');
@@ -287,8 +296,9 @@ export const PlayPage: FC<PlayPageProps> = (
         setStyles(style.supportCards); 
     };
     
-    const executeEnemyCounterAttack = async (overridePlayerCardId?: number | null) => {
-        const enemyCards: EnemyCard[] = cards.map(c => ({
+    const executeEnemyCounterAttack = async (overridePlayerCardId?: number | null, cardsOverride?: any[]) => {
+        const sourceCards = cardsOverride ?? cards;
+        const enemyCards: EnemyCard[] = sourceCards.map(c => ({
             id: c.id,
             name: c.name || 'Enemy',
             type: c.type || 'attack',
@@ -307,9 +317,10 @@ export const PlayPage: FC<PlayPageProps> = (
         const aliveEnemies = enemyCards.filter(c => c.isAlive && c.health > 0);
         if (aliveEnemies.length === 0) return;
 
-        const enemyActiveCard = activeEnemyId ?? aliveEnemies[0].id;
-        if (activeEnemyId !== enemyActiveCard) {
-            setActiveEnemyId(enemyActiveCard);
+        const resolvedEnemyActiveCard = resolveEnemyActiveCardId(aliveEnemies);
+        if (resolvedEnemyActiveCard == null) return;
+        if (activeEnemyId !== resolvedEnemyActiveCard) {
+            setActiveEnemyId(resolvedEnemyActiveCard);
         }
 
         const playerCardId = overridePlayerCardId ?? activeCard;
@@ -318,7 +329,7 @@ export const PlayPage: FC<PlayPageProps> = (
         const playerActiveCard = characterList.find(c => c.id === playerCardId);
         if (!playerActiveCard || playerActiveCard.health! <= 0) return;
 
-        const ai = new EnemyAI(enemyCards, enemyActiveCard, enemyAttackCounter);
+        const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyAttackCounter);
         const attack = ai.evaluateAttack([playerActiveCard]);
 
         if (attack) {
@@ -380,10 +391,10 @@ export const PlayPage: FC<PlayPageProps> = (
             setSelectedDiceIndex([])
             setTargetId(null)
         }
-
+        let updatedEnemyCards: any[] | null = null;
         switch (effectType) {
         case "attack":
-            dmgDeal(activeEnemyId, dmg);
+            updatedEnemyCards = dmgDeal(activeEnemyId, dmg) ?? null;
             break;
 
         case "shield":
@@ -395,20 +406,21 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
 
         case "magic":
-            dmgDeal(activeEnemyId, dmg); 
+            updatedEnemyCards = dmgDeal(activeEnemyId, dmg) ?? null;
             break;
 
         case "rogue":
-            dmgDeal(targetId, dmg)
+            updatedEnemyCards = dmgDeal(targetId, dmg) ?? null;
             break;
         default:
-            dmgDeal(activeEnemyId, dmg);
+            updatedEnemyCards = dmgDeal(activeEnemyId, dmg) ?? null;
             break;
         }
 
         if (enemyTarget) {
             setTargetId(null);
-            await executeEnemyCounterAttack();
+            const cardsForCounter = updatedEnemyCards ?? cards;
+            await executeEnemyCounterAttack(undefined, cardsForCounter);
         }
         console.log(move)
         console.log(activeEnemyId)
@@ -507,13 +519,17 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }, [firstTurn, loadedDeck])
 
-    const dmgDeal = (id: number | null, dmg: number) =>{
-        if(id == null) return;
-        const isInCards = cards.some(c => c.id === id);
+    const dmgDeal = (id: number | null, dmg: number, cardsOverride?: any[]) =>{
+        if(id == null) return null;
+        const baseCards = cardsOverride ?? cards;
+        const isInCards = baseCards.some(c => c.id === id);
         
         if(isInCards) {
-            setCards(prev => prev.map(c => applyDmg(c, id, dmg)));
+            const updatedCards = baseCards.map(c => applyDmg(c, id, dmg));
+            setCards(updatedCards);
+            return updatedCards;
         }
+        return baseCards;
     }
 
     const enemyDmgToPlayer = (id: number | null, dmg: number) => {
