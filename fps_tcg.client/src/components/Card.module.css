@@ -8,6 +8,7 @@
     align-items: center;
     background-image: url(../assets/cardfront.png);
     cursor: pointer;
+    image-rendering: pixelated;
 }
 .deadCard{
     opacity: 60%;
@@ -19,6 +20,7 @@
     text-align: center;
     align-items: center;
     background-image: url(../assets/cardfront.png);
+    image-rendering: pixelated;
 }
 .cardName{
     font-size: 16px;
@@ -53,6 +55,7 @@
     display: block;
     margin: 0;
     padding: 0; 
+    image-rendering: pixelated;
 }
 .activeCard{
     border: 8px solid #023C0D;

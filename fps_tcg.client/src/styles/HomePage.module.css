@@ -11,6 +11,7 @@
     width: 100vw;
     height: 100vh;
     gap: 20px;
+    image-rendering: pixelated;
 }
 .HomePage h1, .HomePage h2{
     color: var(--white);

@@ -8,6 +8,7 @@
     padding: 2.5em 5em;
     min-height: 100vh;
     box-sizing: border-box;
+    image-rendering: pixelated;
 }
  
 .button {

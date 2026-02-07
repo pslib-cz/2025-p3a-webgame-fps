@@ -751,11 +751,15 @@ export const PlayPage: FC<PlayPageProps> = (
                 </div>
                 {gameStatus === 'gameOver' &&(
                     <div className={style.endScreen}>
-                        <h3>{gameResult === 'win' ? 'Victory' : 'Defeat'}</h3>
-                        <button className={style.endRoundButton} onClick={() => window.location.reload()}>
-                            {gameResult === 'win' ? 'Play Again' : 'Try Again'}
-                        </button>
-                        <Link to="/">BACK</Link>
+                        <div className={style.endScreenBoard}>
+                            <h3>{gameResult === 'win' ? 'Victory' : 'Defeat'}</h3>
+                            <div className={style.endButtons}>
+                                <button className={style.button} onClick={() => window.location.reload()}>
+                                    {gameResult === 'win' ? 'Play Again' : 'Try Again'}
+                                </button>
+                                <Link className={style.button} to="/">BACK</Link>
+                            </div>
+                        </div>
                     </div>
                 )}
         </div>

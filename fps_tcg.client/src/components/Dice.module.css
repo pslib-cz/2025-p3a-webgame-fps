@@ -29,6 +29,7 @@
     width: 100%; 
     height: auto;
     object-fit: contain;
+    image-rendering: pixelated;
 }
 .face[data-symbol="Knight"] {
     background-color: #AF0000;
