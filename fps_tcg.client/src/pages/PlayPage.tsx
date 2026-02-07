@@ -352,10 +352,6 @@ export const PlayPage: FC<PlayPageProps> = (
         const enemyTarget = !effectType || effectType === "attack" || effectType === "magic" || effectType === "stealth" || effectType === "rogue";
         const allyTarget = effectType === "shield" || effectType === "heal";
 
-        const aliveEnemies = cards.filter(c => c.isAlive && c.health > 0)
-        console.log(gameStatus)
-        console.log("Alive: " + aliveEnemies)
-
         if (effectType === "rogue" && targetId === null) {
             alert("Choose enemy target");
             return;
@@ -381,7 +377,7 @@ export const PlayPage: FC<PlayPageProps> = (
             const invalid = selectedDice.some(d => 
                 (effectType === "attack" && d !== "Knight" && d !== "Jester") ||
                 (effectType === "shield" && d !== "Tank" && d !== "Jester") ||
-                (effectType === "magic" && d !== "Mage" && d !== "Jester") ||
+                (effectType === "mage" && d !== "Mage" && d !== "Jester") ||
                 (effectType === "heal" && d !== "Healer" && d !== "Jester") ||
                 (effectType === "rogue" && d !== "Rogue" && d !== "Jester")
             );
@@ -426,8 +422,19 @@ export const PlayPage: FC<PlayPageProps> = (
             healAlly(pendingCard || activeCard, dmg);
             break;
 
-        case "magic":
-            updatedEnemyCards = dmgDeal(activeEnemyId, dmg) ?? null;
+        case "mage":
+            setCards(prev => prev.map(card => {
+                if (card.type === 'attack' && card.health > 0) {
+                    return applyDmg(card, card.id, dmg);
+                }
+                return card;
+            }));
+            updatedEnemyCards = cards.map(card => {
+                if (card.type === 'attack' && card.health > 0) {
+                    return applyDmg(card, card.id, dmg);
+                }
+                return card;
+            });
             break;
 
         case "rogue":
@@ -704,7 +711,7 @@ export const PlayPage: FC<PlayPageProps> = (
                                                 ? "#020BA6"
                                                 : char.skill2Effect?.toLowerCase() === "heal"
                                                 ? "#007616"
-                                                : char.skill2Effect?.toLowerCase() === "magic"
+                                                : char.skill2Effect?.toLowerCase() === "mage"
                                                 ? "#48047C"
                                                 : char.skill2Effect?.toLowerCase() === "rogue"
                                                 ? "#B97E00"
