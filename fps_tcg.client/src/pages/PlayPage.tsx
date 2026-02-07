@@ -9,7 +9,7 @@ import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
 import type { CardProps } from "../components/Card";
 import { EnemyAI, type EnemyCard } from '../enemy/Enemy';
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 type PlayPageProps = {
     onCardPicked: () => void;
@@ -144,7 +144,10 @@ export const PlayPage: FC<PlayPageProps> = (
                     throw new Error('Failed to fetch cards');
                 }
                 const data = await response.json();
-                const normalizedCards = data.map((card: { cardId: any, health: any, shield: any }) => ({
+                const normalizedCards = data
+                .filter((card:any) => card.type === 'attack')
+                .splice(0,3)
+                .map((card: { cardId: any, health: any, shield: any }) => ({
                     ...card,
                     id: card.cardId,
                     isTarget: false,
@@ -214,37 +217,36 @@ export const PlayPage: FC<PlayPageProps> = (
     }, []);
 
     useEffect(() => {
+        if (cards.length === 0 || characterList.length === 0) return;
+
         const aliveEnemies = cards.filter(c => c.isAlive && c.health > 0);
+        const aliveAllies = characterList.filter(c => c.health! > 0)
 
         if (aliveEnemies.length === 0) {
             setActiveEnemyId(null);
+            setGameStatus('gameOver');
+            setGameResult('win');
             return;
         }
-
-        if (activeEnemyId == null || !aliveEnemies.some(e => e.id === activeEnemyId)) {
+        if(aliveAllies.length === 0){
+            setGameStatus('gameOver');
+            setGameResult('lose');
+            return;
+        }
+        if (activeEnemyId === null || !aliveEnemies.some(e => e.id === activeEnemyId)) {
             const randomIndex = Math.floor(Math.random() * aliveEnemies.length);
             setActiveEnemyId(aliveEnemies[randomIndex].id);
         }
-    }, [cards, activeEnemyId]);
+    }, [cards, characterList, activeEnemyId, gameStatus]);
 
-    const checkGameState = () => {
-        const aliveAllies = characterList.filter(c => c.health! > 0);
-        const aliveEnemies = cards.filter(c => c.health! > 0);
+    useEffect(() => {
+        const aliveEnemies = cards.some(c => c.health! > 0);
 
         if (!aliveEnemies) {
             const nextEnemy = cards.find(c => c.isAlive && c.health > 0);
             setActiveEnemyId(nextEnemy ? nextEnemy.id : null);
         }
-
-        if (aliveEnemies.length === 0) {
-            setGameStatus('gameOver');
-            setGameResult('win');
-        }else if (aliveAllies.length === 0) {
-            setGameStatus('gameOver');
-            setGameResult('lose');
-        }
-        console.log(gameStatus)
-    }; 
+    }, []); 
 
     const handleCharacterSelect = (cardId: number) => {
         const card = characterList.find(c => c.id === cardId);
@@ -350,6 +352,10 @@ export const PlayPage: FC<PlayPageProps> = (
         const enemyTarget = !effectType || effectType === "attack" || effectType === "magic" || effectType === "stealth" || effectType === "rogue";
         const allyTarget = effectType === "shield" || effectType === "heal";
 
+        const aliveEnemies = cards.filter(c => c.isAlive && c.health > 0)
+        console.log(gameStatus)
+        console.log("Alive: " + aliveEnemies)
+
         if (effectType === "rogue" && targetId === null) {
             alert("Choose enemy target");
             return;
@@ -431,8 +437,6 @@ export const PlayPage: FC<PlayPageProps> = (
             updatedEnemyCards = dmgDeal(activeEnemyId, dmg) ?? null;
             break;
         }
-
-        checkGameState()
 
         if (enemyTarget && gameStatus !== "gameOver") {
             setTargetId(null);
@@ -555,11 +559,7 @@ export const PlayPage: FC<PlayPageProps> = (
         const isInCharacterList = characterList.some(c => c.id === id);
         
         if(isInCharacterList) {
-            setCharacterList(prev => {
-                const updated = prev.map(c => applyDmgToPlayer(c, id, dmg))
-                checkGameState()
-                return updated;
-            });
+            setCharacterList(prev =>  prev.map(c => applyDmgToPlayer(c, id, dmg)));
         }
     }
 
@@ -603,7 +603,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const handleDiceClick = (index: number) => {
         const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu
 
-        if(!showAttackMenu && !showAllSupport){
+        if(!showAttackMenu && !showAllSupport && !pendingCard){
             alert("Click on your active card to show menu of attacks")
         }
 
@@ -663,7 +663,7 @@ export const PlayPage: FC<PlayPageProps> = (
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
-                    <Hand cards={cards.slice(0,3)} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
+                    <Hand cards={cards} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
                     <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
                     {showAttackMenu && activeCard != null && !firstTurn && (
                         <div className={style.attackMenu}>
@@ -749,18 +749,15 @@ export const PlayPage: FC<PlayPageProps> = (
                         onClick={() => handleDiceClick(index)} />
                     ))}
                 </div>
-            {gameStatus === 'gameOver' && gameResult === 'win' && (
-                <div className={style.endScreenWin}>
-                    <h3>WIN</h3>
-                    <button onClick={() => navigate("/")}>Back to Menu</button>
-                </div>
-            )}
-            {gameStatus === 'gameOver' && gameResult === 'lose' && (
-                <div className={style.endScreenLose}>
-                    <h3>LOSE</h3>
-                    <button onClick={() => navigate("/")}>Back to Menu</button>
-                </div>
-            )}
+                {gameStatus === 'gameOver' &&(
+                    <div className={style.endScreen}>
+                        <h3>{gameResult === 'win' ? 'Victory' : 'Defeat'}</h3>
+                        <button className={style.endRoundButton} onClick={() => window.location.reload()}>
+                            {gameResult === 'win' ? 'Play Again' : 'Try Again'}
+                        </button>
+                        <Link to="/">BACK</Link>
+                    </div>
+                )}
         </div>
     )
 }

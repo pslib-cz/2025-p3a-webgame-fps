@@ -180,15 +180,11 @@
     font-size: 16px; 
     color: var(--white); 
 }
-.endScreenWin{
+.endScreen{
     position: absolute;
+    display: flex;
+    flex-direction: column;
     justify-self: center;
     align-self: center;
-    background-color: grey;
-}
-.endScreenLose{
-    position: absolute;
-    justify-self: center;
-    align-self: center;
-    background-color: grey;
+    text-align: center;
 }
