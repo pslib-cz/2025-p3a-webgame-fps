@@ -59,11 +59,13 @@
 }
 .activeCard{
     border: 8px solid #023C0D;
-    animation: moveCard 0.6s ease-out forwards; 
+    transform: translateY(-50px);
+    transition: transform 0.6s ease-out;
 }
 .targetActiveCard{
     border: 8px solid #3c0202;
-    animation: moveEnemyCard 0.6s ease-out forwards; 
+    transform: translateY(50px);
+    transition: transform 0.6s ease-out;
 }
 .supportCard .img{
     width: 100%;
@@ -122,12 +124,4 @@
     .costTag{
         margin-top: 0px;
     }
-}
-@keyframes moveCard {
-    0% { transform: translateY(0); } 
-    100% { transform: translateY(-50px); }
-}
-@keyframes moveEnemyCard {
-    0% { transform: translateY(0); } 
-    100% { transform: translateY(50px); }
 }
