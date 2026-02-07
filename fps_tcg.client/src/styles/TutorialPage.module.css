@@ -1,42 +1,32 @@
-.Tutorial{
-    background-image: url(../assets/pixil-frame-1.png), url(../assets/GRASS_1-modified.png);
-    text-align: center;
-    background-size:contain, cover;
+.tutorialPage {
+    background-image: url('../assets/grass.png');
     background-repeat: no-repeat;
-    background-attachment: fixed;
-    width: 100vw;
-    height: 300vh;
-    background-position: center;
-    margin: -1.35em 0 0 0;
+    background-size: cover;
     image-rendering: pixelated;
 }
-.Tutorial h1 {
-    padding-top: 30px;
+
+.tutorialContent {
+    background-image: url('../assets/wood-horizontal.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    image-rendering: pixelated;
+    margin: 0 15%;
+    padding: 2.5em 5em;
+    font-family: "Press Start 2P", system-ui;
     color: var(--white);
 }
-.Tutorial span{
-    position: absolute;
-    left: 28%;
-    top: 30px;
+
+.button {
     border: 1px solid var(--primary-btn-text);
     background-color: var(--white);
     color: var(--primary-btn-text);
-    font-size: 16px;
+    font-size: 1.25rem;
     text-align: center;
-    padding: 0.35rem 0.85rem;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    width: fit-content;
 }
 
-.Text{
-    margin-left: 30%;
-    margin-right: 30%;
-    color: var(--white);
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    gap: 2px;
+.tutorialTitle {
+    justify-self: center;
 }
-
-li{
-    margin-bottom: 25px; /*5=malo, 10=malo, 15=ujde, 20=prijde mi dobry,25= taky dobry, 30=prijde mi az moc*/
-}
-

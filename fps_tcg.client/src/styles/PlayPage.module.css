@@ -22,7 +22,7 @@
     }
 }
 .playPageBody{
-    background-image: url('../assets/GRASS_1-modified.png');
+    background-image: url('../assets/grass.png');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -63,7 +63,7 @@
     left: 100px;
 }
 .dicePanel{
-    background-image: url('../assets/pixil-frame-1.png');
+    background-image: url('../assets/wood-vertical.png');
     background-repeat: no-repeat;
     background-size: cover;
     margin-left: auto;
@@ -135,7 +135,7 @@
 }
 .attackMenu{
     position: absolute;
-    background-image: url('../assets/pixil-frame-2.png');
+    background-image: url('../assets/wood-horizontal.png');
     color: var(--white);
     top: 37%;
     left: 75%;
@@ -207,7 +207,7 @@
     align-items: center;
 }
 .endScreenBoard {
-    background-image: url('../assets/pixil-frame-2.png');
+    background-image: url('../assets/wood-horizontal.png');
     background-repeat: no-repeat;
     background-size: cover;
     image-rendering: pixelated;

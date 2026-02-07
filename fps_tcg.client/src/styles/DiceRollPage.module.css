@@ -1,5 +1,5 @@
 .dicePageBody{
-    background-image: url('../assets/GRASS_1-modified.png');
+    background-image: url('../assets/grass.png');
     background-repeat: no-repeat;
     background-size: cover;
     min-height: 100vh;
@@ -10,7 +10,7 @@
     image-rendering: pixelated;
 }
 .selectionContainer{
-    background-image: url('../assets/pixil-frame-2.png');
+    background-image: url('../assets/wood-horizontal.png');
     background-repeat: no-repeat;
     background-size: cover;
     display: flex;
