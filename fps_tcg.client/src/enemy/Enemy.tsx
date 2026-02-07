@@ -35,7 +35,7 @@ export class EnemyAI {
     }
 
     public evaluateAttack(playerCards: any[]): EnemyAttackResult | null {
-        if (!this.activeEnemyCard) {
+        if (this.activeEnemyCard == null) {
             console.log('Enemy: No active card');
             return null;
         }
@@ -46,7 +46,7 @@ export class EnemyAI {
             return null;
         }
 
-        const aliveTargets = playerCards.filter(c => c.isAlive && c.health > 0);
+        const aliveTargets = playerCards.filter(c => (c.isAlive ?? true) && c.health > 0);
         if (aliveTargets.length === 0) {
             console.log('Enemy: No alive targets');
             return null;

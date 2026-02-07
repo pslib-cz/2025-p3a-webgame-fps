@@ -347,10 +347,23 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     };
 
+    const normalizeEffectType = (value?: string) => {
+        if (!value) return undefined;
+        const cleaned = value.toLowerCase().trim();
+        if (cleaned.includes("guard")) return "guard";
+        if (cleaned.includes("shield")) return "shield";
+        if (cleaned.includes("heal")) return "heal";
+        if (cleaned.includes("rogue")) return "rogue";
+        if (cleaned.includes("mage") || cleaned.includes("magic")) return "mage";
+        if (cleaned.includes("attack")) return "attack";
+        if (cleaned.includes("stealth")) return "stealth";
+        return cleaned;
+    };
+
     const handleAttackMove = async (move: string, dmg: number, cost: number, effect?: string) => {
-        const effectType = effect?.toLowerCase()
-        const enemyTarget = !effectType || effectType === "attack" || effectType === "magic" || effectType === "stealth" || effectType === "rogue";
-        const allyTarget = effectType === "shield" || effectType === "heal";
+        const effectType = normalizeEffectType(effect);
+        const enemyTarget = !effectType || effectType === "attack" || effectType === "mage" || effectType === "stealth" || effectType === "rogue" || effectType === "guard";
+        const allyTarget = effectType === "shield" || effectType === "heal" || effectType === "guard";
 
         if (effectType === "rogue" && targetId === null) {
             alert("Choose enemy target");
@@ -376,7 +389,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
             const invalid = selectedDice.some(d => 
                 (effectType === "attack" && d !== "Knight" && d !== "Jester") ||
-                (effectType === "shield" && d !== "Tank" && d !== "Jester") ||
+                ((effectType === "shield" || effectType === "guard") && d !== "Tank" && d !== "Jester") ||
                 (effectType === "mage" && d !== "Mage" && d !== "Jester") ||
                 (effectType === "heal" && d !== "Healer" && d !== "Jester") ||
                 (effectType === "rogue" && d !== "Rogue" && d !== "Jester")
@@ -418,6 +431,10 @@ export const PlayPage: FC<PlayPageProps> = (
             giveShieldToAlly(pendingCard || activeCard, dmg);
             break;
 
+        case "guard":
+            giveShieldToAlly(pendingCard || activeCard, dmg);
+            break;
+
         case "heal":
             healAlly(pendingCard || activeCard, dmg);
             break;
@@ -445,7 +462,8 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
         }
 
-        if (enemyTarget && gameStatus !== "gameOver") {
+        const shouldCounterAttack = gameStatus !== "gameOver" && (enemyTarget || allyTarget);
+        if (shouldCounterAttack) {
             setTargetId(null);
             const cardsForCounter = updatedEnemyCards ?? cards;
             await executeEnemyCounterAttack(undefined, cardsForCounter);
