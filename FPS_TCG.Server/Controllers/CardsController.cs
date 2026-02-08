@@ -61,7 +61,8 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.SupportCost,
-                    SupportEffect = c.SupportEffect
+                    SupportEffect = c.SupportEffect,
+                    SupportDescription = c.SupportDescription
                 })
                 .ToListAsync();
 
@@ -84,7 +85,6 @@ namespace FPS_TCG.Server.Controllers
             var existing = await _db.Cards.FirstOrDefaultAsync(c => c.CardId == id);
             if (existing == null)
                 return NotFound();
-
             existing.Name = updated.Name.Trim();
             existing.Type = typeNormalized;
             existing.Health = updated.Health;
@@ -126,7 +126,8 @@ namespace FPS_TCG.Server.Controllers
                     Skill2Damage = c.Skill2Damage,
                     Skill2Cost = c.Skill2Cost,
                     SupportCost = c.SupportCost,
-                    SupportEffect = c.SupportEffect
+                    SupportEffect = c.SupportEffect,
+                    SupportDescription = c.SupportDescription
                 })
                 .FirstOrDefaultAsync();
 
