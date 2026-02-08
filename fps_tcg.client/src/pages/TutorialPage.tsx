@@ -26,7 +26,7 @@ export const TutorialPage: FC = () =>{
                     </ul>
                     <h3>Match Start</h3>
                     <ol>
-                        <li>The player draw 5 cards from their Draw Pile → this becomes their starting Hand. Then the player may discard any number of cards from their hand and redraw an equal number.</li>
+                        <li>The player draw 2 cards from their Draw Pile → this becomes their starting Hand.</li>
                         <li>The player selects one of their Character Cards to be their Active Character. This character will act first.</li>
                     </ol>
                     <h3>Round Structure</h3>
@@ -42,7 +42,7 @@ export const TutorialPage: FC = () =>{
                         <ul>
                             <li>Use Attack — spend required Symbol Dice to use the active character's skill (Normal Attack or Special Skill).</li>
                             <li>Switch Character — spend 1 Symbol Die to swap your Active Character with one on standby.</li>
-                            <li>Play a Support Card — using Symbol Dice to pay the card's cost. This includes gaining buffs, gaining dice, heals, etc.</li>
+                            <li>Play a Support Card — using Symbol Dice to pay the card's cost.</li>
                             <li>Declare Round End — voluntarily end your actions for this round. The first player to declare ends their Round first, and will go first next round; the other can still take actions until they also End Round.</li>
                         </ul>
                         <li><h3>End Phase</h3></li>
@@ -57,7 +57,7 @@ export const TutorialPage: FC = () =>{
                     <ol>
                         <li>Character Zone - Holds your 3 Character Cards. One is “Active” — only Active can act or be attacked. Character has HP and Shield.</li>
                         <li>Hand - Your current playable Support Cards. Max hand size: 10 cards. Excess drawn cards are discarded.</li>
-                        <li>Draw Pile - Contains the 20 Support Cards (shuffled at start). When you draw, you draw from here.</li>
+                        <li>Draw Pile - Contains the 6 Support Cards (shuffled at start).</li>
                         <li>Symbol Dice Panel - Displays available Symbol Dice, used as resource to play cards, use skills, switch, etc. Jester dice act as wildcard.</li>
                     </ol>
                 </div>
