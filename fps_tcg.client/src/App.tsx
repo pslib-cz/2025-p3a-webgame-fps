@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useRef, useState } from 'react';
+import { StrictMode, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import HomePage from './pages/HomePage';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import Game from './pages/Game';
@@ -10,6 +10,8 @@ import musicSrc from './musika/MP3_01 In a distant land (Title Screen).mp3';
 function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.35);
+  const [isControlsOpen, setIsControlsOpen] = useState(false);
 
   useEffect(() => {
     const tryPlay = () => {
@@ -17,7 +19,7 @@ function App() {
       if (!audio) {
         return;
       }
-      audio.volume = 0.35;
+      audio.volume = volume;
       audio
         .play()
         .then(() => setIsPlaying(true))
@@ -40,6 +42,14 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+    audio.volume = volume;
+  }, [volume]);
+
   const handleToggleMusic = () => {
     const audio = audioRef.current;
     if (!audio) {
@@ -58,12 +68,45 @@ function App() {
     }
   };
 
+  const handleVolumeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setVolume(Number(event.target.value));
+  };
+
+  const handleToggleControls = () => {
+    setIsControlsOpen((prev) => !prev);
+  };
+
   return (
     <StrictMode>
       <audio ref={audioRef} src={musicSrc} loop preload="auto" />
-      <button className="music-toggle" onClick={handleToggleMusic} type="button">
-        {isPlaying ? 'Music: On' : 'Music: Off'}
-      </button>
+      <div className="music-controls">
+        <button
+          className="music-trigger"
+          onClick={handleToggleControls}
+          type="button"
+          aria-expanded={isControlsOpen}
+          aria-controls="music-panel"
+        >
+          {isControlsOpen ? '×' : '+'}
+        </button>
+        {isControlsOpen && (
+          <div className="music-panel" id="music-panel">
+            <button className="music-toggle" onClick={handleToggleMusic} type="button">
+              {isPlaying ? 'Music: On' : 'Music: Off'}
+            </button>
+            <input
+              className="music-slider"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              aria-label="Music volume"
+            />
+          </div>
+        )}
+      </div>
       <BrowserRouter>
         <Routes>
           <Route index element={<HomePage />} />
