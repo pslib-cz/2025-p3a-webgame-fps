@@ -303,7 +303,7 @@ const DeckXPage = () => {
                     </div>
                     <div>
                         <span className={styles.button} onClick={handleAttackClick}>CANCEL</span>
-                        {selectedAttackIds.length > 0 && (
+                        {selectedAttackIds.length > 2 && (
                             <span className={styles.button} onClick={handleConfirmAttack}>CONFIRM</span>
                         )}
                     </div>
@@ -335,12 +335,12 @@ const DeckXPage = () => {
                         }
                     </div>
                     <span className={styles.button} onClick={handleSupportClick}>CANCEL</span>
-                    {selectedSupportIds.length > 0 && (
+                    {selectedSupportIds.length > 5 && (
                         <span className={styles.button} onClick={handleConfirmSupport}>CONFIRM</span>
                     )}
                 </div>
             )}
-            {selectedAttackIds.length > 0 && hasChanges() && (
+            {hasChanges() && (
                 <span className={`${styles.button} ${styles.saveButton}`} onClick={handleSaveDeck}>SAVE</span>
             )}
         </div>

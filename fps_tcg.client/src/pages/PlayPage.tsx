@@ -255,22 +255,6 @@ export const PlayPage: FC<PlayPageProps> = (
     }, [currentTurn, enemyEndedRound, cards, characterList, activeCard, enemyDice, enemyAttackCounter, playerEndedRound, enemyTurnReset]);
 
     useEffect(() => {
-        if (activeCard !== null) {
-            const activeCardData = characterList.find(c => c.id === activeCard);
-            if (!activeCardData || activeCardData.health! <= 0) {
-                const firstAlive = characterList.find(c => c.health! > 0);
-                if (firstAlive) {
-                    setActiveCard(firstAlive.id);
-                    setShowAttackMenu(false);
-                    setAttackMenu(null);
-                } else {
-                    setActiveCard(null);
-                }
-            }
-        }
-    }, [characterList, activeCard]);
-
-    useEffect(() => {
         const fetchCards = async () => {
             if (cards.length > 0) return;
             try {
@@ -853,7 +837,7 @@ export const PlayPage: FC<PlayPageProps> = (
                         setPendingCard(null);
                         setShowAttackMenu(false)
 
-                        if (!enemyEndedRound) {
+                        if (!deadActiveCard && !enemyEndedRound) {
                             setTimeout(() => {
                                 setCurrentTurn('enemy');
                                 setGameStatus('enemyTurn');
