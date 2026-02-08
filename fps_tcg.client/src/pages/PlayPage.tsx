@@ -65,6 +65,7 @@ export const PlayPage: FC<PlayPageProps> = (
     const enemyEndedRoundRef = useRef(false);
     const navigate = useNavigate();
     const restoreGame = useRef(false)
+    const [shouldSkipFetch, setShouldSkipFetch] = useState<boolean | null>(null);
 
     const saveGame = () => {
         const gameState = {
@@ -74,7 +75,7 @@ export const PlayPage: FC<PlayPageProps> = (
             supportDeck,
             activeCard,
             activeEnemyId,
-            deadCards,
+            deadCards: [...deadCards],
             diceSymbols: [...diceSymbols],
             enemyDice: [...enemyDice],
             currentTurn,
@@ -90,10 +91,8 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         try{
             localStorage.setItem('gameProgress', JSON.stringify(gameState))
-            alert('Game saved successfully!');
         } catch(error){
             console.error('Failed to save game:', error);
-            alert('Failed to save game!');
         }
     }
 
@@ -160,32 +159,25 @@ export const PlayPage: FC<PlayPageProps> = (
             restoreGame.current = true;
             const wantsToLoad = confirm('Continue from last save?');
             if (wantsToLoad) {
+                setShouldSkipFetch(true);
                 loadGame();
+            }else {
+                setShouldSkipFetch(false);
+                clearSavedGame();
             }
+        }else if(!saved){
+            setShouldSkipFetch(false);
         }
     }, [])
 
     useEffect(() => {
-        if (!firstTurn && cards.length > 0 && loadedDeck) {
-            const autoSaveTimer = setTimeout(() => {
-                try {
-                    const gameState = {
-                        cards, characterList, supportHand, supportDeck, activeCard,
-                        activeEnemyId, deadCards, diceSymbols: [...diceSymbols], 
-                        enemyDice: [...enemyDice], currentTurn, gameStatus,
-                        firstTurn, firstDraw, loadedDeck, enemyAttackCounter,
-                        playerEndedRound, enemyEndedRound, firstPlayerNextRound
-                    };
-                    localStorage.setItem('gameProgress', JSON.stringify(gameState));
-                    console.log('Auto-saved');
-                } catch (error) {
-                    console.error('Auto-save failed:', error);
-                }
-            }, 500);
+        if (cards.length === 0 && characterList.length === 0) return;
+        const autoSaveTimer = setTimeout(() => {
+                saveGame();
+            }, 100);
             
-            return () => clearTimeout(autoSaveTimer);
-        }
-    }, [cards, characterList, activeCard, currentTurn, supportHand, gameStatus]);
+        return () => clearTimeout(autoSaveTimer);
+    }, [cards, characterList, activeCard, activeEnemyId, deadCards, currentTurn, supportHand, gameStatus, playerEndedRound, enemyEndedRound]);
 
     const rollEnemyDice = (): DiceSymbol[] => {
         const diceTypes: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jester'];
@@ -200,6 +192,7 @@ export const PlayPage: FC<PlayPageProps> = (
     };
 
     const startNewRound = () => {
+        drawSupportCards(2)
         setPlayerEndedRound(false);
         setEnemyEndedRound(false);
         enemyTurnProcessed.current = false;
@@ -378,7 +371,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
     useEffect(() => {
         const fetchCards = async () => {
-            if (cards.length > 0) return;
+            if (cards.length > 0 || shouldSkipFetch !== false) return;
             try {
                 const response = await fetch('https://localhost:7077/api/Cards');
                 if (!response.ok) {
@@ -403,10 +396,11 @@ export const PlayPage: FC<PlayPageProps> = (
             }
         };
         fetchCards();
-    }, []);
+    }, [shouldSkipFetch]);
     
     useEffect(() => {
         const fetchDeck = async () => {
+            if (loadedDeck && characterList.length > 0 && !shouldSkipFetch) return;
             try{
                 const stored = localStorage.getItem('activeDeck');
                 if (!stored) {
@@ -453,7 +447,7 @@ export const PlayPage: FC<PlayPageProps> = (
             }
         };
         fetchDeck();
-    }, []);
+    }, [shouldSkipFetch]);
 
     useEffect(() => {
         if (cards.length === 0 || characterList.length === 0) return;
@@ -462,7 +456,6 @@ export const PlayPage: FC<PlayPageProps> = (
         const aliveAllies = characterList.filter(c => c.health! > 0)
 
         if (aliveEnemies.length === 0) {
-            setActiveEnemyId(null);
             setGameStatus('gameOver');
             setGameResult('win');
             return;
@@ -764,11 +757,9 @@ export const PlayPage: FC<PlayPageProps> = (
     useEffect(() => {
         if (!loadedDeck) return;
 
-        if (firstTurn && !firstDraw) {
-            drawSupportCards(6);
+        if (firstTurn && !firstDraw && supportHand.length === 0) {
+            drawSupportCards(2);
             setFirstDraw(true)
-        }else if(!firstTurn){
-            drawSupportCards(2)
         }
     }, [firstTurn, loadedDeck])
 
