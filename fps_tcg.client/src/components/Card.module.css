@@ -46,7 +46,10 @@
     gap: 15px;
 }
 .cardDescription {
-
+    text-align: start;
+    color: var(--white);
+    font-size: 12px;
+    margin: 0;
 }
 .img{
     width: 100%;
