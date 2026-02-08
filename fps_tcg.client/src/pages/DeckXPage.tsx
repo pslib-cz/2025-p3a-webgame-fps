@@ -189,12 +189,12 @@ const DeckXPage = () => {
 
     const handleSaveDeck = async () => {
         if (selectedAttackIds.length !== 3) {
-            alert('Deck musí mít přesně 3 útočné karty!');
+            alert('Deck must have 3 attack cards!');
             return;
         }
         
         if (selectedSupportIds.length !== 6) {
-            alert('Deck musí mít přesně 6 supportních karet!');
+            alert('Deck must have 6 support cards!');
             return;
         }
 
