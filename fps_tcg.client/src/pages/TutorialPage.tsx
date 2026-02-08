@@ -60,6 +60,14 @@ export const TutorialPage: FC = () =>{
                         <li>Draw Pile - Contains the 20 Support Cards (shuffled at start). When you draw, you draw from here.</li>
                         <li>Symbol Dice Panel - Displays available Symbol Dice, used as resource to play cards, use skills, switch, etc. Jester dice act as wildcard.</li>
                     </ol>
+                        <h3>Ultimate attacks description</h3>
+                        <ul>
+                            <li><b>Knight-Strike</b> More powerful single target attack</li>
+                            <li><b>Tank-Guard</b>  A defensive skill that adds shield to one of the players cards (player can choose the target)</li>
+                            <li><b>Mage-Fireball</b>  An area attack that damages all opponent characters</li>
+                            <li><b>Healer-Heal</b>  A support skill that gives hp to one of the player cards (player can choose the target)</li>
+                            <li><b>Rogue-Assasination</b>   Can be used on an opponent's card if it is alive (player can choose the target)</li>
+                        </ul>
                 </div>
             </div>
         </div>
