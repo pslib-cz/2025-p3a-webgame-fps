@@ -16,9 +16,7 @@ Každá karta má:
   - Cenu
   - Účinky
 Podpůrné karty mohou poskytovat:
-  - Aktivní nebo pasivní účinky
-  - Léčení
-  - Ochranné účinky (štíty, bariéry atd.)
+  - výměnu kostky
 
 Začátek kola
 Hráč provede následující kroky:
@@ -38,7 +36,6 @@ Fáze akce
     - Univerzální kostky lze použít jako libovolný prvek.
     - Speciální útok
       - využívá určité kostky.
-      - Výměna aktivní postavy
   - Hráč může vyměnit svou aktivní postavu.
     - Tato akce okamžitě ukončí tah hráče.
   - Hraní podpůrné karty
@@ -48,8 +45,7 @@ Konec tahu
 
 Konec kola
   - Hráč může ukončit kolo, pokud:
-    - nemá žádné použitelné kostky, nebo
-    - se rozhodne kolo dobrovolně ukončit.
+    - nemá žádné použitelné kostky, nebo se rozhodne kolo dobrovolně ukončit.
   - Jakmile oba hráči ukončí kolo, začíná nové kolo novým hodem kostkou.
   
 Konec hry
