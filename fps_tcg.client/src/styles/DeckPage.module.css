@@ -27,10 +27,12 @@
     text-decoration: none;
     width: fit-content;
     margin: 0;
+    cursor: pointer;
 }
 
 .backButton {
     height: fit-content;
+    cursor: pointer;
 }
 
 .activeDeck {
