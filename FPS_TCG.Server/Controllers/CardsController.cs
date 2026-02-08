@@ -70,10 +70,10 @@ namespace FPS_TCG.Server.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateAsync(int id, [FromBody] Card updated)
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] Card updated)
         {
             if (updated == null)
-                return BadRequest();
+                return BadRequest(new { error = "Request body is required (application/json)." });
 
             if (string.IsNullOrWhiteSpace(updated.Name))
                 return BadRequest(new { error = "Name is required." });
@@ -82,9 +82,13 @@ namespace FPS_TCG.Server.Controllers
             if (typeNormalized != "attack" && typeNormalized != "support")
                 return BadRequest(new { error = "type must be either 'attack' or 'support'." });
 
-            var existing = await _db.Cards.FirstOrDefaultAsync(c => c.CardId == id);
+            var existing = await _db.Cards
+                .Include(c => c.Decks)
+                .FirstOrDefaultAsync(c => c.CardId == id);
+
             if (existing == null)
-                return NotFound();
+                return NotFound(new { error = "Card not found." });
+
             existing.Name = updated.Name.Trim();
             existing.Type = typeNormalized;
             existing.Health = updated.Health;
@@ -100,7 +104,21 @@ namespace FPS_TCG.Server.Controllers
             existing.SupportEffect = updated.SupportEffect;
             existing.SupportDescription = updated.SupportDescription;
 
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _db.Cards.AnyAsync(c => c.CardId == id))
+                    return NotFound(new { error = "Card not found after concurrency check." });
+
+                return Conflict(new { error = "Concurrency error while updating card." });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return BadRequest(new { error = "Database update failed.", detail = dbEx.Message });
+            }
 
             return NoContent();
         }
