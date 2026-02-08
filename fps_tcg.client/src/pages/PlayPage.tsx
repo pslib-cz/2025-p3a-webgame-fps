@@ -7,8 +7,6 @@ import type { DiceSymbol, Turn, GameStatus, GameResult } from '../types'
 import Dice from '../components/Dice'
 import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
-import heart from '../assets/heart.png'
-import shild from '../assets/shild.png'
 import type { CardProps } from "../components/Card";
 import { EnemyAI, type EnemyCard } from '../enemy/Enemy';
 import { Link, useNavigate } from 'react-router'
@@ -67,7 +65,6 @@ export const PlayPage: FC<PlayPageProps> = (
     const enemyEndedRoundRef = useRef(false);
     const navigate = useNavigate();
     const restoreGame = useRef(false)
-    const [shouldSkipFetch, setShouldSkipFetch] = useState<boolean | null>(null);
 
     const saveGame = () => {
         const gameState = {
@@ -77,7 +74,7 @@ export const PlayPage: FC<PlayPageProps> = (
             supportDeck,
             activeCard,
             activeEnemyId,
-            deadCards: [...deadCards],
+            deadCards,
             diceSymbols: [...diceSymbols],
             enemyDice: [...enemyDice],
             currentTurn,
@@ -93,8 +90,10 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         try{
             localStorage.setItem('gameProgress', JSON.stringify(gameState))
+            alert('Game saved successfully!');
         } catch(error){
             console.error('Failed to save game:', error);
+            alert('Failed to save game!');
         }
     }
 
@@ -110,15 +109,15 @@ export const PlayPage: FC<PlayPageProps> = (
             setCharacterList(gameState.characterList || []);
             setSupportHand(gameState.supportHand || []);
             setSupportDeck(gameState.supportDeck || []);
-            setActiveCard(gameState.activeCard ?? null);
-            setActiveEnemyId(gameState.activeEnemyId ?? null);
-            setDeadCards(gameState.deadCards ? [...gameState.deadCards] : []);
+            setActiveCard(gameState.activeCard);
+            setActiveEnemyId(gameState.activeEnemyId);
+            setDeadCards(gameState.deadCards || []);
             setCurrentTurn(gameState.currentTurn || 'player');
             setGameStatus(gameState.gameStatus || 'playerTurn');
             setGameResult(gameState.gameResult);
-            setFirstTurn(gameState.firstTurn ?? true);
-            setFirstDraw(gameState.firstDraw ?? true);
-            setLoadedDeck(gameState.loadedDeck ?? false);
+            setFirstTurn(gameState.firstTurn);
+            setFirstDraw(gameState.firstDraw);
+            setLoadedDeck(gameState.loadedDeck);
             setEnemyAttackCounter(gameState.enemyAttackCounter || 0);
             setPlayerEndedRound(gameState.playerEndedRound || false);
             setEnemyEndedRound(gameState.enemyEndedRound || false);
@@ -128,7 +127,13 @@ export const PlayPage: FC<PlayPageProps> = (
                 gameState.diceSymbols.forEach((d: DiceSymbol) => diceSymbols.push(d));
             }
             if(gameState.enemyDice){
-                setEnemyDice([...gameState.enemyDice])
+                setEnemyDice(gameState.enemyDice)
+            }
+            if (gameState.cards && gameState.activeEnemyId) {
+                setCards(gameState.cards.map((c: any) => ({
+                    ...c,
+                    isTarget: c.id === gameState.activeEnemyId 
+                })));
             }
             return true;
         }
@@ -155,25 +160,32 @@ export const PlayPage: FC<PlayPageProps> = (
             restoreGame.current = true;
             const wantsToLoad = confirm('Continue from last save?');
             if (wantsToLoad) {
-                setShouldSkipFetch(true);
                 loadGame();
-            }else {
-                setShouldSkipFetch(false);
-                clearSavedGame();
             }
-        }else if(!saved){
-            setShouldSkipFetch(false);
         }
     }, [])
 
     useEffect(() => {
-        if (cards.length === 0 && characterList.length === 0) return;
-        const autoSaveTimer = setTimeout(() => {
-                saveGame();
-            }, 100);
+        if (!firstTurn && cards.length > 0 && loadedDeck) {
+            const autoSaveTimer = setTimeout(() => {
+                try {
+                    const gameState = {
+                        cards, characterList, supportHand, supportDeck, activeCard,
+                        activeEnemyId, deadCards, diceSymbols: [...diceSymbols], 
+                        enemyDice: [...enemyDice], currentTurn, gameStatus,
+                        firstTurn, firstDraw, loadedDeck, enemyAttackCounter,
+                        playerEndedRound, enemyEndedRound, firstPlayerNextRound
+                    };
+                    localStorage.setItem('gameProgress', JSON.stringify(gameState));
+                    console.log('Auto-saved');
+                } catch (error) {
+                    console.error('Auto-save failed:', error);
+                }
+            }, 500);
             
-        return () => clearTimeout(autoSaveTimer);
-    }, [cards, characterList, activeCard, activeEnemyId, deadCards, currentTurn, supportHand, gameStatus, playerEndedRound, enemyEndedRound]);
+            return () => clearTimeout(autoSaveTimer);
+        }
+    }, [cards, characterList, activeCard, currentTurn, supportHand, gameStatus]);
 
     const rollEnemyDice = (): DiceSymbol[] => {
         const diceTypes: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jester'];
@@ -188,7 +200,6 @@ export const PlayPage: FC<PlayPageProps> = (
     };
 
     const startNewRound = () => {
-        drawSupportCards(1);
         setPlayerEndedRound(false);
         setEnemyEndedRound(false);
         enemyTurnProcessed.current = false;
@@ -367,7 +378,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
     useEffect(() => {
         const fetchCards = async () => {
-            if (cards.length > 0 || shouldSkipFetch !== false) return;
+            if (cards.length > 0) return;
             try {
                 const response = await fetch('https://localhost:7077/api/Cards');
                 if (!response.ok) {
@@ -389,16 +400,13 @@ export const PlayPage: FC<PlayPageProps> = (
                 }));
                 setCards(normalizedCards);
             } catch (error) {
-                console.error('Failed to fetch cards:', error);
             }
         };
         fetchCards();
-    }, [shouldSkipFetch]);
+    }, []);
     
     useEffect(() => {
         const fetchDeck = async () => {
-            if (loadedDeck && characterList.length > 0 && !shouldSkipFetch) return;
-            
             try{
                 const stored = localStorage.getItem('activeDeck');
                 if (!stored) {
@@ -445,7 +453,7 @@ export const PlayPage: FC<PlayPageProps> = (
             }
         };
         fetchDeck();
-    }, [shouldSkipFetch]);
+    }, []);
 
     useEffect(() => {
         if (cards.length === 0 || characterList.length === 0) return;
@@ -454,6 +462,7 @@ export const PlayPage: FC<PlayPageProps> = (
         const aliveAllies = characterList.filter(c => c.health! > 0)
 
         if (aliveEnemies.length === 0) {
+            setActiveEnemyId(null);
             setGameStatus('gameOver');
             setGameResult('win');
             return;
@@ -465,19 +474,12 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         const currentEnemyIsStillAlive = aliveEnemies.some(e => e.id === activeEnemyId);
         if (activeEnemyId === null || !currentEnemyIsStillAlive) {
-            const randomIndex = Math.floor(Math.random() * aliveEnemies.length);
-            setActiveEnemyId(aliveEnemies[randomIndex].id);
+            if(shouldSkipFetch === false || (shouldSkipFetch === true && activeEnemyId === null)){
+                const randomIndex = Math.floor(Math.random() * aliveEnemies.length);
+                setActiveEnemyId(aliveEnemies[randomIndex].id);
+            }
         }
     }, [cards, characterList, activeEnemyId, gameStatus]);
-
-    useEffect(() => {
-        const aliveEnemies = cards.some(c => c.health! > 0);
-
-        if (!aliveEnemies) {
-            const nextEnemy = cards.find(c => c.isAlive && c.health > 0);
-            setActiveEnemyId(nextEnemy ? nextEnemy.id : null);
-        }
-    }, []); 
 
     useEffect(() => {
         if (!firstTurn && !playerEndedRound && currentTurn === 'player' && diceSymbols.length === 0 && gameStatus !== 'gameOver') {
@@ -766,9 +768,11 @@ export const PlayPage: FC<PlayPageProps> = (
     useEffect(() => {
         if (!loadedDeck) return;
 
-        if (firstTurn && !firstDraw && supportHand.length === 0) {
-            drawSupportCards(2);
+        if (firstTurn && !firstDraw) {
+            drawSupportCards(6);
             setFirstDraw(true)
+        }else if(!firstTurn){
+            drawSupportCards(2)
         }
     }, [firstTurn, loadedDeck])
 
@@ -958,8 +962,8 @@ export const PlayPage: FC<PlayPageProps> = (
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
-                    <Hand cards={cards} activeCharacterId={activeEnemyId} selectedCardId={targetId} onCharacterActive={handleTargetSelect} mode='target'/>
-                    <Hand cards={characterList} activeCharacterId={activeCard} selectedCardId={pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
+                    <Hand cards={cards} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
+                    <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
                     {showAttackMenu && activeCard != null && !firstTurn && (
                         <div className={style.attackMenu}>
                             {(() => {
@@ -985,23 +989,28 @@ export const PlayPage: FC<PlayPageProps> = (
                                 <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Damage!, char.skill2Cost!, char.skill2Effect)}>
                                     <div className={style.iconBlock}>
                                         <div className={style.swordBlock}>
-                                            <img className={style.swordIcon} src={
-                                                char.skill2Effect?.toLowerCase() === "shield" || char.skill2Effect?.toLowerCase() === "defense" ? shild
-                                                : char.skill2Effect?.toLowerCase() === "heal" ? heart
-                                                : dmg
-                                            } alt="damage"></img>
+                                            <img className={style.swordIcon} src={dmg} alt="damage"></img>
                                             <span className={style.damageValue}>{char.skill2Damage}</span>
                                         </div>
                                         <div className={style.priceBlock}>
                                             <img className={style.costIcon} src={cost} alt='cost'></img>
-                                            <span className={
-                                                char.skill2Effect?.toLowerCase() === "attack" ? style.costValueAttack
-                                                : char.skill2Effect?.toLowerCase() === "shield" ? style.costValueShield
-                                                : char.skill2Effect?.toLowerCase() === "heal" ? style.costValueHeal
-                                                : char.skill2Effect?.toLowerCase() === "mage" ? style.costValueMage
-                                                : char.skill2Effect?.toLowerCase() === "rogue" ? style.costValueRogue
-                                                : style.costValue
-                                            }>{char.skill2Cost}</span>
+                                            <span className={style.costValue}
+                                            style={{
+                                            color:
+                                                char.skill2Effect?.toLowerCase() === "attack"
+                                                ? "#AF0000"
+                                                : char.skill2Effect?.toLowerCase() === "shield"
+                                                ? "#020BA6"
+                                                : char.skill2Effect?.toLowerCase() === "heal"
+                                                ? "#007616"
+                                                : char.skill2Effect?.toLowerCase() === "mage"
+                                                ? "#48047C"
+                                                : char.skill2Effect?.toLowerCase() === "rogue"
+                                                ? "#B97E00"
+                                                : "#F5F5F5",
+                                                WebkitTextStroke: "0.5px black",
+                                            }}
+                                            >{char.skill2Cost}</span>
                                         </div>
                                     </div>
                                     <div className={style.descriptionBlock}>
@@ -1023,12 +1032,8 @@ export const PlayPage: FC<PlayPageProps> = (
                     )}
                     {showAllSupport &&(
                         <>
-                            <Hand
-                                cards={supportHand}
-                                activeCharacterId={null}
-                                selectedCardId={selectedSup !== null ? supportHand[selectedSup]?.id ?? null : null}
-                                onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}
-                            />
+                            <Hand cards={supportHand} activeCharacterId={selectedSup} 
+                            onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}/>
                             <div className={style.supportButtons}>
                                 <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
                                 <button className={style.supportButton} onClick={playSupport}>PLAY</button>
