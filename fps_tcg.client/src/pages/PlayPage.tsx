@@ -373,7 +373,7 @@ export const PlayPage: FC<PlayPageProps> = (
         const fetchCards = async () => {
             if (cards.length > 0 || shouldSkipFetch !== false) return;
             try {
-                const response = await fetch('https://localhost:7077/api/Cards');
+                const response = await fetch('/api/Cards');
                 if (!response.ok) {
                     throw new Error('Failed to fetch cards');
                 }
@@ -387,7 +387,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     maxHealth: card.health,
                     isTarget: false,
                     isAlive: !deadCards.includes(card.cardId),
-                    imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`,
+                    imgSrc: `/api/images/${card.cardId}.png`,
                     health: deadCards.includes(card.cardId) ? 0 : card.health,
                     shield: deadCards.includes(card.cardId) ? 0 : card.shield
                 }));
@@ -409,7 +409,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     return;
                 }
                 const activeDeck = JSON.parse(stored);
-                const response = await fetch(`https://localhost:7077/api/Decks/${activeDeck.deckId}/with-cards`)
+                const response = await fetch(`/api/Decks/${activeDeck.deckId}/with-cards`)
                 if(!response.ok){
                     throw new Error('Failed to fetch deck')
                 }
@@ -433,7 +433,7 @@ export const PlayPage: FC<PlayPageProps> = (
                         isAlive: !deadCards.includes(card.cardId),
                         health,
                         shield,
-                        imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`
+                        imgSrc: `/api/images/${card.cardId}.png`
                     }
                 });
 

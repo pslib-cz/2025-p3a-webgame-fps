@@ -42,7 +42,7 @@ export const DeckPage: FC = () => {
                 const decksWithCards = await Promise.all(
                     deckIds.map(async (id) => {
                         try {
-                            const response = await fetch(`https://localhost:7077/api/Decks/${id}/with-cards`);
+                            const response = await fetch(`/api/Decks/${id}/with-cards`);
                             if (response.ok) {
                                 const deck = await response.json();
                                 return deck;
@@ -82,7 +82,7 @@ export const DeckPage: FC = () => {
                 id: card.cardId,
                 name: card.name,
                 type: 'attack' as CardType,
-                imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`,
+                imgSrc: `/api/images/${card.cardId}.png`,
                 health: card.health,
                 shield: card.shield
             }));

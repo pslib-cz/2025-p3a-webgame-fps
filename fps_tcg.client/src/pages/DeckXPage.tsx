@@ -34,7 +34,7 @@ const DeckXPage = () => {
     useEffect(() => {
         const fetchCards = async () => {
             try {
-                const response = await fetch('https://localhost:7077/api/Cards');
+                const response = await fetch('/api/Cards');
                 if (!response.ok) {
                     throw new Error('Failed to fetch cards');
                 }
@@ -44,7 +44,7 @@ const DeckXPage = () => {
                           id: c.cardId,
                           name: c.name,
                           type: c.type as CardType,
-                          imgSrc: `https://localhost:7077/api/images/${c.cardId}.png`,
+                          imgSrc: `/api/images/${c.cardId}.png`,
                           health: c.health ?? 0,
                           shield: c.shield ?? 0,
                           skill1Name: c.skill1Name,
@@ -72,7 +72,7 @@ const DeckXPage = () => {
             if (isNewDeck || !numericDeckId) return;
 
             try {
-                const response = await fetch(`https://localhost:7077/api/Decks/${numericDeckId}/with-cards`);
+                const response = await fetch(`/api/Decks/${numericDeckId}/with-cards`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch deck');
                 }
@@ -212,7 +212,7 @@ const DeckXPage = () => {
             let response;
 
             if (isNewDeck) {
-                response = await fetch(`https://localhost:7077/api/Decks`, {
+                response = await fetch(`/api/Decks`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ const DeckXPage = () => {
                     body: JSON.stringify(deckData)
                 });
             } else if (existingDeck && existingDeck.deckId === numericDeckId) {
-                response = await fetch(`https://localhost:7077/api/Decks/${numericDeckId}`, {
+                response = await fetch(`/api/Decks/${numericDeckId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ const DeckXPage = () => {
                     body: JSON.stringify(deckData)
                 });
             } else {
-                response = await fetch(`https://localhost:7077/api/Decks`, {
+                response = await fetch(`/api/Decks`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -248,7 +248,7 @@ const DeckXPage = () => {
 
             let savedDeck: any = null;
             if (response.status === 204) {
-                const refresh = await fetch(`https://localhost:7077/api/Decks/${numericDeckId}/with-cards`);
+                const refresh = await fetch(`/api/Decks/${numericDeckId}/with-cards`);
                 if (refresh.ok) {
                     savedDeck = await refresh.json();
                 }
