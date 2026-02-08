@@ -42,10 +42,6 @@ Fáze akce
   - Hráč může vyměnit svou aktivní postavu.
     - Tato akce okamžitě ukončí tah hráče.
   - Hraní podpůrné karty
-Možné efekty zahrnují:
-  - Štíty a léčení
-  - Buffy a debuffy
-  - Snížené náklady na útok
 
 Konec tahu
   - Jakákoli hlavní akce (útok, výměna postav nebo zahrání karty postavy) okamžitě ukončí tah hráče.
