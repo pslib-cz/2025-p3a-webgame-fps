@@ -1,6 +1,8 @@
 import { type FC } from "react"
 import styles from "../styles/TutorialPage.module.css"
 import { Link } from "react-router"
+import imgZones from '../assets/tutorial_zones.jpg'
+import imgDiceRoll from '../assets/tutorial_diceroll.png'
 
 export const TutorialPage: FC = () =>{
     return(
@@ -37,6 +39,7 @@ export const TutorialPage: FC = () =>{
                             <li>You roll 8 Symbol Dice. Each die can show one of 6 faces: the 5 symbols (Knight, Tank, Mage, Healer, Rogue) plus Jester (which acts as a wildcard).</li>
                             <li>After the initial roll, you may choose any number of dice to reroll once.</li>
                         </ul>
+                        <img className={styles.img} src={imgDiceRoll} alt="Dice Roll" />
                         <li><h3>Action Phase (opponents take turns)</h3></li>
                         <p> Possible actions:</p>
                         <ul>
@@ -56,10 +59,11 @@ export const TutorialPage: FC = () =>{
                     <p>Here's how cards and game zones work:</p>
                     <ol>
                         <li>Character Zone - Holds your 3 Character Cards. One is “Active” — only Active can act or be attacked. Character has HP and Shield.</li>
-                        <li>Hand - Your current playable Support Cards. Max hand size: 10 cards. Excess drawn cards are discarded.</li>
+                        <li>Hand - Your current playable Support Cards.</li>
                         <li>Draw Pile - Contains the 6 Support Cards (shuffled at start).</li>
                         <li>Symbol Dice Panel - Displays available Symbol Dice, used as resource to play cards, use skills, switch, etc. Jester dice act as wildcard.</li>
                     </ol>
+                    <img className={styles.img} src={imgZones} alt="Game Zones" />
                 </div>
             </div>
         </div>
