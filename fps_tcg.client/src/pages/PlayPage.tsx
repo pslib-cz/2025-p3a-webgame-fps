@@ -67,13 +67,14 @@ export const PlayPage: FC<PlayPageProps> = (
     const enemyEndedRoundRef = useRef(false);
     const navigate = useNavigate();
     const restoreGame = useRef(false)
+    const [shouldSkipFetch, setShouldSkipFetch] = useState<boolean | null>(null);
 
     const saveGame = () => {
         const gameState = {
-            cards: JSON.parse(JSON.stringify(cards)),
-            characterList: JSON.parse(JSON.stringify(characterList)),
-            supportHand: JSON.parse(JSON.stringify(supportHand)),
-            supportDeck: JSON.parse(JSON.stringify(supportDeck)),
+            cards,
+            characterList,
+            supportHand,
+            supportDeck,
             activeCard,
             activeEnemyId,
             deadCards: [...deadCards],
@@ -105,10 +106,10 @@ export const PlayPage: FC<PlayPageProps> = (
                 return false;
             }
             const gameState = JSON.parse(saved)
-            setCards(gameState.cards ? JSON.parse(JSON.stringify(gameState.cards)) : []);
-            setCharacterList(gameState.characterList ? JSON.parse(JSON.stringify(gameState.characterList)) : []);
-            setSupportHand(gameState.supportHand ? JSON.parse(JSON.stringify(gameState.supportHand)) : []);
-            setSupportDeck(gameState.supportDeck ? JSON.parse(JSON.stringify(gameState.supportDeck)) : []);
+            setCards(gameState.cards || []);
+            setCharacterList(gameState.characterList || []);
+            setSupportHand(gameState.supportHand || []);
+            setSupportDeck(gameState.supportDeck || []);
             setActiveCard(gameState.activeCard ?? null);
             setActiveEnemyId(gameState.activeEnemyId ?? null);
             setDeadCards(gameState.deadCards ? [...gameState.deadCards] : []);
@@ -154,8 +155,14 @@ export const PlayPage: FC<PlayPageProps> = (
             restoreGame.current = true;
             const wantsToLoad = confirm('Continue from last save?');
             if (wantsToLoad) {
+                setShouldSkipFetch(true);
                 loadGame();
+            }else {
+                setShouldSkipFetch(false);
+                clearSavedGame();
             }
+        }else if(!saved){
+            setShouldSkipFetch(false);
         }
     }, [])
 
@@ -360,7 +367,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
     useEffect(() => {
         const fetchCards = async () => {
-            if (cards.length > 0) return;
+            if (cards.length > 0 || shouldSkipFetch !== false) return;
             try {
                 const response = await fetch('https://localhost:7077/api/Cards');
                 if (!response.ok) {
@@ -382,13 +389,16 @@ export const PlayPage: FC<PlayPageProps> = (
                 }));
                 setCards(normalizedCards);
             } catch (error) {
+                console.error('Failed to fetch cards:', error);
             }
         };
         fetchCards();
-    }, []);
+    }, [shouldSkipFetch]);
     
     useEffect(() => {
         const fetchDeck = async () => {
+            if (loadedDeck && characterList.length > 0 && !shouldSkipFetch) return;
+            
             try{
                 const stored = localStorage.getItem('activeDeck');
                 if (!stored) {
@@ -435,7 +445,7 @@ export const PlayPage: FC<PlayPageProps> = (
             }
         };
         fetchDeck();
-    }, []);
+    }, [shouldSkipFetch]);
 
     useEffect(() => {
         if (cards.length === 0 || characterList.length === 0) return;
@@ -444,7 +454,6 @@ export const PlayPage: FC<PlayPageProps> = (
         const aliveAllies = characterList.filter(c => c.health! > 0)
 
         if (aliveEnemies.length === 0) {
-            setActiveEnemyId(null);
             setGameStatus('gameOver');
             setGameResult('win');
             return;
@@ -454,7 +463,8 @@ export const PlayPage: FC<PlayPageProps> = (
             setGameResult('lose');
             return;
         }
-        if (activeEnemyId === null || !aliveEnemies.some(e => e.id === activeEnemyId)) {
+        const currentEnemyIsStillAlive = aliveEnemies.some(e => e.id === activeEnemyId);
+        if (activeEnemyId === null || !currentEnemyIsStillAlive) {
             const randomIndex = Math.floor(Math.random() * aliveEnemies.length);
             setActiveEnemyId(aliveEnemies[randomIndex].id);
         }
@@ -944,8 +954,8 @@ export const PlayPage: FC<PlayPageProps> = (
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
-                    <Hand cards={cards} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
-                    <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
+                    <Hand cards={cards} activeCharacterId={activeEnemyId} selectedCardId={targetId} onCharacterActive={handleTargetSelect} mode='target'/>
+                    <Hand cards={characterList} activeCharacterId={activeCard} selectedCardId={pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
                     {showAttackMenu && activeCard != null && !firstTurn && (
                         <div className={style.attackMenu}>
                             {(() => {
@@ -1009,8 +1019,12 @@ export const PlayPage: FC<PlayPageProps> = (
                     )}
                     {showAllSupport &&(
                         <>
-                            <Hand cards={supportHand} activeCharacterId={selectedSup} 
-                            onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}/>
+                            <Hand
+                                cards={supportHand}
+                                activeCharacterId={null}
+                                selectedCardId={selectedSup !== null ? supportHand[selectedSup]?.id ?? null : null}
+                                onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}
+                            />
                             <div className={style.supportButtons}>
                                 <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
                                 <button className={style.supportButton} onClick={playSupport}>PLAY</button>
