@@ -66,6 +66,122 @@ export const PlayPage: FC<PlayPageProps> = (
     const playerEndedRoundRef = useRef(false);
     const enemyEndedRoundRef = useRef(false);
     const navigate = useNavigate();
+    const restoreGame = useRef(false)
+
+    const saveGame = () => {
+        const gameState = {
+            cards,
+            characterList,
+            supportHand,
+            supportDeck,
+            activeCard,
+            activeEnemyId,
+            deadCards,
+            diceSymbols: [...diceSymbols],
+            enemyDice: [...enemyDice],
+            currentTurn,
+            gameStatus,
+            gameResult,
+            firstTurn,
+            firstDraw,
+            loadedDeck,
+            enemyAttackCounter,
+            playerEndedRound,
+            enemyEndedRound,
+            firstPlayerNextRound
+        }
+        try{
+            localStorage.setItem('gameProgress', JSON.stringify(gameState))
+            alert('Game saved successfully!');
+        } catch(error){
+            console.error('Failed to save game:', error);
+            alert('Failed to save game!');
+        }
+    }
+
+    const loadGame = () => {
+        try{
+            const saved = localStorage.getItem('gameProgress')
+            if(!saved){
+                alert('No saved game found!')
+                return false;
+            }
+            const gameState = JSON.parse(saved)
+            setCards(gameState.cards || []);
+            setCharacterList(gameState.characterList || []);
+            setSupportHand(gameState.supportHand || []);
+            setSupportDeck(gameState.supportDeck || []);
+            setActiveCard(gameState.activeCard);
+            setActiveEnemyId(gameState.activeEnemyId);
+            setDeadCards(gameState.deadCards || []);
+            setCurrentTurn(gameState.currentTurn || 'player');
+            setGameStatus(gameState.gameStatus || 'playerTurn');
+            setGameResult(gameState.gameResult);
+            setFirstTurn(gameState.firstTurn);
+            setFirstDraw(gameState.firstDraw);
+            setLoadedDeck(gameState.loadedDeck);
+            setEnemyAttackCounter(gameState.enemyAttackCounter || 0);
+            setPlayerEndedRound(gameState.playerEndedRound || false);
+            setEnemyEndedRound(gameState.enemyEndedRound || false);
+            setFirstPlayerNextRound(gameState.firstPlayerNextRound || 'player');
+            if(gameState.diceSymbols){
+                diceSymbols.length = 0;
+                gameState.diceSymbols.forEach((d: DiceSymbol) => diceSymbols.push(d));
+            }
+            if(gameState.enemyDice){
+                setEnemyDice(gameState.enemyDice)
+            }
+            return true;
+        }
+        catch(error){
+            console.error('Failed to load game:', error);
+            alert('Failed to load game!');
+            return false;
+        }
+    }
+
+    const clearSavedGame = () => {
+        try{
+            localStorage.removeItem('gameProgress')
+            console.log('Save deleted');
+        }catch(error){
+            console.error('Failed to delete save:', error);
+        }
+    }
+
+    useEffect(() => {
+        if(restoreGame.current) return;
+        const saved = localStorage.getItem('gameProgress')
+        if(saved && cards.length === 0 && !loadedDeck){
+            restoreGame.current = true;
+            const wantsToLoad = confirm('Continue from last save?');
+            if (wantsToLoad) {
+                loadGame();
+            }
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!firstTurn && cards.length > 0 && loadedDeck) {
+            const autoSaveTimer = setTimeout(() => {
+                try {
+                    const gameState = {
+                        cards, characterList, supportHand, supportDeck, activeCard,
+                        activeEnemyId, deadCards, diceSymbols: [...diceSymbols], 
+                        enemyDice: [...enemyDice], currentTurn, gameStatus,
+                        firstTurn, firstDraw, loadedDeck, enemyAttackCounter,
+                        playerEndedRound, enemyEndedRound, firstPlayerNextRound
+                    };
+                    localStorage.setItem('gameProgress', JSON.stringify(gameState));
+                    console.log('Auto-saved');
+                } catch (error) {
+                    console.error('Auto-save failed:', error);
+                }
+            }, 500);
+            
+            return () => clearTimeout(autoSaveTimer);
+        }
+    }, [cards, characterList, activeCard, currentTurn, supportHand, gameStatus]);
 
     const rollEnemyDice = (): DiceSymbol[] => {
         const diceTypes: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jester'];
@@ -930,7 +1046,10 @@ export const PlayPage: FC<PlayPageProps> = (
                         <div className={style.endScreenBoard}>
                             <h3>{gameResult === 'win' ? 'Victory' : 'Defeat'}</h3>
                             <div className={style.endButtons}>
-                                <button className={style.button} onClick={() => window.location.reload()}>
+                                <button className={style.button} onClick={() => {
+                                        clearSavedGame();
+                                        window.location.reload()
+                                    }}>
                                     {gameResult === 'win' ? 'Play Again' : 'Try Again'}
                                 </button>
                                 <Link className={style.button} to="/">BACK</Link>
