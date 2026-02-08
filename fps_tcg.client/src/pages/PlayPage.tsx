@@ -535,6 +535,10 @@ export const PlayPage: FC<PlayPageProps> = (
             giveShieldToAlly(pendingCard || activeCard, dmg);
             break;
 
+        case "guard":
+            giveShieldToAlly(pendingCard || activeCard, dmg);
+            break;
+
         case "heal":
             healAlly(pendingCard || activeCard, dmg);
             break;
@@ -562,7 +566,8 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
         }
 
-        if (enemyTarget && gameStatus !== "gameOver") {
+        const shouldCounterAttack = gameStatus !== "gameOver" && (enemyTarget || allyTarget);
+        if (shouldCounterAttack) {
             setTargetId(null);
             if (!enemyEndedRound) {
                 setTimeout(() => {
