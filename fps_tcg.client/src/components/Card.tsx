@@ -24,6 +24,7 @@ export type CardProps = {
 
     supportCost?:  number,
     supportEffect?: string,
+    supportDescription?: string,
 
     isActive?: boolean,
     isTarget?: boolean,
@@ -76,7 +77,7 @@ const Card: FC<CardProps> = (props) =>{
                 </div>
                 <img className={style.img} src={props.imgSrc} alt="support" />
                 <p className={style.cardName}>{props.name}</p>
-                <p className={style.cardEffect}>{props.supportEffect}</p>
+                <p className={style.cardDescription}>{props.supportDescription}</p>
             </div>
         )
     }
