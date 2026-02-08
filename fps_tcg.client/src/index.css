@@ -22,6 +22,25 @@ body {
   place-items: center;
 }
 
+.music-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  padding: 0.6rem 0.9rem;
+  border: 2px solid var(--gray);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--primary-btn-text);
+  font-family: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.music-toggle:hover {
+  border-color: var(--red);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
