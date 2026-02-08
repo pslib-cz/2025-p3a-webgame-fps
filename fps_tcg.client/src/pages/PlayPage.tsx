@@ -160,27 +160,13 @@ export const PlayPage: FC<PlayPageProps> = (
     }, [])
 
     useEffect(() => {
-        if (restoreGame.current) {
-            restoreGame.current = false;
-            return;
-        }
         if (cards.length === 0 && characterList.length === 0) return;
         const autoSaveTimer = setTimeout(() => {
                 saveGame();
             }, 100);
             
         return () => clearTimeout(autoSaveTimer);
-    }, [cards,          
-    characterList,      
-    activeCard,         
-    activeEnemyId,      
-    deadCards,
-    currentTurn,
-    gameStatus,
-    playerEndedRound,
-    enemyEndedRound,
-    supportHand,
-    supportDeck]);
+    }, [cards, characterList, activeCard, activeEnemyId, deadCards, currentTurn, supportHand, gameStatus, playerEndedRound, enemyEndedRound]);
 
     const rollEnemyDice = (): DiceSymbol[] => {
         const diceTypes: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jester'];
