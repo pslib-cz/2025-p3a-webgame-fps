@@ -2,11 +2,8 @@ import { StrictMode, useEffect, useRef, useState, type ChangeEvent } from 'react
 import HomePage from './pages/HomePage';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import Game from './pages/Game';
-import PlayPage from './pages/PlayPage';
 import DeckPage from './pages/DeckPage';
 import TutorialPage from './pages/TutorialPage';
-import DeckEditPage from './pages/DeckEditPage';
-import DiceRollPage from './pages/DiceRollPage'
 import DeckXPage from './pages/DeckXPage';
 import musicSrc from './musika/MP3_01 In a distant land (Title Screen).mp3';
 

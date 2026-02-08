@@ -434,9 +434,7 @@ export const PlayPage: FC<PlayPageProps> = (
         setStyles(style.supportCards); 
     };
     
-
-
-    const handleAttackMove = async (move: string, dmg: number, cost: number, effect?: string) => {
+    const handleAttackMove = async (dmg: number, cost: number, effect?: string) => {
         if (currentTurn !== 'player') {
             alert("It's enemy turn! Wait for your turn.");
             return;
@@ -853,7 +851,7 @@ export const PlayPage: FC<PlayPageProps> = (
                                 if (!char) return null;
                                 return(
                                 <>
-                                <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Name!, char.skill1Damage!, char.skill1Cost!)}>
+                                <div className={style.moveRowNormal} onClick={() => handleAttackMove(char.skill1Damage!, char.skill1Cost!)}>
                                     <div className={style.iconBlock}>
                                         <div className={style.swordBlock}>
                                             <img className={style.swordIcon} src={dmg} alt="damage"></img>
@@ -868,7 +866,7 @@ export const PlayPage: FC<PlayPageProps> = (
                                     {char.skill1Name}
                                     </div>
                                 </div>
-                                <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Name!, char.skill2Damage!, char.skill2Cost!, char.skill2Effect)}>
+                                <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Damage!, char.skill2Cost!, char.skill2Effect)}>
                                     <div className={style.iconBlock}>
                                         <div className={style.swordBlock}>
                                             <img className={style.swordIcon} src={dmg} alt="damage"></img>
