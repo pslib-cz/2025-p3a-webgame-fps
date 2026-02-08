@@ -130,6 +130,12 @@ export const PlayPage: FC<PlayPageProps> = (
             if(gameState.enemyDice){
                 setEnemyDice([...gameState.enemyDice])
             }
+            if (gameState.cards && gameState.activeEnemyId) {
+                setCards(gameState.cards.map((c: any) => ({
+                    ...c,
+                    isTarget: c.id === gameState.activeEnemyId 
+                })));
+            }
             return true;
         }
         catch(error){
@@ -465,19 +471,12 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         const currentEnemyIsStillAlive = aliveEnemies.some(e => e.id === activeEnemyId);
         if (activeEnemyId === null || !currentEnemyIsStillAlive) {
-            const randomIndex = Math.floor(Math.random() * aliveEnemies.length);
-            setActiveEnemyId(aliveEnemies[randomIndex].id);
+            if(shouldSkipFetch === false || (shouldSkipFetch === true && activeEnemyId === null)){
+                const randomIndex = Math.floor(Math.random() * aliveEnemies.length);
+                setActiveEnemyId(aliveEnemies[randomIndex].id);
+            }
         }
     }, [cards, characterList, activeEnemyId, gameStatus]);
-
-    useEffect(() => {
-        const aliveEnemies = cards.some(c => c.health! > 0);
-
-        if (!aliveEnemies) {
-            const nextEnemy = cards.find(c => c.isAlive && c.health > 0);
-            setActiveEnemyId(nextEnemy ? nextEnemy.id : null);
-        }
-    }, []); 
 
     useEffect(() => {
         if (!firstTurn && !playerEndedRound && currentTurn === 'player' && diceSymbols.length === 0 && gameStatus !== 'gameOver') {
