@@ -31,3 +31,11 @@
 .tutorialTitle {
     justify-self: center;
 }
+
+.img {
+    width: 100%;
+    display: block;
+    margin: 0;
+    padding: 0;
+    -webkit-user-drag: none;
+}

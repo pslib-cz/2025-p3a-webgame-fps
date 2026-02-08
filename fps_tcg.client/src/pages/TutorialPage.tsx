@@ -1,6 +1,8 @@
 import { type FC } from "react"
 import styles from "../styles/TutorialPage.module.css"
 import { Link } from "react-router"
+import imgZones from '../assets/tutorial_zones.jpg'
+import imgDiceRoll from '../assets/tutorial_diceroll.png'
 
 export const TutorialPage: FC = () =>{
     return(
@@ -26,7 +28,7 @@ export const TutorialPage: FC = () =>{
                     </ul>
                     <h3>Match Start</h3>
                     <ol>
-                        <li>The player draw 5 cards from their Draw Pile → this becomes their starting Hand. Then the player may discard any number of cards from their hand and redraw an equal number.</li>
+                        <li>The player draw 2 cards from their Draw Pile → this becomes their starting Hand.</li>
                         <li>The player selects one of their Character Cards to be their Active Character. This character will act first.</li>
                     </ol>
                     <h3>Round Structure</h3>
@@ -37,12 +39,13 @@ export const TutorialPage: FC = () =>{
                             <li>You roll 8 Symbol Dice. Each die can show one of 6 faces: the 5 symbols (Knight, Tank, Mage, Healer, Rogue) plus Jester (which acts as a wildcard).</li>
                             <li>After the initial roll, you may choose any number of dice to reroll once.</li>
                         </ul>
+                        <img className={styles.img} src={imgDiceRoll} alt="Dice Roll" />
                         <li><h3>Action Phase (opponents take turns)</h3></li>
                         <p> Possible actions:</p>
                         <ul>
                             <li>Use Attack — spend required Symbol Dice to use the active character's skill (Normal Attack or Special Skill).</li>
                             <li>Switch Character — spend 1 Symbol Die to swap your Active Character with one on standby.</li>
-                            <li>Play a Support Card — using Symbol Dice to pay the card's cost. This includes gaining buffs, gaining dice, heals, etc.</li>
+                            <li>Play a Support Card — using Symbol Dice to pay the card's cost.</li>
                             <li>Declare Round End — voluntarily end your actions for this round. The first player to declare ends their Round first, and will go first next round; the other can still take actions until they also End Round.</li>
                         </ul>
                         <li><h3>End Phase</h3></li>
@@ -56,10 +59,11 @@ export const TutorialPage: FC = () =>{
                     <p>Here's how cards and game zones work:</p>
                     <ol>
                         <li>Character Zone - Holds your 3 Character Cards. One is “Active” — only Active can act or be attacked. Character has HP and Shield.</li>
-                        <li>Hand - Your current playable Support Cards. Max hand size: 10 cards. Excess drawn cards are discarded.</li>
-                        <li>Draw Pile - Contains the 20 Support Cards (shuffled at start). When you draw, you draw from here.</li>
+                        <li>Hand - Your current playable Support Cards.</li>
+                        <li>Draw Pile - Contains the 6 Support Cards (shuffled at start).</li>
                         <li>Symbol Dice Panel - Displays available Symbol Dice, used as resource to play cards, use skills, switch, etc. Jester dice act as wildcard.</li>
                     </ol>
+                    <img className={styles.img} src={imgZones} alt="Game Zones" />
                 </div>
             </div>
         </div>

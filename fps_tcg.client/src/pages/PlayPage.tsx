@@ -7,6 +7,8 @@ import type { DiceSymbol, Turn, GameStatus, GameResult } from '../types'
 import Dice from '../components/Dice'
 import dmg from '../assets/damage.png'
 import cost from '../assets/price.png'
+import heart from '../assets/heart.png'
+import shild from '../assets/shild.png'
 import type { CardProps } from "../components/Card";
 import { EnemyAI, type EnemyCard } from '../enemy/Enemy';
 import { Link, useNavigate } from 'react-router'
@@ -983,28 +985,23 @@ export const PlayPage: FC<PlayPageProps> = (
                                 <div className={style.moveRowUltimate} onClick={() => handleAttackMove(char.skill2Damage!, char.skill2Cost!, char.skill2Effect)}>
                                     <div className={style.iconBlock}>
                                         <div className={style.swordBlock}>
-                                            <img className={style.swordIcon} src={dmg} alt="damage"></img>
+                                            <img className={style.swordIcon} src={
+                                                char.skill2Effect?.toLowerCase() === "shield" || char.skill2Effect?.toLowerCase() === "defense" ? shild
+                                                : char.skill2Effect?.toLowerCase() === "heal" ? heart
+                                                : dmg
+                                            } alt="damage"></img>
                                             <span className={style.damageValue}>{char.skill2Damage}</span>
                                         </div>
                                         <div className={style.priceBlock}>
                                             <img className={style.costIcon} src={cost} alt='cost'></img>
-                                            <span className={style.costValue}
-                                            style={{
-                                            color:
-                                                char.skill2Effect?.toLowerCase() === "attack"
-                                                ? "#AF0000"
-                                                : char.skill2Effect?.toLowerCase() === "shield"
-                                                ? "#020BA6"
-                                                : char.skill2Effect?.toLowerCase() === "heal"
-                                                ? "#007616"
-                                                : char.skill2Effect?.toLowerCase() === "mage"
-                                                ? "#48047C"
-                                                : char.skill2Effect?.toLowerCase() === "rogue"
-                                                ? "#B97E00"
-                                                : "#F5F5F5",
-                                                WebkitTextStroke: "0.5px black",
-                                            }}
-                                            >{char.skill2Cost}</span>
+                                            <span className={
+                                                char.skill2Effect?.toLowerCase() === "attack" ? style.costValueAttack
+                                                : char.skill2Effect?.toLowerCase() === "shield" ? style.costValueShield
+                                                : char.skill2Effect?.toLowerCase() === "heal" ? style.costValueHeal
+                                                : char.skill2Effect?.toLowerCase() === "mage" ? style.costValueMage
+                                                : char.skill2Effect?.toLowerCase() === "rogue" ? style.costValueRogue
+                                                : style.costValue
+                                            }>{char.skill2Cost}</span>
                                         </div>
                                     </div>
                                     <div className={style.descriptionBlock}>
