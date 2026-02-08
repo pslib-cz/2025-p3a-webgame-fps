@@ -24,11 +24,11 @@ body {
 
 .music-controls {
   position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 1000;
+  bottom: 0px;
+  right: 0px;
+  z-index: 2000;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: flex-end;
   gap: 0.4rem;
 }
@@ -37,12 +37,10 @@ body {
   width: 36px;
   height: 36px;
   border: 2px solid var(--gray);
-  border-radius: 8px;
   background: var(--white);
   color: var(--primary-btn-text);
   font-family: inherit;
   font-size: 1.1rem;
-  line-height: 1;
   cursor: pointer;
 }
 
@@ -56,15 +54,12 @@ body {
   gap: 0.4rem;
   padding: 0.6rem;
   border: 2px solid var(--gray);
-  border-radius: 8px;
   background: var(--white);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
 .music-toggle {
   padding: 0.6rem 0.9rem;
   border: 2px solid var(--gray);
-  border-radius: 6px;
   background: var(--white);
   color: var(--primary-btn-text);
   font-family: inherit;

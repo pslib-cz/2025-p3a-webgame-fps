@@ -20,6 +20,7 @@
     padding: 0.5em 1em;
     text-decoration: none;
     width: fit-content;
+    cursor: pointer;
 }
 
 .name {
@@ -119,4 +120,5 @@
 .saveButton {
     grid-column: span 3;
     justify-self: center;
+    cursor: pointer;
 }

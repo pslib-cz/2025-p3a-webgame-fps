@@ -37,6 +37,7 @@
     text-decoration: none;
     width: fit-content;
     font-family: "Press Start 2P", system-ui;
+    cursor: pointer;
 }
 
 @media (max-width: 1500px) {

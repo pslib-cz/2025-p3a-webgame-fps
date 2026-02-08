@@ -49,6 +49,7 @@
     position: absolute;
     top: 80%;
     left: 100px;
+    cursor: pointer;
 }
 .confirmButton{
     font-family: "Press Start 2P", system-ui;
@@ -64,6 +65,7 @@
     position: absolute;
     top: 85%;
     left: 100px;
+    cursor: pointer;
 }
 .dicePanel{
     background-image: url('../assets/wood-vertical.png');
@@ -127,6 +129,7 @@
     width: 250px;
     height: 40px;
     font-size: 20px;
+    cursor: pointer;
 }
 @media (min-width: 2000px) {
     .deckBox{
@@ -196,6 +199,7 @@
     text-decoration: none;
     width: fit-content;
     font-family: "Press Start 2P", system-ui;
+    cursor: pointer;
 }
 .endScreen{
     position: fixed;

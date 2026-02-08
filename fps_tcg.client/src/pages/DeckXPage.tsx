@@ -54,7 +54,8 @@ const DeckXPage = () => {
                           skill2Effect: c.skill2Effect,
                           skill2Cost: c.skill2Cost,
                           supportCost: c.supportCost ?? 0,
-                          supportEffect: c.supportEffect ?? ''
+                          supportEffect: c.supportEffect ?? '',
+                          supportDescription: c.supportDescription ?? ''
                       } as CardProps))
                     : [];
 
@@ -183,7 +184,8 @@ const DeckXPage = () => {
                 Skill2Damage: 0,
                 Skill2Cost: card.skill2Cost ?? 0,
                 SupportCost: card.supportCost ?? 0,
-                SupportEffect: card.supportEffect ?? ""
+                SupportEffect: card.supportEffect ?? "",
+                SupportDescription: card.supportDescription ?? ""
             }));
     };
 

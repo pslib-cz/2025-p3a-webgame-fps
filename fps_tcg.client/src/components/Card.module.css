@@ -45,10 +45,8 @@
     padding: 5px;
     gap: 15px;
 }
-.cardEffect{
-    padding: 10px;
-    font-size: 12px;
-    border: 1px solid #543A14;
+.cardDescription {
+    
 }
 .img{
     width: 100%;
