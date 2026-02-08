@@ -8,12 +8,14 @@ type HandProps = {
     cards: HandCard[];
     onCharacterActive: (cardId: number, index: number) => void;
     activeCharacterId: number | null;
+    selectedCardId?: number | null;
     mode?: "active" | "target";
 }
 
 const Hand: FC<HandProps> = ({
     cards,
     activeCharacterId,
+    selectedCardId = null,
     onCharacterActive,
     mode = "active"
     }) => {
@@ -27,6 +29,10 @@ const Hand: FC<HandProps> = ({
                     isActive={mode === "active" && card.id === activeCharacterId}
                     isTarget={mode === "target" && card.id === activeCharacterId}
                     isSelected={card.id === activeCharacterId}
+                    isPending={
+                        (mode === "active" && selectedCardId !== null && card.id === selectedCardId) ||
+                        (mode === "target" && selectedCardId !== null && card.id === selectedCardId)
+                    }
                     onClick={() => onCharacterActive(card.id, index)}
                 />
             ))}

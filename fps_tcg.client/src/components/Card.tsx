@@ -28,6 +28,7 @@ export type CardProps = {
 
     isActive?: boolean,
     isTarget?: boolean,
+    isPending?: boolean,
 
     isSelected?: boolean,
     onClick?: () => void
@@ -42,7 +43,7 @@ const Card: FC<CardProps> = (props) =>{
     if(props.type === 'attack'){
         if(props.health !== 0){
             return(
-                <div className={`${style.card} ${style.characterCard} ${cardActive} ${props.isSelected? style.activeCard: ''}`} 
+                <div className={`${style.card} ${style.characterCard} ${cardActive} ${props.isSelected? style.activeCard: ''} ${props.isPending ? style.pendingCard : ''}`}  
                 onClick={props.onClick}>
                     <img className={style.img} src={props.imgSrc} alt="Cat" />
                     <p className={style.cardName}>{props.name}</p>
@@ -55,7 +56,7 @@ const Card: FC<CardProps> = (props) =>{
         }
         if(props.health === 0){
             return(
-                <div className={`${style.deadCard} ${style.characterCard} ${props.isSelected ? style.activeCard : ''}`} onClick={props.onClick}>
+                <div className={`${style.deadCard} ${style.characterCard} ${props.isSelected ? style.activeCard : ''} ${props.isPending ? style.pendingCard : ''}`} onClick={props.onClick}>
                     <img className={style.img} src={props.imgSrc} alt="Cat" />
                     <p className={style.cardName}>{props.name}</p>
                     <div className={style.cardStats}>
@@ -69,7 +70,7 @@ const Card: FC<CardProps> = (props) =>{
     
     if(props.type === 'support'){
         return(
-            <div className={`${style.card} ${style.supportCard} ${props.isSelected? style.activeCard: ''}`} 
+            <div className={`${style.card} ${style.supportCard} ${props.isSelected? style.activeCard: ''} ${props.isPending ? style.pendingCard : ''}`}  
             onClick={props.onClick}>
                 <div className={style.costContainer}>
                     <img className={style.img} src={imgPrice} alt="price"/>
