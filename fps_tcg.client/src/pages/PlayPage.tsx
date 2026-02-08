@@ -944,8 +944,8 @@ export const PlayPage: FC<PlayPageProps> = (
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
-                    <Hand cards={cards} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
-                    <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
+                    <Hand cards={cards} activeCharacterId={activeEnemyId} selectedCardId={targetId} onCharacterActive={handleTargetSelect} mode='target'/>
+                    <Hand cards={characterList} activeCharacterId={activeCard} selectedCardId={pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
                     {showAttackMenu && activeCard != null && !firstTurn && (
                         <div className={style.attackMenu}>
                             {(() => {
