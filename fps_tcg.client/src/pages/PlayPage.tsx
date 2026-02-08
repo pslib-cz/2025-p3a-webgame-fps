@@ -953,8 +953,8 @@ export const PlayPage: FC<PlayPageProps> = (
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>
-                    <Hand cards={cards} activeCharacterId={activeEnemyId} onCharacterActive={handleTargetSelect} mode='target'/>
-                    <Hand cards={characterList} activeCharacterId={activeCard ?? pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
+                    <Hand cards={cards} activeCharacterId={activeEnemyId} selectedCardId={targetId} onCharacterActive={handleTargetSelect} mode='target'/>
+                    <Hand cards={characterList} activeCharacterId={activeCard} selectedCardId={pendingCard} onCharacterActive={handleCharacterSelect} mode='active'/>
                     {showAttackMenu && activeCard != null && !firstTurn && (
                         <div className={style.attackMenu}>
                             {(() => {
@@ -1023,8 +1023,12 @@ export const PlayPage: FC<PlayPageProps> = (
                     )}
                     {showAllSupport &&(
                         <>
-                            <Hand cards={supportHand} activeCharacterId={selectedSup} 
-                            onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}/>
+                            <Hand
+                                cards={supportHand}
+                                activeCharacterId={null}
+                                selectedCardId={selectedSup !== null ? supportHand[selectedSup]?.id ?? null : null}
+                                onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}
+                            />
                             <div className={style.supportButtons}>
                                 <button className={style.supportButton} onClick={handleSupportClose}>CANCEL</button>
                                 <button className={style.supportButton} onClick={playSupport}>PLAY</button>
