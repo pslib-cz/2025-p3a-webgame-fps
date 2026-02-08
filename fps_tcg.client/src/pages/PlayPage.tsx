@@ -68,13 +68,13 @@ export const PlayPage: FC<PlayPageProps> = (
 
     const saveGame = () => {
         const gameState = {
-            cards,
-            characterList,
-            supportHand,
-            supportDeck,
+            cards: JSON.parse(JSON.stringify(cards)),
+            characterList: JSON.parse(JSON.stringify(characterList)),
+            supportHand: JSON.parse(JSON.stringify(supportHand)),
+            supportDeck: JSON.parse(JSON.stringify(supportDeck)),
             activeCard,
             activeEnemyId,
-            deadCards,
+            deadCards: [...deadCards],
             diceSymbols: [...diceSymbols],
             enemyDice: [...enemyDice],
             currentTurn,
@@ -90,10 +90,8 @@ export const PlayPage: FC<PlayPageProps> = (
         }
         try{
             localStorage.setItem('gameProgress', JSON.stringify(gameState))
-            alert('Game saved successfully!');
         } catch(error){
             console.error('Failed to save game:', error);
-            alert('Failed to save game!');
         }
     }
 
@@ -105,19 +103,19 @@ export const PlayPage: FC<PlayPageProps> = (
                 return false;
             }
             const gameState = JSON.parse(saved)
-            setCards(gameState.cards || []);
-            setCharacterList(gameState.characterList || []);
-            setSupportHand(gameState.supportHand || []);
-            setSupportDeck(gameState.supportDeck || []);
-            setActiveCard(gameState.activeCard);
-            setActiveEnemyId(gameState.activeEnemyId);
-            setDeadCards(gameState.deadCards || []);
+            setCards(gameState.cards ? JSON.parse(JSON.stringify(gameState.cards)) : []);
+            setCharacterList(gameState.characterList ? JSON.parse(JSON.stringify(gameState.characterList)) : []);
+            setSupportHand(gameState.supportHand ? JSON.parse(JSON.stringify(gameState.supportHand)) : []);
+            setSupportDeck(gameState.supportDeck ? JSON.parse(JSON.stringify(gameState.supportDeck)) : []);
+            setActiveCard(gameState.activeCard ?? null);
+            setActiveEnemyId(gameState.activeEnemyId ?? null);
+            setDeadCards(gameState.deadCards ? [...gameState.deadCards] : []);
             setCurrentTurn(gameState.currentTurn || 'player');
             setGameStatus(gameState.gameStatus || 'playerTurn');
             setGameResult(gameState.gameResult);
-            setFirstTurn(gameState.firstTurn);
-            setFirstDraw(gameState.firstDraw);
-            setLoadedDeck(gameState.loadedDeck);
+            setFirstTurn(gameState.firstTurn ?? true);
+            setFirstDraw(gameState.firstDraw ?? true);
+            setLoadedDeck(gameState.loadedDeck ?? false);
             setEnemyAttackCounter(gameState.enemyAttackCounter || 0);
             setPlayerEndedRound(gameState.playerEndedRound || false);
             setEnemyEndedRound(gameState.enemyEndedRound || false);
@@ -127,7 +125,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 gameState.diceSymbols.forEach((d: DiceSymbol) => diceSymbols.push(d));
             }
             if(gameState.enemyDice){
-                setEnemyDice(gameState.enemyDice)
+                setEnemyDice([...gameState.enemyDice])
             }
             return true;
         }
@@ -160,26 +158,27 @@ export const PlayPage: FC<PlayPageProps> = (
     }, [])
 
     useEffect(() => {
-        if (!firstTurn && cards.length > 0 && loadedDeck) {
-            const autoSaveTimer = setTimeout(() => {
-                try {
-                    const gameState = {
-                        cards, characterList, supportHand, supportDeck, activeCard,
-                        activeEnemyId, deadCards, diceSymbols: [...diceSymbols], 
-                        enemyDice: [...enemyDice], currentTurn, gameStatus,
-                        firstTurn, firstDraw, loadedDeck, enemyAttackCounter,
-                        playerEndedRound, enemyEndedRound, firstPlayerNextRound
-                    };
-                    localStorage.setItem('gameProgress', JSON.stringify(gameState));
-                    console.log('Auto-saved');
-                } catch (error) {
-                    console.error('Auto-save failed:', error);
-                }
-            }, 500);
-            
-            return () => clearTimeout(autoSaveTimer);
+        if (restoreGame.current) {
+            restoreGame.current = false;
+            return;
         }
-    }, [cards, characterList, activeCard, currentTurn, supportHand, gameStatus]);
+        if (cards.length === 0 && characterList.length === 0) return;
+        const autoSaveTimer = setTimeout(() => {
+                saveGame();
+            }, 100);
+            
+        return () => clearTimeout(autoSaveTimer);
+    }, [cards,          
+    characterList,      
+    activeCard,         
+    activeEnemyId,      
+    deadCards,
+    currentTurn,
+    gameStatus,
+    playerEndedRound,
+    enemyEndedRound,
+    supportHand,
+    supportDeck]);
 
     const rollEnemyDice = (): DiceSymbol[] => {
         const diceTypes: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jester'];
@@ -194,6 +193,7 @@ export const PlayPage: FC<PlayPageProps> = (
     };
 
     const startNewRound = () => {
+        drawSupportCards(1);
         setPlayerEndedRound(false);
         setEnemyEndedRound(false);
         enemyTurnProcessed.current = false;
@@ -764,11 +764,9 @@ export const PlayPage: FC<PlayPageProps> = (
     useEffect(() => {
         if (!loadedDeck) return;
 
-        if (firstTurn && !firstDraw) {
-            drawSupportCards(6);
+        if (firstTurn && !firstDraw && supportHand.length === 0) {
+            drawSupportCards(2);
             setFirstDraw(true)
-        }else if(!firstTurn){
-            drawSupportCards(2)
         }
     }, [firstTurn, loadedDeck])
 
