@@ -26,7 +26,7 @@ const Hand: FC<HandProps> = ({
                     {...card}
                     isActive={mode === "active" && card.id === activeCharacterId}
                     isTarget={mode === "target" && card.id === activeCharacterId}
-                    isSelected={card.id === activeCharacterId || index === activeCharacterId}
+                    isSelected={card.id === activeCharacterId}
                     onClick={() => onCharacterActive(card.id, index)}
                 />
             ))}

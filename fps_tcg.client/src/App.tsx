@@ -16,9 +16,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route index element={<HomePage />} />
-          <Route path='/game/' element={<Game view={'Play'} />}/>
-          <Route path='/game/' element={<PlayPage onCardPicked={() => void {}} diceSymbols={[]} />}/>
-          <Route path='/game/diceRoll' element={<DiceRollPage onRollConfirmed={() => void {}} />}/>
+          <Route path='/game/*' element={<Game view={'Play'} />}/>
           <Route path='/decksEdit/' element={<DeckPage />}/>
           <Route path='/tutorial' element={<TutorialPage />}/>
           <Route path='/decksEdit/:deckId' element={<DeckXPage />}/>

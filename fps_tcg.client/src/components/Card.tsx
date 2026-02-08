@@ -12,6 +12,7 @@ export type CardProps = {
     imgSrc: string,
 
     health?: number,
+    maxHealth?: number,
     shield?: number,
     skill1Name?: string,
     skill1Damage?: number,
@@ -40,7 +41,7 @@ const Card: FC<CardProps> = (props) =>{
     if(props.type === 'attack'){
         if(props.health !== 0){
             return(
-                <div className={`${style.card} ${style.characterCard} ${cardActive}`} 
+                <div className={`${style.card} ${style.characterCard} ${cardActive} ${props.isSelected? style.activeCard: ''}`} 
                 onClick={props.onClick}>
                     <img className={style.img} src={props.imgSrc} alt="Cat" />
                     <p className={style.cardName}>{props.name}</p>
@@ -53,7 +54,7 @@ const Card: FC<CardProps> = (props) =>{
         }
         if(props.health === 0){
             return(
-                <div className={`${style.deadCard} ${style.characterCard} ${props.isSelected ? undefined : ''}`} onClick={props.onClick}>
+                <div className={`${style.deadCard} ${style.characterCard} ${props.isSelected ? style.activeCard : ''}`} onClick={props.onClick}>
                     <img className={style.img} src={props.imgSrc} alt="Cat" />
                     <p className={style.cardName}>{props.name}</p>
                     <div className={style.cardStats}>
