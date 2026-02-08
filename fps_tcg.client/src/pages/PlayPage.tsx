@@ -781,8 +781,8 @@ export const PlayPage: FC<PlayPageProps> = (
     return(
         <div className={style.playPageBody}>
                 <div className={style.deckBox}>
-                    <img src={cardBack90} alt="cardBack" />
-                    <img src={cardBack90} alt="cardBack" />
+                    <img className={style.img} src={cardBack90} alt="cardBack" />
+                    <img className={style.img} src={cardBack90} alt="cardBack" />
                 </div>
                 {enemyDice.length > 0 && (
                     <div className={style.enemyDiceBox}>

@@ -47,8 +47,8 @@ const Card: FC<CardProps> = (props) =>{
                     <img className={style.img} src={props.imgSrc} alt="Cat" />
                     <p className={style.cardName}>{props.name}</p>
                     <div className={style.cardStats}>
-                        <p className={style.health}><img src={imgHeart} alt="heart"></img>{props.health}</p>
-                        <p className={style.shield}><img src={imgShild} alt="shield"></img>{props.shield}</p>
+                        <p className={style.health}><img className={style.img} src={imgHeart} alt="heart"></img>{props.health}</p>
+                        <p className={style.shield}><img className={style.img} src={imgShild} alt="shield"></img>{props.shield}</p>
                     </div>
                 </div>
             )
@@ -59,8 +59,8 @@ const Card: FC<CardProps> = (props) =>{
                     <img className={style.img} src={props.imgSrc} alt="Cat" />
                     <p className={style.cardName}>{props.name}</p>
                     <div className={style.cardStats}>
-                        <p className={style.health}><img src={imgHeart} alt="heart"></img>{props.health}</p>
-                        <p className={style.shield}><img src={imgShild} alt="shield"></img>{props.shield}</p>
+                        <p className={style.health}><img className={style.img} src={imgHeart} alt="heart"></img>{props.health}</p>
+                        <p className={style.shield}><img className={style.img} src={imgShild} alt="shield"></img>{props.shield}</p>
                     </div>
                 </div>
             )
@@ -72,7 +72,7 @@ const Card: FC<CardProps> = (props) =>{
             <div className={`${style.card} ${style.supportCard} ${props.isSelected? style.activeCard: ''}`} 
             onClick={props.onClick}>
                 <div className={style.costContainer}>
-                    <img src={imgPrice} alt="price"/>
+                    <img className={style.img} src={imgPrice} alt="price"/>
                     <p className={style.costTag}>{props.supportCost}</p>
                 </div>
                 <img className={style.img} src={props.imgSrc} alt="support" />
