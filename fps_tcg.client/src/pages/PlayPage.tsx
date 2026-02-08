@@ -451,8 +451,6 @@ export const PlayPage: FC<PlayPageProps> = (
         const enemyTarget = !effectType || effectType === "attack" || effectType === "mage" || effectType === "stealth" || effectType === "rogue";
         const allyTarget = effectType === "shield" || effectType === "heal";
 
-        const aliveEnemies = cards.filter(c => c.isAlive && c.health > 0)
-
         if (effectType === "rogue" && targetId === null) {
             alert("Choose enemy target");
             return;
