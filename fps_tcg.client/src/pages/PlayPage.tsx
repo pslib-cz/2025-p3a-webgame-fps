@@ -529,6 +529,10 @@ export const PlayPage: FC<PlayPageProps> = (
     const handleTargetSelect = (cardId: number) => {
         if (!cardId) return;
 
+        const activeChar = characterList.find(c => c.id === activeCard);
+        const isRogue = activeChar?.skill2Effect?.toLowerCase() === "rogue";
+        if (!isRogue) return;
+
         setCards(prev =>
             prev.map(c => ({
                 ...c,
