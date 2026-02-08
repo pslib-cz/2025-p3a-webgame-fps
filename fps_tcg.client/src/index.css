@@ -22,11 +22,46 @@ body {
   place-items: center;
 }
 
-.music-toggle {
+.music-controls {
   position: fixed;
   top: 16px;
   right: 16px;
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.music-trigger {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--gray);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--primary-btn-text);
+  font-family: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.music-trigger:hover {
+  border-color: var(--red);
+}
+
+.music-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border: 2px solid var(--gray);
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.music-toggle {
   padding: 0.6rem 0.9rem;
   border: 2px solid var(--gray);
   border-radius: 6px;
@@ -39,6 +74,11 @@ body {
 
 .music-toggle:hover {
   border-color: var(--red);
+}
+
+.music-slider {
+  width: 150px;
+  accent-color: var(--red);
 }
 
 @media (prefers-color-scheme: light) {
