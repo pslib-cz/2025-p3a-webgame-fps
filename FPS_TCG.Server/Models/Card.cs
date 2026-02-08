@@ -26,7 +26,7 @@ namespace FPS_TCG.Server.Models
 
         public int SupportCost { get; set; }
         public required string SupportEffect { get; set; }
-
+        public string SupportDescription { get; set; }
 
         public ICollection<Deck> Decks { get; set; } = new List<Deck>();
     }

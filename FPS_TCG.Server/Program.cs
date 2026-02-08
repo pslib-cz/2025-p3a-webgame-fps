@@ -92,6 +92,7 @@ using (var scope = app.Services.CreateScope())
                     Skill2Cost = 4,
                     SupportCost = 0,
                     SupportEffect = "",
+                    SupportDescription = "",
                 };
 
                 db.Cards.Add(card);
