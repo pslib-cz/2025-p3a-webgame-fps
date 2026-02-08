@@ -57,6 +57,11 @@
     margin: 0 auto;
 }
 
+.confirmContainer {
+    display: flex;
+    gap: 2em;
+}
+
 .placeholder {
     background-color: transparent;
     width: 180px;

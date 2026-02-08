@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { type FC } from "react"
 import style from '../styles/PlayPage.module.css'
 import cardBack90 from '../assets/cardback-90.png'
@@ -14,6 +14,8 @@ import { Link, useNavigate } from 'react-router'
 type PlayPageProps = {
     onCardPicked: () => void;
     diceSymbols: DiceSymbol[];
+    enemyDice: DiceSymbol[];
+    setEnemyDice: (value: DiceSymbol[]) => void;
     firstTurn: boolean;
     setFirstTurn: (value: boolean) => void;
     activeCard: number | null;
@@ -39,7 +41,7 @@ type PlayPageProps = {
 }
 
 export const PlayPage: FC<PlayPageProps> = (
-    { onCardPicked, diceSymbols, firstTurn, setFirstTurn, activeCard, setActiveCard, 
+    { onCardPicked, diceSymbols, enemyDice, setEnemyDice, firstTurn, setFirstTurn, activeCard, setActiveCard, 
         deadCards, setDeadCards, cards, setCards, supportHand, setSupportHand, characterList, setCharacterList, firstDraw, setFirstDraw,
         currentTurn, setCurrentTurn, gameStatus, setGameStatus, gameResult, setGameResult, activeEnemyId, setActiveEnemyId
     }) => {
@@ -54,7 +56,82 @@ export const PlayPage: FC<PlayPageProps> = (
     const [supportDeck, setSupportDeck] = useState<CardProps[]>([]);
     const [loadedDeck, setLoadedDeck] = useState(false)
     const [enemyAttackCounter, setEnemyAttackCounter] = useState(0);
+    const [playerEndedRound, setPlayerEndedRound] = useState(false);
+    const [enemyEndedRound, setEnemyEndedRound] = useState(false);
+    const [firstPlayerNextRound, setFirstPlayerNextRound] = useState<Turn>('player');
+    const [enemyTurnReset, setEnemyTurnReset] = useState(0);
+    const enemyTurnProcessed = useRef(false);
+    const playerEndedRoundRef = useRef(false);
+    const enemyEndedRoundRef = useRef(false);
     const navigate = useNavigate();
+
+    const rollEnemyDice = (): DiceSymbol[] => {
+        const diceTypes: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jester'];
+        const rolled: DiceSymbol[] = [];
+        
+        for (let i = 0; i < 8; i++) {
+            const randomIndex = Math.floor(Math.random() * diceTypes.length);
+            rolled.push(diceTypes[randomIndex]);
+        }
+        
+        return rolled;
+    };
+
+    const startNewRound = () => {
+        setPlayerEndedRound(false);
+        setEnemyEndedRound(false);
+        enemyTurnProcessed.current = false;
+        
+        const enemyRoll = rollEnemyDice();
+        setEnemyDice(enemyRoll);
+        
+        setCurrentTurn(firstPlayerNextRound);
+        setGameStatus(firstPlayerNextRound === 'player' ? 'playerTurn' : 'enemyTurn');
+        
+        onCardPicked();
+    };
+
+    const handlePlayerEndRound = () => {
+        if (playerEndedRound || gameStatus === 'gameOver') return;
+        
+        setPlayerEndedRound(true);
+        
+        if (!enemyEndedRound) {
+            setFirstPlayerNextRound('enemy');
+        }
+        
+        if (currentTurn === 'enemy' && !enemyEndedRound) {
+            enemyTurnProcessed.current = false;
+        }
+        
+        if (!enemyEndedRound) {
+            setTimeout(() => {
+                setCurrentTurn('enemy');
+                setGameStatus('enemyTurn');
+            }, 500);
+        } else {
+            setTimeout(() => startNewRound(), 1000);
+        }
+    };
+
+    const handleEnemyEndRound = () => {
+        if (enemyEndedRound || gameStatus === 'gameOver') return;
+        
+        setEnemyEndedRound(true);
+        
+        if (!playerEndedRoundRef.current) {
+            setFirstPlayerNextRound('player');
+        }
+        
+        if (!playerEndedRoundRef.current) {
+            setTimeout(() => {
+                setCurrentTurn('player');
+                setGameStatus('playerTurn');
+            }, 500);
+        } else {
+            setTimeout(() => startNewRound(), 1000);
+        }
+    };
 
     const resolveEnemyActiveCardId = (aliveEnemies: EnemyCard[]) => {
         if (aliveEnemies.length === 0) return null;
@@ -65,7 +142,21 @@ export const PlayPage: FC<PlayPageProps> = (
     };
 
     useEffect(() => {
-        if (currentTurn === 'enemy') {
+        playerEndedRoundRef.current = playerEndedRound;
+        enemyEndedRoundRef.current = enemyEndedRound;
+    }, [playerEndedRound, enemyEndedRound]);
+
+    useEffect(() => {
+        if (currentTurn === 'player') {
+            enemyTurnProcessed.current = false;
+        }
+    }, [currentTurn]);
+
+    useEffect(() => {
+        if (currentTurn === 'enemy' && !enemyEndedRound && gameStatus !== 'gameOver') {
+            if (enemyTurnProcessed.current) return;
+            enemyTurnProcessed.current = true;
+
             const executeEnemyTurn = async () => {
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -74,6 +165,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     name: c.name || 'Enemy',
                     type: c.type || 'attack',
                     health: c.health,
+                    maxHealth: c.maxHealth || c.health,
                     shield: c.shield,
                     skill1Name: c.skill1Name,
                     skill1Damage: c.skill1Damage,
@@ -87,53 +179,80 @@ export const PlayPage: FC<PlayPageProps> = (
 
                 const aliveEnemies = enemyCards.filter(c => c.isAlive && c.health > 0);
                 if (aliveEnemies.length === 0) {
-                    console.log('No alive enemies');
                     setCurrentTurn('player');
                     setGameStatus('playerTurn');
-                    onCardPicked();
                     return;
                 }
 
                 const resolvedEnemyActiveCard = resolveEnemyActiveCardId(aliveEnemies);
-                if (resolvedEnemyActiveCard == null) return;
+                if (resolvedEnemyActiveCard == null) {
+                    return;
+                }
                 setActiveEnemyId(resolvedEnemyActiveCard);
-                const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyAttackCounter);
+                
+                const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyDice, enemyAttackCounter, 0.75);
                 
                 if (activeCard == null) {
-                    console.log('Player has no active card');
                     setCurrentTurn('player');
                     setGameStatus('playerTurn');
-                    onCardPicked();
                     return;
                 }
 
-                const playerActiveCard = characterList.find(c => c.id === activeCard);
-                if (!playerActiveCard || playerActiveCard.health! <= 0) {
-                    console.log('Player active card not found or dead');
-                    setCurrentTurn('player');
-                    setGameStatus('playerTurn');
-                    onCardPicked();
-                    return;
-                }
+                const playerCardsForAI = characterList.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    health: c.health,
+                    maxHealth: c.maxHealth || c.health,
+                    shield: c.shield,
+                    skill1Damage: c.skill1Damage,
+                    skill2Damage: c.skill2Damage,
+                    skill2Effect: c.skill2Effect,
+                    isAlive: (c.health ?? 0) > 0
+                }));
 
-                const attack = ai.evaluateAttack([playerActiveCard]);
+                const action = ai.evaluateAttack(playerCardsForAI, activeCard);
 
-                if (attack) {
-                    console.log('Enemy attacks player active card:', attack);
-                    enemyDmgToPlayer(attack.targetId, attack.damage);
+                if (action) {
+                    if (action.usedDiceIndices && action.usedDiceIndices.length > 0) {
+                        ai.removeDice(action.usedDiceIndices);
+                    }
+                    
+                    if (action.actionType === 'endTurn') {
+                        handleEnemyEndRound();
+                        return;
+                    }
+                    
+                    const newEnemyDice = enemyDice.filter((_: DiceSymbol, idx: number) => !action.usedDiceIndices?.includes(idx));
+                    const remainingDice = newEnemyDice.length;
+                    
+                    setEnemyDice(newEnemyDice);
+                    
+                    handleEnemyAction(action);
                     setEnemyAttackCounter(ai.getTurnCounter());
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    if (remainingDice <= 0) {
+                        handleEnemyEndRound();
+                        return;
+                    }
+                    
+                    if (!playerEndedRoundRef.current) {
+                        enemyTurnProcessed.current = false;
+                        setCurrentTurn('player');
+                        setGameStatus('playerTurn');
+                    } else {
+                        enemyTurnProcessed.current = false;
+                        setEnemyTurnReset(prev => prev + 1);
+                    }
+                } else {
+                    handleEnemyEndRound();
                 }
-
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                setCurrentTurn('player');
-                setGameStatus('playerTurn');
-                onCardPicked();
             };
 
             executeEnemyTurn();
         }
-    }, [currentTurn]);
+    }, [currentTurn, enemyEndedRound, cards, characterList, activeCard, enemyDice, enemyAttackCounter, playerEndedRound, enemyTurnReset]);
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -150,6 +269,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 .map((card: { cardId: any, health: any, shield: any }) => ({
                     ...card,
                     id: card.cardId,
+                    maxHealth: card.health,
                     isTarget: false,
                     isAlive: !deadCards.includes(card.cardId),
                     imgSrc: `https://localhost:7077/api/images/${card.cardId}.png`,
@@ -158,7 +278,6 @@ export const PlayPage: FC<PlayPageProps> = (
                 }));
                 setCards(normalizedCards);
             } catch (error) {
-                console.error('Error fetching cards', error);
             }
         };
         fetchCards();
@@ -179,7 +298,6 @@ export const PlayPage: FC<PlayPageProps> = (
                     throw new Error('Failed to fetch deck')
                 }
                 const data = await response.json();
-                console.log('Raw API response:', data);
                 const cardsArray = Array.isArray(data) ? data : (data.cards || []);
                 const normalizedDeck = cardsArray.map((card: { cardId: number; health: number; shield: number; type: string }) => {
                     const currentCard  = characterList.find(c => c.id === card.cardId);
@@ -195,6 +313,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     return{
                         ...card,
                         id: card.cardId,
+                        maxHealth: card.health,
                         isAlive: !deadCards.includes(card.cardId),
                         health,
                         shield,
@@ -208,9 +327,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 setCharacterList(char);
                 setSupportDeck(supportCards);
                 setLoadedDeck(true);
-                console.log('Deck loaded successfully!');
             } catch(error){
-                console.error('Error fetching deck', error)
             }
         };
         fetchDeck();
@@ -248,7 +365,18 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }, []); 
 
+    useEffect(() => {
+        if (!firstTurn && !playerEndedRound && currentTurn === 'player' && diceSymbols.length === 0 && gameStatus !== 'gameOver') {
+            setTimeout(() => handlePlayerEndRound(), 1000);
+        }
+    }, [diceSymbols.length, currentTurn, playerEndedRound, firstTurn, gameStatus]); 
+
     const handleCharacterSelect = (cardId: number) => {
+        if (currentTurn !== 'player' && !firstTurn) {
+            alert("It's enemy turn! Wait for your turn.");
+            return;
+        }
+
         const card = characterList.find(c => c.id === cardId);
         if (!card) return;
 
@@ -269,7 +397,9 @@ export const PlayPage: FC<PlayPageProps> = (
         if(firstTurn){
             setActiveCard(cardId);
             setTimeout(() => {
-                setFirstTurn(false)
+                setFirstTurn(false);
+                const enemyRoll = rollEnemyDice();
+                setEnemyDice(enemyRoll);
                 onCardPicked();
             }, 800)
         }
@@ -304,66 +434,22 @@ export const PlayPage: FC<PlayPageProps> = (
         setStyles(style.supportCards); 
     };
     
-    const executeEnemyCounterAttack = async (overridePlayerCardId?: number | null, cardsOverride?: any[]) => {
-        const sourceCards = cardsOverride ?? cards;
-        const enemyCards: EnemyCard[] = sourceCards.map(c => ({
-            id: c.id,
-            name: c.name || 'Enemy',
-            type: c.type || 'attack',
-            health: c.health,
-            shield: c.shield,
-            skill1Name: c.skill1Name,
-            skill1Damage: c.skill1Damage,
-            skill1Cost: c.skill1Cost,
-            skill2Name: c.skill2Name,
-            skill2Damage: c.skill2Damage,
-            skill2Cost: c.skill2Cost,
-            skill2Effect: c.skill2Effect,
-            isAlive: c.isAlive
-        }));
 
-        const aliveEnemies = enemyCards.filter(c => c.isAlive && c.health > 0);
-        if (aliveEnemies.length === 0) return;
-
-        const resolvedEnemyActiveCard = resolveEnemyActiveCardId(aliveEnemies);
-        if (resolvedEnemyActiveCard == null) return;
-        if (activeEnemyId !== resolvedEnemyActiveCard) {
-            setActiveEnemyId(resolvedEnemyActiveCard);
-        }
-
-        const playerCardId = overridePlayerCardId ?? activeCard;
-        if (playerCardId == null) return;
-
-        const playerActiveCard = characterList.find(c => c.id === playerCardId);
-        if (!playerActiveCard || playerActiveCard.health! <= 0) return;
-
-        const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyAttackCounter);
-        const attack = ai.evaluateAttack([playerActiveCard]);
-
-        if (attack) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            enemyDmgToPlayer(attack.targetId, attack.damage);
-            setEnemyAttackCounter(ai.getTurnCounter());
-        }
-    };
-
-    const normalizeEffectType = (value?: string) => {
-        if (!value) return undefined;
-        const cleaned = value.toLowerCase().trim();
-        if (cleaned.includes("guard")) return "guard";
-        if (cleaned.includes("shield")) return "shield";
-        if (cleaned.includes("heal")) return "heal";
-        if (cleaned.includes("rogue")) return "rogue";
-        if (cleaned.includes("mage") || cleaned.includes("magic")) return "mage";
-        if (cleaned.includes("attack")) return "attack";
-        if (cleaned.includes("stealth")) return "stealth";
-        return cleaned;
-    };
 
     const handleAttackMove = async (move: string, dmg: number, cost: number, effect?: string) => {
-        const effectType = normalizeEffectType(effect);
-        const enemyTarget = !effectType || effectType === "attack" || effectType === "mage" || effectType === "stealth" || effectType === "rogue" || effectType === "guard";
-        const allyTarget = effectType === "shield" || effectType === "heal" || effectType === "guard";
+        if (currentTurn !== 'player') {
+            alert("It's enemy turn! Wait for your turn.");
+            return;
+        }
+
+        if (playerEndedRound) {
+            alert("You have ended your round. Wait for enemy to finish.");
+            return;
+        }
+
+        const effectType = effect?.toLowerCase()
+        const enemyTarget = !effectType || effectType === "attack" || effectType === "mage" || effectType === "stealth" || effectType === "rogue";
+        const allyTarget = effectType === "shield" || effectType === "heal";
 
         if (effectType === "rogue" && targetId === null) {
             alert("Choose enemy target");
@@ -389,7 +475,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
             const invalid = selectedDice.some(d => 
                 (effectType === "attack" && d !== "Knight" && d !== "Jester") ||
-                ((effectType === "shield" || effectType === "guard") && d !== "Tank" && d !== "Jester") ||
+                (effectType === "shield" && d !== "Tank" && d !== "Jester") ||
                 (effectType === "mage" && d !== "Mage" && d !== "Jester") ||
                 (effectType === "heal" && d !== "Healer" && d !== "Jester") ||
                 (effectType === "rogue" && d !== "Rogue" && d !== "Jester")
@@ -421,10 +507,10 @@ export const PlayPage: FC<PlayPageProps> = (
             setSelectedDiceIndex([])
             setTargetId(null)
         }
-        let updatedEnemyCards: any[] | null = null;
+        
         switch (effectType) {
         case "attack":
-            updatedEnemyCards = dmgDeal(activeEnemyId, dmg) ?? null;
+            dmgDeal(activeEnemyId, dmg);
             break;
 
         case "shield":
@@ -440,35 +526,38 @@ export const PlayPage: FC<PlayPageProps> = (
             break;
 
         case "mage":
-            setCards(prev => prev.map(card => {
-                if (card.type === 'attack' && card.health > 0) {
-                    return applyDmg(card, card.id, dmg);
+            const splashDamage = Math.floor(dmg / 2);
+            setCards(prevCards => {
+                let updatedCards = prevCards;
+                if (activeEnemyId !== null) {
+                    updatedCards = updatedCards.map(c => applyDmg(c, activeEnemyId, dmg));
                 }
-                return card;
-            }));
-            updatedEnemyCards = cards.map(card => {
-                if (card.type === 'attack' && card.health > 0) {
-                    return applyDmg(card, card.id, dmg);
-                }
-                return card;
+                const otherEnemies = updatedCards.filter(c => c.isAlive && c.health > 0 && c.id !== activeEnemyId);
+                otherEnemies.forEach(enemy => {
+                    updatedCards = updatedCards.map(c => applyDmg(c, enemy.id, splashDamage));
+                });
+                return updatedCards;
             });
             break;
 
         case "rogue":
-            updatedEnemyCards = dmgDeal(targetId, dmg) ?? null;
+            dmgDeal(targetId, dmg);
             break;
         default:
-            updatedEnemyCards = dmgDeal(activeEnemyId, dmg) ?? null;
+            dmgDeal(activeEnemyId, dmg);
             break;
         }
 
         const shouldCounterAttack = gameStatus !== "gameOver" && (enemyTarget || allyTarget);
         if (shouldCounterAttack) {
             setTargetId(null);
-            const cardsForCounter = updatedEnemyCards ?? cards;
-            await executeEnemyCounterAttack(undefined, cardsForCounter);
+            if (!enemyEndedRound) {
+                setTimeout(() => {
+                    setCurrentTurn('enemy');
+                    setGameStatus('enemyTurn');
+                }, 500);
+            }
         }
-        console.log(move)
     }
 
     const giveShieldToAlly = (id: number | null, value: number) => {
@@ -492,6 +581,11 @@ export const PlayPage: FC<PlayPageProps> = (
     };
 
     const playSupport = () => {
+        if (currentTurn !== 'player') {
+            alert("It's enemy turn! Wait for your turn.");
+            return;
+        }
+
         if(selectedSup == null) return;
 
         const support = supportHand[selectedSup];
@@ -525,8 +619,6 @@ export const PlayPage: FC<PlayPageProps> = (
             const diceToGive = effectToDice[effectName];
             
             diceSymbols.push(diceToGive);
-            
-            console.log(`Added dice from support: ${diceToGive}`);
         }
 
         setSupportHand(prev => prev.filter(c => c.id !== selectedSup));
@@ -588,6 +680,47 @@ export const PlayPage: FC<PlayPageProps> = (
         }
     }
 
+    const handleEnemyAction = (action: any) => {
+        switch (action.actionType) {
+            case 'attack':
+                enemyDmgToPlayer(action.targetId, action.damage);
+                break;
+            case 'heal':
+                enemyHealSelf(action.targetId, action.healAmount);
+                break;
+            case 'shield':
+                enemyShieldSelf(action.targetId, action.shieldAmount);
+                break;
+            case 'switch':
+                if (action.newActiveCardId) {
+                    setActiveEnemyId(action.newActiveCardId);
+                }
+                break;
+        }
+    }
+
+    const enemyHealSelf = (id: number | null, healValue: number) => {
+        if (id == null) return;
+        setCards(prev => prev.map(c => {
+            if (c.id === id) {
+                const maxHealth = c.maxHealth || c.health;
+                const newHealth = Math.min(c.health + healValue, maxHealth);
+                return { ...c, health: newHealth };
+            }
+            return c;
+        }));
+    }
+
+    const enemyShieldSelf = (id: number | null, shieldValue: number) => {
+        if (id == null) return;
+        setCards(prev => prev.map(c => {
+            if (c.id === id) {
+                return { ...c, shield: c.shield + shieldValue };
+            }
+            return c;
+        }));
+    }
+
     const applyDmg = (c: { id: any; shield: number; health: number }, id: number, dmg: number) => {
         if(c.id !== id) return c;
         let shield = c.shield ?? 0;
@@ -600,7 +733,6 @@ export const PlayPage: FC<PlayPageProps> = (
         health = Math.max(0, health - remaining)
 
         if(health === 0 && c.health > 0){
-            console.log('Card died:', c);
             setDeadCards(prev => [...prev, c.id])
         }
 
@@ -618,14 +750,14 @@ export const PlayPage: FC<PlayPageProps> = (
         const remaining = dmg - shieldDmg;
         health = Math.max(0, health - remaining)
 
-        if(health === 0 && c.health > 0){
-            console.log('Player card died:', c);
-        }
-
         return{...c, shield, health, isAlive: health > 0}
     }
 
     const handleDiceClick = (index: number) => {
+        if (currentTurn !== 'player') {
+            return;
+        }
+
         const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu
 
         if(!showAttackMenu && !showAllSupport && !pendingCard){
@@ -654,16 +786,35 @@ export const PlayPage: FC<PlayPageProps> = (
                     <img src={cardBack90} alt="cardBack" />
                     <img src={cardBack90} alt="cardBack" />
                 </div>
+                {enemyDice.length > 0 && (
+                    <div className={style.enemyDiceBox}>
+                        <div>Enemy Dice: {enemyDice.length}</div>
+                        {enemyEndedRound && (
+                            <div className={style.enemyEndRoundBanner}>Enemy ended round</div>
+                        )}
+                    </div>
+                )}
+                {!firstTurn && (
+                    <div className={style.turnIndicator}>
+                        <div>Current turn: {currentTurn === 'player' ? 'Player' : 'Enemy'}</div>
+                        {playerEndedRound && (
+                            <div className={style.playerEndRoundBanner}>You ended round</div>
+                        )}
+                        {playerEndedRound && enemyEndedRound && (
+                            <div className={style.startingNewRoundBanner}>Starting new round...</div>
+                        )}
+                    </div>
+                )}
                 <button className={style.endRoundButton} onClick={() => {
-                if (!firstTurn) {
-                        setCurrentTurn('player');
-                        setGameStatus('playerTurn');
+                    if (!firstTurn && !playerEndedRound) {
+                        handlePlayerEndRound();
                         setShowAttackMenu(false);
                         setAttackMenu(null);
-                        onCardPicked();
                     }
-                }}>END ROUND</button>
-                {!firstTurn && pendingCard && (
+                }} disabled={playerEndedRound}>
+                    {playerEndedRound ? 'WAITING...' : 'END ROUND'}
+                </button>
+                {!firstTurn && pendingCard && !playerEndedRound && (
                     <button className={style.confirmButton} 
                     onClick={async () => {
                         const deadActiveCard = activeCard !== null && characterList.find(c => c.id === activeCard)?.health! <= 0;
@@ -684,7 +835,12 @@ export const PlayPage: FC<PlayPageProps> = (
                         setPendingCard(null);
                         setShowAttackMenu(false)
 
-                        await executeEnemyCounterAttack(pendingCard);
+                        if (!deadActiveCard && !enemyEndedRound) {
+                            setTimeout(() => {
+                                setCurrentTurn('enemy');
+                                setGameStatus('enemyTurn');
+                            }, 500);
+                        }
                         }}>CONFIRM</button>
                 )}
                 <div className={style.playPanel}>

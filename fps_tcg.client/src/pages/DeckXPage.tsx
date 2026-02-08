@@ -23,9 +23,11 @@ const DeckXPage = () => {
     const [selectedType, setSelectedType] = useState<CardType | null>(null);
     const [selectedAttackIds, setSelectedAttackIds] = useState<number[]>([]);
     const [originalAttackIds, setOriginalAttackIds] = useState<number[]>([]);
+    const [tempAttackIds, setTempAttackIds] = useState<number[]>([]);
     const [showAttackContainer, setShowAttackContainer] = useState(false);
     const [selectedSupportIds, setSelectedSupportIds] = useState<number[]>([]);
     const [originalSupportIds, setOriginalSupportIds] = useState<number[]>([]);
+    const [tempSupportIds, setTempSupportIds] = useState<number[]>([]);
     const [showSupportContainer, setShowSupportContainer] = useState(false);
     const [existingDeck, setExistingDeck] = useState<DeckData | null>(null);
 
@@ -102,6 +104,9 @@ const DeckXPage = () => {
     }, [cards, deckId, isNewDeck, numericDeckId]);
 
     const handleAttackClick = () => {
+        if (!showAttackContainer) {
+            setTempAttackIds([...selectedAttackIds]);
+        }
         setShowAttackContainer(!showAttackContainer);
         setSelectedType('attack');
     };
@@ -119,7 +124,15 @@ const DeckXPage = () => {
         setShowAttackContainer(false);
     };
 
+    const handleCancelAttack = () => {
+        setSelectedAttackIds([...tempAttackIds]);
+        setShowAttackContainer(false);
+    };
+
     const handleSupportClick = () => {
+        if (!showSupportContainer) {
+            setTempSupportIds([...selectedSupportIds]);
+        }
         setShowSupportContainer(!showSupportContainer);
         setSelectedType('support');
     };
@@ -133,6 +146,11 @@ const DeckXPage = () => {
     };
 
     const handleConfirmSupport = () => {
+        setShowSupportContainer(false);
+    };
+
+    const handleCancelSupport = () => {
+        setSelectedSupportIds([...tempSupportIds]);
         setShowSupportContainer(false);
     };
 
@@ -170,6 +188,16 @@ const DeckXPage = () => {
     };
 
     const handleSaveDeck = async () => {
+        if (selectedAttackIds.length !== 3) {
+            alert('Deck must have 3 attack cards!');
+            return;
+        }
+        
+        if (selectedSupportIds.length !== 6) {
+            alert('Deck must have 6 support cards!');
+            return;
+        }
+
         const trimmedDeckName = deckName === '' ? "New Deck" : deckName.slice(0, 15);
         
         const deckData = {
@@ -301,9 +329,9 @@ const DeckXPage = () => {
                             ))
                         }
                     </div>
-                    <div>
-                        <span className={styles.button} onClick={handleAttackClick}>CANCEL</span>
-                        {selectedAttackIds.length > 0 && (
+                    <div className={styles.confirmContainer}>
+                        <span className={styles.button} onClick={handleCancelAttack}>CANCEL</span>
+                        {selectedAttackIds.length > 2 && (
                             <span className={styles.button} onClick={handleConfirmAttack}>CONFIRM</span>
                         )}
                     </div>
@@ -334,13 +362,15 @@ const DeckXPage = () => {
                             ))
                         }
                     </div>
-                    <span className={styles.button} onClick={handleSupportClick}>CANCEL</span>
-                    {selectedSupportIds.length > 0 && (
-                        <span className={styles.button} onClick={handleConfirmSupport}>CONFIRM</span>
-                    )}
+                    <div className={styles.confirmContainer}>
+                        <span className={styles.button} onClick={handleCancelSupport}>CANCEL</span>
+                        {selectedSupportIds.length > 5 && (
+                            <span className={styles.button} onClick={handleConfirmSupport}>CONFIRM</span>
+                        )}
+                    </div>
                 </div>
             )}
-            {selectedAttackIds.length > 0 && hasChanges() && (
+            {hasChanges() && (
                 <span className={`${styles.button} ${styles.saveButton}`} onClick={handleSaveDeck}>SAVE</span>
             )}
         </div>

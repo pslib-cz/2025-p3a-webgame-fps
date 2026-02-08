@@ -1,24 +1,27 @@
 @media (min-width: 1300px) {
     .playPageBody{
         grid-template-rows: 1fr;
+        min-height: -webkit-fill-available;
+        zoom: 0.7;
     }
     .deckBox img{
         width: 50%;
     }
 }
-@media (max-width: 1300px) {
-    .deckBox{
-        width: 20%;
+@media (min-width: 769px){
+     .playPageBody{
+        zoom: 0.6;
+        min-height: -webkit-fill-available;
+     }
+}
+@media (min-width: 1400px) {
+    .playPageBody{
+        zoom: 0.8;
     }
-    .playPageBody > .supportCards{
-        top: 75%;
-        left: 60%;
-    }
-    .playPageBody > .endRoundButton{
-        width: 200px;
-    }
-    .playPageBody > .confirmButton{
-        width: 200px;
+}
+@media (min-width: 1600px) {
+    .playPageBody{
+        zoom: normal;
     }
 }
 .playPageBody{
@@ -224,4 +227,37 @@
     gap: 2em;
     flex-direction: column;
     align-items: center;
+}
+.enemyDiceBox {
+    position: absolute;
+    top: 20px;
+    right: 150px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1em;
+    color: white;
+    z-index: 100;
+}
+.turnIndicator {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 1em;
+    color: white;
+    z-index: 100;
+}
+.enemyEndRoundBanner {
+     margin-top: 5px; 
+     color: #ff6b6b;
+     font-weight: bold;
+}
+.playerEndRoundBanner {
+    margin-top: 5px; 
+    color: #4ecdc4;
+    font-weight: bold;
+}
+.startingNewRoundBanner {
+    margin-top: 5px; 
+    color: #ffe66d;
+    font-weight: bold;
 }
