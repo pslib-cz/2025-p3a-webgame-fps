@@ -26,6 +26,8 @@ const DicePage: FC<DicePageProps> = ({ onRollConfirmed, onSymbolsRolled }) => {
         setSelected(prev => prev.map((sel, i) => i === index ? !sel : sel));
     };
 
+    const hasSelected = selected.some(Boolean);
+
     const handleConfirm = () => {
         const newSymbols = diceSymbols.map((sym, i) => selected[i] ? getRandomSymbol() : sym);
         setDiceSymbols(newSymbols);
@@ -54,7 +56,7 @@ const DicePage: FC<DicePageProps> = ({ onRollConfirmed, onSymbolsRolled }) => {
                     ))}
                 </div>
                 <button className={style.confirmButton} onClick={handleConfirm}>
-                    CONFIRM
+                    {hasSelected ? 'REROLL' : 'CONFIRM'}
                 </button>
             </div>
         </div>   
