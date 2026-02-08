@@ -25,6 +25,9 @@ RUN dotnet restore
 # Copy server source
 COPY FPS_TCG.Server/ ./
 
+# Copy Images folder
+COPY FPS_TCG.Server/Images ./Images
+
 # Copy built client files to wwwroot
 COPY --from=client-build /app/client/dist ./wwwroot
 
@@ -38,8 +41,11 @@ WORKDIR /app
 # Copy published app
 COPY --from=server-build /app/publish .
 
+# Copy Images folder to runtime
+COPY --from=server-build /app/server/Images ./Images
+
 # Create directory for database
-RUN mkdir -p /app/data
+RUN mkdir -p /data
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:8080
