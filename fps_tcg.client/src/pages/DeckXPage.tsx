@@ -170,6 +170,16 @@ const DeckXPage = () => {
     };
 
     const handleSaveDeck = async () => {
+        if (selectedAttackIds.length !== 3) {
+            alert('Deck musí mít přesně 3 útočné karty!');
+            return;
+        }
+        
+        if (selectedSupportIds.length !== 6) {
+            alert('Deck musí mít přesně 6 supportních karet!');
+            return;
+        }
+
         const trimmedDeckName = deckName === '' ? "New Deck" : deckName.slice(0, 15);
         
         const deckData = {
@@ -301,7 +311,7 @@ const DeckXPage = () => {
                             ))
                         }
                     </div>
-                    <div>
+                    <div className={styles.confirmContainer}>
                         <span className={styles.button} onClick={handleAttackClick}>CANCEL</span>
                         {selectedAttackIds.length > 2 && (
                             <span className={styles.button} onClick={handleConfirmAttack}>CONFIRM</span>
@@ -334,10 +344,12 @@ const DeckXPage = () => {
                             ))
                         }
                     </div>
-                    <span className={styles.button} onClick={handleSupportClick}>CANCEL</span>
-                    {selectedSupportIds.length > 5 && (
-                        <span className={styles.button} onClick={handleConfirmSupport}>CONFIRM</span>
-                    )}
+                    <div className={styles.confirmContainer}>
+                        <span className={styles.button} onClick={handleSupportClick}>CANCEL</span>
+                        {selectedSupportIds.length > 5 && (
+                            <span className={styles.button} onClick={handleConfirmSupport}>CONFIRM</span>
+                        )}
+                    </div>
                 </div>
             )}
             {hasChanges() && (
