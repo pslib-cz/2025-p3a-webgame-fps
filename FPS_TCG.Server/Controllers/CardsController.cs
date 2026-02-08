@@ -68,6 +68,43 @@ namespace FPS_TCG.Server.Controllers
             return Ok(cards);
         }
 
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] Card updated)
+        {
+            if (updated == null)
+                return BadRequest();
+
+            if (string.IsNullOrWhiteSpace(updated.Name))
+                return BadRequest(new { error = "Name is required." });
+
+            var typeNormalized = updated.Type?.Trim().ToLowerInvariant();
+            if (typeNormalized != "attack" && typeNormalized != "support")
+                return BadRequest(new { error = "type must be either 'attack' or 'support'." });
+
+            var existing = await _db.Cards.FirstOrDefaultAsync(c => c.CardId == id);
+            if (existing == null)
+                return NotFound();
+
+            existing.Name = updated.Name.Trim();
+            existing.Type = typeNormalized;
+            existing.Health = updated.Health;
+            existing.Shield = updated.Shield;
+            existing.Skill1Name = updated.Skill1Name;
+            existing.Skill1Damage = updated.Skill1Damage;
+            existing.Skill1Cost = updated.Skill1Cost;
+            existing.Skill2Name = updated.Skill2Name;
+            existing.Skill2Effect = updated.Skill2Effect;
+            existing.Skill2Damage = updated.Skill2Damage;
+            existing.Skill2Cost = updated.Skill2Cost;
+            existing.SupportCost = updated.SupportCost;
+            existing.SupportEffect = updated.SupportEffect;
+            existing.SupportDescription = updated.SupportDescription;
+
+            await _db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Card>> GetByIdAsync(int id)
         {

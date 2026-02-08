@@ -22,7 +22,7 @@ export const TutorialPage: FC = () =>{
                     <h3>Deck Composition</h3>
                     <ul>
                         <li>3 Character Cards</li>
-                        <li>20 Support Cards (give specific buffs, dice, heals, etc.)</li>
+                        <li>6 Support Cards (gives dices)</li>
                     </ul>
                     <h3>Match Start</h3>
                     <ol>
@@ -47,7 +47,7 @@ export const TutorialPage: FC = () =>{
                         </ul>
                         <li><h3>End Phase</h3></li>
                         <ul>
-                            <li>Each player draws 2 cards from their Draw Pile (if cards remain).</li>
+                            <li>Each player automatically gets new support cards</li>
                             <li>Proceed to next Round.</li>
                         </ul>
                     </ol>
