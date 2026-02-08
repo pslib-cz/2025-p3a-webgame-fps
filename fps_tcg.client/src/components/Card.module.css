@@ -46,7 +46,10 @@
     gap: 15px;
 }
 .cardDescription {
-    
+    text-align: start;
+    color: var(--white);
+    font-size: 12px;
+    margin: 0;
 }
 .img{
     width: 100%;
@@ -54,6 +57,7 @@
     margin: 0;
     padding: 0; 
     image-rendering: pixelated;
+    -webkit-user-drag: none;
 }
 .activeCard{
     border: 8px solid #023C0D;
