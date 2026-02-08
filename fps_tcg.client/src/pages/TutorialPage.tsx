@@ -62,6 +62,7 @@ export const TutorialPage: FC = () =>{
                     </ol>
                         <h3>Ultimate attacks description</h3>
                         <ul>
+                            <li><b>Normal Attack</b> Basic attack with no special effect can be used without the need for specific Symbol Dice</li>
                             <li><b>Knight-Strike</b> More powerful single target attack</li>
                             <li><b>Tank-Guard</b>  A defensive skill that adds shield to one of the players cards (player can choose the target)</li>
                             <li><b>Mage-Fireball</b>  An area attack that damages all opponent characters</li>
