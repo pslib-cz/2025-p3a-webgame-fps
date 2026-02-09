@@ -1022,7 +1022,7 @@ export const PlayPage: FC<PlayPageProps> = (
                         <>
                             <Hand
                                 cards={supportHand}
-                                activeCharacterId={null}
+                                activeCharacterId={selectedSup}
                                 selectedCardId={selectedSup !== null ? supportHand[selectedSup]?.id ?? null : null}
                                 onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}
                             />
