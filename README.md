@@ -4,9 +4,9 @@ Animalgedon TCG
 
 - Backend: Sebastian Rybář 
 
-- Frontend: Petr Larionov
+- Frontend(Herní page): Petr Larionov
 
-- Logika hry: František Svatoš
+- Frontend(Deck + Enemy): František Svatoš
 
 Nastavení hry
   - Před začátkem zápasu si hráč připraví balíček karet. 
