@@ -30,10 +30,6 @@
     </ProjectReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="my.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties appsetings_1development_1json__JsonSchema="https://www.schemastore.org/appsettings.json" /></VisualStudio></ProjectExtensions>
 
 </Project>
