@@ -1021,9 +1021,12 @@ export const PlayPage: FC<PlayPageProps> = (
                     {showAllSupport &&(
                         <>
                             <Hand
-                                cards={supportHand}
-                                activeCharacterId={selectedSup}
-                                selectedCardId={selectedSup !== null ? supportHand[selectedSup]?.id ?? null : null}
+                                cards={supportHand.map((card, idx) => ({
+                                    ...card,
+                                    id: idx
+                                }))}
+                                activeCharacterId={null}
+                                selectedCardId={selectedSup}
                                 onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}
                             />
                             <div className={style.supportButtons}>
