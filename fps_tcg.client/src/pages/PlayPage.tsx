@@ -212,7 +212,7 @@ export const PlayPage: FC<PlayPageProps> = (
         setPlayerEndedRound(true);
         
         if (!enemyEndedRound) {
-            setFirstPlayerNextRound('enemy');
+            setFirstPlayerNextRound('player');
         }
         
         if (currentTurn === 'enemy' && !enemyEndedRound) {
@@ -235,7 +235,7 @@ export const PlayPage: FC<PlayPageProps> = (
         setEnemyEndedRound(true);
         
         if (!playerEndedRoundRef.current) {
-            setFirstPlayerNextRound('player');
+            setFirstPlayerNextRound('enemy');
         }
         
         if (!playerEndedRoundRef.current) {
