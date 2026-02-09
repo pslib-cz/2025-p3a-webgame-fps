@@ -218,6 +218,11 @@ export const PlayPage: FC<PlayPageProps> = (
     const handlePlayerEndRound = () => {
         if (playerEndedRound || gameStatus === 'gameOver') return;
         
+        if (isActiveCardDead()) {
+            alert("Your active card is dead! You must switch to another card before ending the round.");
+            return;
+        }
+        
         if (pendingSupportEffect && pendingSupportCardIndex !== null) {
             alert(`You must select a target for ${pendingSupportEffect}!`);
             return;
@@ -245,6 +250,11 @@ export const PlayPage: FC<PlayPageProps> = (
 
     const handleEnemyEndRound = () => {
         if (enemyEndedRound || gameStatus === 'gameOver') return;
+        
+        if (isActiveCardDead()) {
+            setEnemyEndedRound(true);
+            return;
+        }
         
         setEnemyEndedRound(true);
         
@@ -505,9 +515,16 @@ export const PlayPage: FC<PlayPageProps> = (
 
         const isDead = card.health! <= 0;
 
-        if (isDead) {
-            alert("This card is defeated.");
-            return;
+        if (isActiveCardDead()) {
+            if (isDead) {
+                alert("This card is defeated. Choose a living card.");
+                return;
+            }
+        } else {
+            if (isDead) {
+                alert("This card is defeated.");
+                return;
+            }
         }
 
         if (pendingSupportEffect && pendingSupportCardIndex !== null) {
@@ -577,6 +594,11 @@ export const PlayPage: FC<PlayPageProps> = (
     }  
     
     const handleSupportClick = () => {
+        if (isActiveCardDead()) {
+            alert("Your active card is dead! Switch to another card first.");
+            return;
+        }
+
         if (pendingSupportEffect && pendingSupportCardIndex !== null) {
             alert(`You must select a target for ${pendingSupportEffect}!`);
             return;
@@ -591,6 +613,11 @@ export const PlayPage: FC<PlayPageProps> = (
     };
     
     const handleAttackMove = async (dmg: number, cost: number, effect?: string) => {
+        if (isActiveCardDead()) {
+            alert("Your active card is dead! Switch to another card first.");
+            return;
+        }
+
         if (currentTurn !== 'player') {
             alert("It's enemy turn! Wait for your turn.");
             return;
@@ -953,6 +980,12 @@ export const PlayPage: FC<PlayPageProps> = (
         return arr.filter((_, i) => !indexes.includes(i)) 
     }
 
+    const isActiveCardDead = (): boolean => {
+        if (activeCard === null) return false;
+        const activeCard_obj = characterList.find(c => c.id === activeCard);
+        return activeCard_obj ? activeCard_obj.health! <= 0 : false;
+    }
+
     return(
         <div className={style.playPageBody}>
                 <div className={style.deckBox}>
@@ -973,7 +1006,10 @@ export const PlayPage: FC<PlayPageProps> = (
                         {playerEndedRound && (
                             <div className={style.playerEndRoundBanner}>You ended round</div>
                         )}
-                        {playerEndedRound && enemyEndedRound && (
+                        {playerEndedRound && enemyEndedRound && isActiveCardDead() && (
+                            <div className={style.startingNewRoundBanner}>Choose a new active card to continue</div>
+                        )}
+                        {playerEndedRound && enemyEndedRound && !isActiveCardDead() && (
                             <div className={style.startingNewRoundBanner}>Starting new round...</div>
                         )}
                     </div>
@@ -1008,7 +1044,9 @@ export const PlayPage: FC<PlayPageProps> = (
                         setAttackMenu(pendingCard)
                         setPendingCard(null);
 
-                        if (!deadActiveCard && !enemyEndedRound) {
+                        if (playerEndedRound && enemyEndedRound) {
+                            setTimeout(() => startNewRound(), 500);
+                        } else if (!deadActiveCard && !enemyEndedRound) {
                             setTimeout(() => {
                                 setCurrentTurn('enemy');
                                 setGameStatus('enemyTurn');
