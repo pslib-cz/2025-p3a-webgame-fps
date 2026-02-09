@@ -81,7 +81,7 @@ export const TutorialPage: FC = () =>{
                             <li><b>Starting a match:</b><p>Go back to the main page and click Start New Game. Click on one of your three cards to set it active. After you did that you will roll eight dices which you can reroll by clicking on them.</p></li>
                             <li><b>Valid Moves:</b>
                             <ul>
-                                <li>Click on your card to see available actions, after that, choose the amount of dices it costs and click on the ability you want to use. Skill2 can be performed only with specific symbol dice (the color on the top right of the attack) but skill1 can be used with any dice.</li>
+                                <li>Click on your card to see available actions, after that, choose the amount of dices it costs and click on the ability you want to use. Skill2 can be performed only with specific symbol dice (the color of the number on top right of the attack) but skill1 can be used with any dice.</li>
                                 <li>Click on one of your non-active character cards, choose one dice, and switch your active card by clicking on the confirm button on the left bottom.</li>
                                 <li>Click on the deck of support cards on the bottom right, click on a symbol you want to exchange, click on the dice you want to exchange and click play.</li>
                             </ul>
@@ -90,7 +90,7 @@ export const TutorialPage: FC = () =>{
                         </ol>
                 </div>
             </div>
-        </div>
+        </div>  
     )
 }
 export default TutorialPage;
