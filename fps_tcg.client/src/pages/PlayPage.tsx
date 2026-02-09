@@ -940,6 +940,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
                         setSelectedDiceIndex([])
                         setActiveCard(pendingCard); 
+                        setAttackMenu(pendingCard)
                         setPendingCard(null);
 
                         if (!deadActiveCard && !enemyEndedRound) {
