@@ -515,7 +515,6 @@ export const PlayPage: FC<PlayPageProps> = (
         else {
             setPendingCard(cardId);
             if (!showAttackMenu) {
-                setShowAttackMenu(false);
                 setAttackMenu(null);
             }
         }
@@ -706,16 +705,7 @@ export const PlayPage: FC<PlayPageProps> = (
             alert(`You need ${support.supportCost} dice to play this support card!`);
             return;
         }
-
-        const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
-        diceSymbols.length = 0;
-        for (let i = 0; i < newDice.length; i++) {
-            diceSymbols.push(newDice[i]);
-        }
-        setSelectedDiceIndex([]);
-
-        setSupportHand(prev => prev.filter((_, i) => i !== selectedSup));
-
+      
         const effectToDice: Record<string, DiceSymbol> = {
             stealth: "Rogue",
             attack: "Knight",
@@ -724,14 +714,22 @@ export const PlayPage: FC<PlayPageProps> = (
             heal: "Healer",
             Jester: 'Jester'
         };
-
+        
         if (support.supportEffect?.startsWith("give_")) {
             const effectName  = support.supportEffect.split("_")[1];
             const diceToGive = effectToDice[effectName];
             
             diceSymbols.push(diceToGive);
         }
-
+        
+        const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
+        diceSymbols.length = 0;
+        for (let i = 0; i < newDice.length; i++) {
+            diceSymbols.push(newDice[i]);
+        }
+        setSelectedDiceIndex([]);
+        
+        setSupportHand(prev => prev.filter((_, i) => i !== selectedSup));
         setSupportHand(prev => prev.filter(c => c.id !== selectedSup));
         
         setSelectedSup(null)
@@ -867,7 +865,7 @@ export const PlayPage: FC<PlayPageProps> = (
             return;
         }
 
-        const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu
+        const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu || showAllSupport
 
         if(!showAttackMenu && !showAllSupport && !pendingCard){
             alert("Click on your active card to show menu of attacks")
@@ -942,7 +940,6 @@ export const PlayPage: FC<PlayPageProps> = (
                         setSelectedDiceIndex([])
                         setActiveCard(pendingCard); 
                         setPendingCard(null);
-                        setShowAttackMenu(false)
 
                         if (!deadActiveCard && !enemyEndedRound) {
                             setTimeout(() => {
