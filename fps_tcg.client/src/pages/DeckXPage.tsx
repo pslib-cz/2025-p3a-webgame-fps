@@ -260,9 +260,15 @@ const DeckXPage = () => {
                 console.log('Deck saved with ID:', savedDeck.deckId);
                 
                 const storedIds = JSON.parse(localStorage.getItem('deckIds') || '[]');
+                const isFirstDeck = storedIds.length === 0;
+                
                 if (!storedIds.includes(savedDeck.deckId)) {
                     storedIds.push(savedDeck.deckId);
                     localStorage.setItem('deckIds', JSON.stringify(storedIds));
+                }
+  
+                if (isFirstDeck) {
+                    localStorage.setItem('activeDeck', JSON.stringify(savedDeck));
                 }
 
                 if (isNewDeck) {
