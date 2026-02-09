@@ -55,6 +55,9 @@ export const PlayPage: FC<PlayPageProps> = (
     const [targetId, setTargetId] = useState<number | null>(null);
     const [supportDeck, setSupportDeck] = useState<CardProps[]>([]);
     const [loadedDeck, setLoadedDeck] = useState(false)
+    const [pendingSupportEffect, setPendingSupportEffect] = useState<string | null>(null)
+    const [pendingSupportCardIndex, setPendingSupportCardIndex] = useState<number | null>(null)
+    const [pendingSupportDiceIndices, setPendingSupportDiceIndices] = useState<number[]>([])
     const [enemyAttackCounter, setEnemyAttackCounter] = useState(0);
     const [playerEndedRound, setPlayerEndedRound] = useState(false);
     const [enemyEndedRound, setEnemyEndedRound] = useState(false);
@@ -87,7 +90,10 @@ export const PlayPage: FC<PlayPageProps> = (
             enemyAttackCounter,
             playerEndedRound,
             enemyEndedRound,
-            firstPlayerNextRound
+            firstPlayerNextRound,
+            pendingSupportEffect,
+            pendingSupportCardIndex,
+            pendingSupportDiceIndices
         }
         try{
             localStorage.setItem('gameProgress', JSON.stringify(gameState))
@@ -121,6 +127,9 @@ export const PlayPage: FC<PlayPageProps> = (
             setPlayerEndedRound(gameState.playerEndedRound || false);
             setEnemyEndedRound(gameState.enemyEndedRound || false);
             setFirstPlayerNextRound(gameState.firstPlayerNextRound || 'player');
+            setPendingSupportEffect(gameState.pendingSupportEffect || null);
+            setPendingSupportCardIndex(gameState.pendingSupportCardIndex || null);
+            setPendingSupportDiceIndices(gameState.pendingSupportDiceIndices || []);
             if(gameState.diceSymbols){
                 diceSymbols.length = 0;
                 gameState.diceSymbols.forEach((d: DiceSymbol) => diceSymbols.push(d));
@@ -177,7 +186,7 @@ export const PlayPage: FC<PlayPageProps> = (
             }, 100);
             
         return () => clearTimeout(autoSaveTimer);
-    }, [cards, characterList, activeCard, activeEnemyId, deadCards, currentTurn, supportHand, gameStatus, playerEndedRound, enemyEndedRound]);
+    }, [cards, characterList, activeCard, activeEnemyId, deadCards, currentTurn, supportHand, gameStatus, playerEndedRound, enemyEndedRound, pendingSupportEffect, pendingSupportCardIndex, pendingSupportDiceIndices]);
 
     const rollEnemyDice = (): DiceSymbol[] => {
         const diceTypes: DiceSymbol[] = ['Knight', 'Tank', 'Mage', 'Healer', 'Rogue', 'Jester'];
@@ -208,6 +217,11 @@ export const PlayPage: FC<PlayPageProps> = (
 
     const handlePlayerEndRound = () => {
         if (playerEndedRound || gameStatus === 'gameOver') return;
+        
+        if (pendingSupportEffect && pendingSupportCardIndex !== null) {
+            alert(`You must select a target for ${pendingSupportEffect}!`);
+            return;
+        }
         
         setPlayerEndedRound(true);
         
@@ -496,6 +510,27 @@ export const PlayPage: FC<PlayPageProps> = (
             return;
         }
 
+        if (pendingSupportEffect && pendingSupportCardIndex !== null) {
+            
+            if (pendingSupportEffect === "heal") {
+                healAlly(cardId, 1);
+            } else if (pendingSupportEffect === "shield") {
+                giveShieldToAlly(cardId, 1);
+            }
+            
+            const newDice = diceIndexDel(diceSymbols, pendingSupportDiceIndices);
+            diceSymbols.length = 0;
+            for (let i = 0; i < newDice.length; i++) {
+                diceSymbols.push(newDice[i]);
+            }
+            
+            setSupportHand(prev => prev.filter((_, i) => i !== pendingSupportCardIndex));
+            setPendingSupportEffect(null);
+            setPendingSupportCardIndex(null);
+            setPendingSupportDiceIndices([]);
+            return;
+        }
+
         if(cardId == activeCard){
             setPendingCard(null);
             setShowAttackMenu(true);
@@ -513,6 +548,10 @@ export const PlayPage: FC<PlayPageProps> = (
             }, 800)
         }
         else {
+            if (pendingSupportEffect && pendingSupportCardIndex !== null) {
+                alert(`You must select a target for ${pendingSupportEffect}!`);
+                return;
+            }
             setPendingCard(cardId);
             if (!showAttackMenu) {
                 setShowAttackMenu(false)
@@ -538,6 +577,10 @@ export const PlayPage: FC<PlayPageProps> = (
     }  
     
     const handleSupportClick = () => {
+        if (pendingSupportEffect && pendingSupportCardIndex !== null) {
+            alert(`You must select a target for ${pendingSupportEffect}!`);
+            return;
+        }
         setShowAllSupport(true);
         setStyles(style.supportCardsOpen)
     }
@@ -555,6 +598,11 @@ export const PlayPage: FC<PlayPageProps> = (
 
         if (playerEndedRound) {
             alert("You have ended your round. Wait for enemy to finish.");
+            return;
+        }
+
+        if (pendingSupportEffect && pendingSupportCardIndex !== null) {
+            alert(`You must select a target for ${pendingSupportEffect}!`);
             return;
         }
 
@@ -697,6 +745,11 @@ export const PlayPage: FC<PlayPageProps> = (
             return;
         }
 
+        if (pendingSupportEffect && pendingSupportCardIndex !== null) {
+            alert(`You must select a target for ${pendingSupportEffect}!`);
+            return;
+        }
+
         if(selectedSup == null) return;
 
         const support = supportHand[selectedSup];
@@ -715,6 +768,18 @@ export const PlayPage: FC<PlayPageProps> = (
             heal: "Healer",
             Jester: 'Jester'
         };
+        
+        if (support.supportEffect?.toLowerCase() === "heal" || support.supportEffect?.toLowerCase() === "shield") {
+            setPendingSupportEffect(support.supportEffect.toLowerCase());
+            setPendingSupportCardIndex(selectedSup);
+            setPendingSupportDiceIndices(selectedDiceIndex);
+            setSelectedSup(null);
+            setShowAllSupport(false);
+            setStyles(style.supportCards);
+            setSelectedDiceIndex([]);
+            alert(`Select a character card to ${support.supportEffect.toLowerCase()}`);
+            return;
+        }
         
         if (support.supportEffect?.startsWith("give_")) {
             const effectName  = support.supportEffect.split("_")[1];
@@ -922,7 +987,7 @@ export const PlayPage: FC<PlayPageProps> = (
                 }} disabled={playerEndedRound}>
                     {playerEndedRound ? 'WAITING...' : 'END ROUND'}
                 </button>
-                {!firstTurn && pendingCard && !playerEndedRound && (
+                {!firstTurn && pendingCard && !playerEndedRound && !pendingSupportEffect && (
                     <button className={style.confirmButton} 
                     onClick={async () => {
                         const deadActiveCard = activeCard !== null && characterList.find(c => c.id === activeCard)?.health! <= 0;
