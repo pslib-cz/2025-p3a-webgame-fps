@@ -192,7 +192,7 @@ export const PlayPage: FC<PlayPageProps> = (
     };
 
     const startNewRound = () => {
-        drawSupportCards(2)
+        drawSupportCards(1)
         setPlayerEndedRound(false);
         setEnemyEndedRound(false);
         enemyTurnProcessed.current = false;
@@ -515,6 +515,7 @@ export const PlayPage: FC<PlayPageProps> = (
         else {
             setPendingCard(cardId);
             if (!showAttackMenu) {
+                setShowAttackMenu(false)
                 setAttackMenu(null);
             }
         }
@@ -701,7 +702,7 @@ export const PlayPage: FC<PlayPageProps> = (
         const support = supportHand[selectedSup];
         if (!support) return;
 
-        if (selectedDiceIndex.length < support.supportCost!) {
+        if (selectedDiceIndex.length < support.supportCost! || selectedDiceIndex.length > support.supportCost!) {
             alert(`You need ${support.supportCost} dice to play this support card!`);
             return;
         }
@@ -939,6 +940,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
                         setSelectedDiceIndex([])
                         setActiveCard(pendingCard); 
+                        setAttackMenu(pendingCard)
                         setPendingCard(null);
 
                         if (!deadActiveCard && !enemyEndedRound) {
@@ -1021,9 +1023,12 @@ export const PlayPage: FC<PlayPageProps> = (
                     {showAllSupport &&(
                         <>
                             <Hand
-                                cards={supportHand}
-                                activeCharacterId={selectedSup}
-                                selectedCardId={selectedSup !== null ? supportHand[selectedSup]?.id ?? null : null}
+                                cards={supportHand.map((card, idx) => ({
+                                    ...card,
+                                    id: idx
+                                }))}
+                                activeCharacterId={null}
+                                selectedCardId={selectedSup}
                                 onCharacterActive={(_, index) => setSelectedSup(prev => prev === index ? null : index)}
                             />
                             <div className={style.supportButtons}>
