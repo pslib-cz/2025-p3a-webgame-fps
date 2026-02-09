@@ -16,6 +16,11 @@
     color: var(--white);
 }
 
+.tutorialContent p,
+.tutorialContent li {
+    line-height: 1.35;
+}
+
 .button {
     border: 1px solid var(--primary-btn-text);
     background-color: var(--white);
