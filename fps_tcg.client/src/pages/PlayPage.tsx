@@ -701,7 +701,7 @@ export const PlayPage: FC<PlayPageProps> = (
         const support = supportHand[selectedSup];
         if (!support) return;
 
-        if (selectedDiceIndex.length < support.supportCost!) {
+        if (selectedDiceIndex.length < support.supportCost! || selectedDiceIndex.length > support.supportCost!) {
             alert(`You need ${support.supportCost} dice to play this support card!`);
             return;
         }
