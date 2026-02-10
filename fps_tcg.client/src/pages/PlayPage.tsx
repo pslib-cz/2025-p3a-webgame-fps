@@ -295,6 +295,8 @@ export const PlayPage: FC<PlayPageProps> = (
         if (currentTurn === 'enemy' && isActiveCardDead()) {
             setCurrentTurn('player');
             setGameStatus('playerTurn');
+            setActiveCard(null);
+            setPlayerEndedRound(false);
             enemyTurnProcessed.current = false;
             return;
         }
@@ -341,6 +343,7 @@ export const PlayPage: FC<PlayPageProps> = (
                     setCurrentTurn('player');
                     setGameStatus('playerTurn');
                     setActiveCard(null);
+                    setPlayerEndedRound(false);
                     return;
                 }
 
@@ -400,7 +403,7 @@ export const PlayPage: FC<PlayPageProps> = (
 
             executeEnemyTurn();
         }
-    }, [currentTurn, enemyEndedRound, cards, characterList, activeCard, enemyDice, enemyAttackCounter, playerEndedRound, enemyTurnReset]);
+    }, [currentTurn, enemyEndedRound, gameStatus, cards, characterList, activeCard, enemyDice, enemyAttackCounter, playerEndedRound, enemyTurnReset]);
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -528,6 +531,7 @@ export const PlayPage: FC<PlayPageProps> = (
             setPendingCard(null);
             setShowAttackMenu(false);
             setAttackMenu(null);
+            setPlayerEndedRound(false);
             return;
         }
     
