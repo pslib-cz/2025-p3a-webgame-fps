@@ -595,17 +595,17 @@ export const PlayPage: FC<PlayPageProps> = (
     
     const handleTargetSelect = (cardId: number) => {
         if (!cardId) return;
-    
-        if (isActiveCardDead()) {
-            alert("Your active card is dead! Switch to another card first.");
+
+        if (!canPerformActions()) {
+            alert("You must have an active card to perform actions!");
             return;
         }
-    
+
         const activeChar = characterList.find(c => c.id === activeCard);
         const isRogue = activeChar?.skill2Effect?.toLowerCase() === "rogue";
-    
+
         if (!isRogue) return;
-    
+
         setCards(prev =>
             prev.map(c => ({
                 ...c,
@@ -616,8 +616,8 @@ export const PlayPage: FC<PlayPageProps> = (
     };
     
     const handleSupportClick = () => {
-        if (isActiveCardDead()) {
-            alert("Your active card is dead! Switch to another card first.");
+        if (!canPerformActions()) {
+            alert("You must have an active card to perform actions!");
             return;
         }
     
@@ -635,21 +635,21 @@ export const PlayPage: FC<PlayPageProps> = (
     };
     
     const handleAttackMove = async (dmg: number, cost: number, effect?: string) => {
-        if (isActiveCardDead()) {
-            alert("Your active card is dead! Switch to another card first.");
+        if (!canPerformActions()) {
+            alert("You must have an active card to perform actions!");
             return;
         }
-
+    
         if (currentTurn !== 'player') {
             alert("It's enemy turn! Wait for your turn.");
             return;
         }
-
+    
         if (playerEndedRound) {
             alert("You have ended your round. Wait for enemy to finish.");
             return;
         }
-
+    
         if (pendingSupportEffect && pendingSupportCardIndex !== null) {
             alert(`You must select a target for ${pendingSupportEffect}!`);
             return;
@@ -979,20 +979,20 @@ export const PlayPage: FC<PlayPageProps> = (
         if (currentTurn !== 'player') {
             return;
         }
-    
-        if (isActiveCardDead()) {
-            alert("Your active card is dead! Switch to another card first.");
+
+        if (!canPerformActions()) {
+            alert("You must have an active card to perform actions!");
             return;
         }
-    
+
         const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu || showAllSupport;
-    
+
         if (!showAttackMenu && !showAllSupport && !pendingCard) {
             alert("Click on your active card to show menu of attacks");
         }
-    
+
         if (!diceSel) return;
-    
+
         if (diceSel) {
             setSelectedDiceIndex(prev =>
                 prev.includes(index)
@@ -1012,6 +1012,15 @@ export const PlayPage: FC<PlayPageProps> = (
         const activeCard_obj = characterList.find(c => c.id === activeCard);
         return activeCard_obj ? activeCard_obj.health! <= 0 : false;
     }
+
+    const canPerformActions = (): boolean => {
+        if (activeCard === null) return false;
+        
+        const activeCard_obj = characterList.find(c => c.id === activeCard);
+        if (!activeCard_obj || activeCard_obj.health! <= 0) return false;
+        
+        return true;
+    };
 
     return(
         <div className={style.playPageBody}>
@@ -1043,15 +1052,15 @@ export const PlayPage: FC<PlayPageProps> = (
                 )}
                 <button className={style.endRoundButton} onClick={() => {
                     if (!firstTurn && !playerEndedRound) {
-                        if (isActiveCardDead()) {
-                            alert("Your active card is dead! Switch to another card first.");
+                        if (!canPerformActions()) {
+                            alert("You must have an active card to end the round!");
                             return;
                         }
                         handlePlayerEndRound();
                         setShowAttackMenu(false);
                         setAttackMenu(null);
                     }
-                }} disabled={playerEndedRound || isActiveCardDead()}>
+                }} disabled={playerEndedRound || !canPerformActions()}>
                     {playerEndedRound ? 'WAITING...' : 'END ROUND'}
                 </button>
                 {!firstTurn && pendingCard && !playerEndedRound && !pendingSupportEffect && (
