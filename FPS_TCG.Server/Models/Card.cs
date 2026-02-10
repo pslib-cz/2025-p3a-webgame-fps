@@ -28,10 +28,6 @@ namespace FPS_TCG.Server.Models
         public required string SupportEffect { get; set; }
         public string? SupportDescription { get; set; }
 
-        public byte[]? ImageData { get; set; }
-        public string? ImageContentType { get; set; }
-        public string? ImageFileName { get; set; }
-
         public List<Deck> Decks { get; set; } = new();
     }
 }
