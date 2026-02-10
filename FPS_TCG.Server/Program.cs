@@ -51,7 +51,7 @@ using (var scope = app.Services.CreateScope())
         var cardsBefore = await db.Cards.CountAsync();
         logger.LogInformation("Cards count before seed: {count}", cardsBefore);
 
-        const string seedCardName = "Heal";
+        const string seedCardName = "Shield";
         var exists = await db.Cards.AnyAsync(c => c.Name == seedCardName);
         if (!exists)
         {
@@ -91,8 +91,8 @@ using (var scope = app.Services.CreateScope())
                     Skill2Damage = 0,
                     Skill2Cost = 0,
                     SupportCost = 1,
-                    SupportEffect = "heal",
-                    SupportDescription = "Heals for 1 point",
+                    SupportEffect = "shield",
+                    SupportDescription = "Shields for 1 point",
                 };
 
                 db.Cards.Add(card);
