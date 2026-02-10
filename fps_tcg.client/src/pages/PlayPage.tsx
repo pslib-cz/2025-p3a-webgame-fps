@@ -595,11 +595,17 @@ export const PlayPage: FC<PlayPageProps> = (
     
     const handleTargetSelect = (cardId: number) => {
         if (!cardId) return;
-
+    
+        if (isActiveCardDead()) {
+            alert("Your active card is dead! Switch to another card first.");
+            return;
+        }
+    
         const activeChar = characterList.find(c => c.id === activeCard);
         const isRogue = activeChar?.skill2Effect?.toLowerCase() === "rogue";
+    
         if (!isRogue) return;
-
+    
         setCards(prev =>
             prev.map(c => ({
                 ...c,
@@ -607,21 +613,21 @@ export const PlayPage: FC<PlayPageProps> = (
             }))
         );
         setTargetId(prev => (prev === cardId ? null : cardId));
-    }  
+    };
     
     const handleSupportClick = () => {
         if (isActiveCardDead()) {
             alert("Your active card is dead! Switch to another card first.");
             return;
         }
-
+    
         if (pendingSupportEffect && pendingSupportCardIndex !== null) {
             alert(`You must select a target for ${pendingSupportEffect}!`);
             return;
         }
         setShowAllSupport(true);
-        setStyles(style.supportCardsOpen)
-    }
+        setStyles(style.supportCardsOpen);
+    };
 
     const handleSupportClose = () =>{
         setShowAllSupport(false);
@@ -973,23 +979,28 @@ export const PlayPage: FC<PlayPageProps> = (
         if (currentTurn !== 'player') {
             return;
         }
-
-        const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu || showAllSupport
-
-        if(!showAttackMenu && !showAllSupport && !pendingCard){
-            alert("Click on your active card to show menu of attacks")
+    
+        if (isActiveCardDead()) {
+            alert("Your active card is dead! Switch to another card first.");
+            return;
         }
-
-        if(!diceSel) return
-
-        if(diceSel){
+    
+        const diceSel = pendingCard !== null || selectedSup !== null || showAttackMenu || showAllSupport;
+    
+        if (!showAttackMenu && !showAllSupport && !pendingCard) {
+            alert("Click on your active card to show menu of attacks");
+        }
+    
+        if (!diceSel) return;
+    
+        if (diceSel) {
             setSelectedDiceIndex(prev =>
                 prev.includes(index)
                     ? prev.filter(i => i !== index)
                     : [...prev, index]
             );
         }
-    }
+    };
 
     const diceIndexDel = (arr: DiceSymbol[], indexes: number[]) => { 
         if(indexes === null) return arr; 
@@ -1032,6 +1043,10 @@ export const PlayPage: FC<PlayPageProps> = (
                 )}
                 <button className={style.endRoundButton} onClick={() => {
                     if (!firstTurn && !playerEndedRound) {
+                        if (isActiveCardDead()) {
+                            alert("Your active card is dead! Switch to another card first.");
+                            return;
+                        }
                         handlePlayerEndRound();
                         setShowAttackMenu(false);
                         setAttackMenu(null);
