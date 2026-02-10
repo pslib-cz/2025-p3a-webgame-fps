@@ -335,14 +335,16 @@ export const PlayPage: FC<PlayPageProps> = (
                     return;
                 }
                 setActiveEnemyId(resolvedEnemyActiveCard);
-                
-                const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyDice, enemyAttackCounter, 0.75);
-                
-                if (activeCard == null) {
+
+                const activePlayerCard = characterList.find((c: any) => c.id === activeCard);
+                if (activeCard == null || !activePlayerCard || (activePlayerCard.health ?? 0) <= 0) {
                     setCurrentTurn('player');
                     setGameStatus('playerTurn');
+                    setActiveCard(null);
                     return;
                 }
+
+                const ai = new EnemyAI(enemyCards, resolvedEnemyActiveCard, enemyDice, enemyAttackCounter, 0.75);
 
                 const playerCardsForAI = characterList.map(c => ({
                     id: c.id,
@@ -512,30 +514,34 @@ export const PlayPage: FC<PlayPageProps> = (
     }, [diceSymbols.length, currentTurn, playerEndedRound, firstTurn, gameStatus]); 
 
     const handleCharacterSelect = (cardId: number) => {
-        if (currentTurn !== 'player' && !firstTurn && !isActiveCardDead()) {
-            alert("It's enemy turn! Wait for your turn.");
-            return;
-        }
-
         const card = characterList.find(c => c.id === cardId);
         if (!card) return;
-
+    
         const isDead = card.health! <= 0;
-
+    
         if (isActiveCardDead()) {
             if (isDead) {
                 alert("This card is defeated. Choose a living card.");
                 return;
             }
-        } else {
-            if (isDead) {
-                alert("This card is defeated.");
-                return;
-            }
+            setActiveCard(cardId);
+            setPendingCard(null);
+            setShowAttackMenu(false);
+            setAttackMenu(null);
+            return;
         }
-
+    
+        if (currentTurn !== 'player' && !firstTurn) {
+            alert("It's enemy turn! Wait for your turn.");
+            return;
+        }
+    
+        if (isDead) {
+            alert("This card is defeated.");
+            return;
+        }
+    
         if (pendingSupportEffect && pendingSupportCardIndex !== null) {
-            
             if (pendingSupportEffect === "heal") {
                 healAlly(cardId, 1);
             } else if (pendingSupportEffect === "shield") {
@@ -554,35 +560,34 @@ export const PlayPage: FC<PlayPageProps> = (
             setPendingSupportDiceIndices([]);
             return;
         }
-
-        if(cardId == activeCard){
+    
+        if (cardId == activeCard) {
             setPendingCard(null);
             setShowAttackMenu(true);
             setAttackMenu(cardId);
             return;
         }
-
-        if(firstTurn){
+    
+        if (firstTurn) {
             setActiveCard(cardId);
             setTimeout(() => {
                 setFirstTurn(false);
                 const enemyRoll = rollEnemyDice();
                 setEnemyDice(enemyRoll);
                 onCardPicked();
-            }, 800)
-        }
-        else {
+            }, 800);
+        } else {
             if (pendingSupportEffect && pendingSupportCardIndex !== null) {
                 alert(`You must select a target for ${pendingSupportEffect}!`);
                 return;
             }
             setPendingCard(cardId);
             if (!showAttackMenu) {
-                setShowAttackMenu(false)
+                setShowAttackMenu(false);
                 setAttackMenu(null);
             }
         }
-    }
+    };
     
     const handleTargetSelect = (cardId: number) => {
         if (!cardId) return;
