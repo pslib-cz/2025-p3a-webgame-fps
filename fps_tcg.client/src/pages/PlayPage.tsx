@@ -1043,21 +1043,22 @@ export const PlayPage: FC<PlayPageProps> = (
                     <button className={style.confirmButton} 
                     onClick={async () => {
                         const deadActiveCard = activeCard !== null && characterList.find(c => c.id === activeCard)?.health! <= 0;
-                        if(!deadActiveCard && selectedDiceIndex.length === 0) { 
-                            alert("Choose dice to switch!");
-                            return;
-                        }  
-                        if(!deadActiveCard){
+                        
+                        if (!deadActiveCard) {
+                            if (selectedDiceIndex.length === 0) { 
+                                alert("Choose dice to switch!");
+                                return;
+                            }
                             const newDice = diceIndexDel(diceSymbols, selectedDiceIndex);
                             diceSymbols.length = 0; 
-                            for(let i = 0; i < newDice.length; i++) {
+                            for (let i = 0; i < newDice.length; i++) {
                                 diceSymbols.push(newDice[i]);
                             }
                         }
 
-                        setSelectedDiceIndex([])
+                        setSelectedDiceIndex([]);
                         setActiveCard(pendingCard); 
-                        setAttackMenu(pendingCard)
+                        setAttackMenu(pendingCard);
                         setPendingCard(null);
 
                         if (playerEndedRound && enemyEndedRound) {
@@ -1068,7 +1069,9 @@ export const PlayPage: FC<PlayPageProps> = (
                                 setGameStatus('enemyTurn');
                             }, 500);
                         }
-                        }}>CONFIRM</button>
+                    }}>
+                        CONFIRM
+                    </button>
                 )}
                 <div className={style.playPanel}>
                     <Hand cards={cards} activeCharacterId={activeEnemyId} selectedCardId={targetId} onCharacterActive={handleTargetSelect} mode='target'/>
