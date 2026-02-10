@@ -292,6 +292,13 @@ export const PlayPage: FC<PlayPageProps> = (
     }, [currentTurn]);
 
     useEffect(() => {
+        if (currentTurn === 'enemy' && isActiveCardDead()) {
+            setCurrentTurn('player');
+            setGameStatus('playerTurn');
+            enemyTurnProcessed.current = false;
+            return;
+        }
+
         if (currentTurn === 'enemy' && !enemyEndedRound && gameStatus !== 'gameOver') {
             if (enemyTurnProcessed.current) return;
             enemyTurnProcessed.current = true;
@@ -505,7 +512,7 @@ export const PlayPage: FC<PlayPageProps> = (
     }, [diceSymbols.length, currentTurn, playerEndedRound, firstTurn, gameStatus]); 
 
     const handleCharacterSelect = (cardId: number) => {
-        if (currentTurn !== 'player' && !firstTurn) {
+        if (currentTurn !== 'player' && !firstTurn && !isActiveCardDead()) {
             alert("It's enemy turn! Wait for your turn.");
             return;
         }
@@ -1020,7 +1027,7 @@ export const PlayPage: FC<PlayPageProps> = (
                         setShowAttackMenu(false);
                         setAttackMenu(null);
                     }
-                }} disabled={playerEndedRound}>
+                }} disabled={playerEndedRound || isActiveCardDead()}>
                     {playerEndedRound ? 'WAITING...' : 'END ROUND'}
                 </button>
                 {!firstTurn && pendingCard && !playerEndedRound && !pendingSupportEffect && (
