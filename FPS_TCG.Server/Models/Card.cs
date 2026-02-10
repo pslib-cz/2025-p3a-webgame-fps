@@ -20,14 +20,14 @@ namespace FPS_TCG.Server.Models
         public required int Skill1Cost { get; set; }
 
         public required string Skill2Name { get; set; }
-        public required string Skill2Effect { get; set; }
-        public required int Skill2Damage { get; set; }
+        public string? Skill2Effect { get; set; }
+        public int Skill2Damage { get; set; }
         public required int Skill2Cost { get; set; }
 
         public int SupportCost { get; set; }
         public required string SupportEffect { get; set; }
-        public string SupportDescription { get; set; }
+        public string? SupportDescription { get; set; }
 
-        public ICollection<Deck> Decks { get; set; } = new List<Deck>();
+        public List<Deck> Decks { get; set; } = new();
     }
 }

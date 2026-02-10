@@ -22,6 +22,7 @@ namespace FPS_TCG.Server.Controllers
             _db = db;
         }
 
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Card card)
         {
